@@ -9,10 +9,10 @@ Requirements for initial launchable release. Each maps to roadmap phases.
 
 ### Gateway & Core
 
-- [ ] **GATE-01**: Edge gateway on Cloudflare Workers + Hono routes requests to connectors based on URL pattern `/v1/:connector/:action`
-- [ ] **GATE-02**: Every response follows a consistent envelope format `{ ok, data, error, meta }` regardless of connector
-- [ ] **GATE-03**: Error responses include machine-parseable error code, human-readable message, and agent-actionable hint (retry, auth, abort)
-- [ ] **GATE-04**: Response flattening layer transforms nested upstream API responses into flat, predictable JSON with essential fields only
+- [x] **GATE-01**: Edge gateway on Cloudflare Workers + Hono routes requests to connectors based on URL pattern `/v1/:connector/:action`
+- [x] **GATE-02**: Every response follows a consistent envelope format `{ ok, data, error, meta }` regardless of connector
+- [x] **GATE-03**: Error responses include machine-parseable error code, human-readable message, and agent-actionable hint (retry, auth, abort)
+- [x] **GATE-04**: Response flattening layer transforms nested upstream API responses into flat, predictable JSON with essential fields only
 - [ ] **GATE-05**: Health check endpoint at `/status` returns service health including upstream connector reachability
 - [ ] **GATE-06**: Each connector action has an agent-optimized description of ~50-100 tokens that enables accurate tool use
 
@@ -22,8 +22,8 @@ Requirements for initial launchable release. Each maps to roadmap phases.
 - [ ] **CONN-02**: Slack connector supports at least 3 actions: send message, list channels, search messages
 - [ ] **CONN-03**: Stripe connector supports at least 3 actions covering payments, customers, and invoices
 - [ ] **CONN-04**: Discord connector supports at least 5 actions covering send messages, list/manage channels, manage roles, and basic moderation
-- [ ] **CONN-05**: Connector SDK defines a standard interface (`ConnectorDefinition`, `ActionDefinition`) that all connectors implement
-- [ ] **CONN-06**: Connector SDK uses only Web Standard APIs (fetch, Request, Response, crypto) — no Cloudflare-specific bindings in connector code
+- [x] **CONN-05**: Connector SDK defines a standard interface (`ConnectorDefinition`, `ActionDefinition`) that all connectors implement
+- [x] **CONN-06**: Connector SDK uses only Web Standard APIs (fetch, Request, Response, crypto) — no Cloudflare-specific bindings in connector code
 
 ### Authentication & Security
 
@@ -128,18 +128,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GATE-01 | Phase 1: Edge Gateway Foundation | Pending |
-| GATE-02 | Phase 1: Edge Gateway Foundation | Pending |
-| GATE-03 | Phase 1: Edge Gateway Foundation | Pending |
-| GATE-04 | Phase 1: Edge Gateway Foundation | Pending |
+| GATE-01 | Phase 1: Edge Gateway Foundation | Complete |
+| GATE-02 | Phase 1: Edge Gateway Foundation | Complete |
+| GATE-03 | Phase 1: Edge Gateway Foundation | Complete |
+| GATE-04 | Phase 1: Edge Gateway Foundation | Complete |
 | GATE-05 | Phase 3: GitHub Connector | Pending |
 | GATE-06 | Phase 5: OAuth Connectors | Pending |
 | CONN-01 | Phase 3: GitHub Connector | Pending |
 | CONN-02 | Phase 5: OAuth Connectors | Pending |
 | CONN-03 | Phase 5: OAuth Connectors | Pending |
 | CONN-04 | Phase 5: OAuth Connectors | Pending |
-| CONN-05 | Phase 1: Edge Gateway Foundation | Pending |
-| CONN-06 | Phase 1: Edge Gateway Foundation | Pending |
+| CONN-05 | Phase 1: Edge Gateway Foundation | Complete |
+| CONN-06 | Phase 1: Edge Gateway Foundation | Complete |
 | AUTH-01 | Phase 2: Auth Vault | Pending |
 | AUTH-02 | Phase 2: Auth Vault | Pending |
 | AUTH-03 | Phase 5: OAuth Connectors | Pending |

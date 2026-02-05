@@ -12,7 +12,7 @@ Feelr delivers an agent-friendly API simplification layer in 10 phases, progress
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Edge Gateway Foundation** - Hono gateway skeleton with routing, response envelope, error format, and Connector SDK types
+- [x] **Phase 1: Edge Gateway Foundation** - Hono gateway skeleton with routing, response envelope, error format, and Connector SDK types
 - [ ] **Phase 2: Auth Vault** - Encrypted credential storage with API key management, Durable Objects token coordinator, and auto-refresh
 - [ ] **Phase 3: GitHub Connector** - First end-to-end connector validating the entire gateway-to-response pipeline
 - [ ] **Phase 4: CLI Core** - Go binary providing run, tools, status, output modes, and shell completion for agent consumption
@@ -38,9 +38,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md -- Monorepo scaffold + Connector SDK types
-- [ ] 01-02-PLAN.md -- Gateway core: Hono app, routing, middleware, mock connector
-- [ ] 01-03-PLAN.md -- Integration tests + connector template
+- [x] 01-01-PLAN.md -- Monorepo scaffold + Connector SDK types
+- [x] 01-02-PLAN.md -- Gateway core: Hono app, routing, middleware, mock connector
+- [x] 01-03-PLAN.md -- Integration tests + connector template
 
 ### Phase 2: Auth Vault
 **Goal**: Users can generate API keys and securely store encrypted credentials, with a Durable Objects coordinator ready for token refresh
@@ -186,7 +186,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Edge Gateway Foundation | 0/3 | Planned | - |
+| 1. Edge Gateway Foundation | 3/3 | Complete | 2026-02-05 |
 | 2. Auth Vault | 0/TBD | Not started | - |
 | 3. GitHub Connector | 0/TBD | Not started | - |
 | 4. CLI Core | 0/TBD | Not started | - |
