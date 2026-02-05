@@ -49,6 +49,19 @@ importers:
         specifier: ^4.0.0
         version: 4.63.0(@cloudflare/workers-types@4.20260205.0)
 
+  connectors/_template:
+    dependencies:
+      '@feelr/connector-sdk':
+        specifier: workspace:*
+        version: link:../../packages/connector-sdk
+    devDependencies:
+      '@feelr/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+
   packages/connector-sdk:
     dependencies:
       zod:
