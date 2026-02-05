@@ -89,7 +89,7 @@ Each task was committed atomically:
 1. **Task 1: Scaffold monorepo with pnpm workspace, Turborepo, and shared TypeScript configs** - `b2e09ea` (chore)
 2. **Task 2: Build the Connector SDK -- types, envelope, errors, and Zod validation schemas** - `a95aaf3` (feat)
 
-**Plan metadata:** (pending)
+**Plan metadata:** `b605fc1` (docs: complete plan)
 
 ## Files Created/Modified
 - `package.json` - Root workspace config with Turborepo scripts
