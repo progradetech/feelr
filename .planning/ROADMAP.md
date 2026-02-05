@@ -35,11 +35,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Error responses include a machine-parseable code, human-readable message, and agent-actionable hint (retry/auth/abort)
   4. Nested upstream API responses are flattened to essential fields with predictable key names
   5. A new connector can be created by implementing the `ConnectorDefinition` and `ActionDefinition` interfaces using only Web Standard APIs
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md -- Monorepo scaffold + Connector SDK types
+- [ ] 01-02-PLAN.md -- Gateway core: Hono app, routing, middleware, mock connector
+- [ ] 01-03-PLAN.md -- Integration tests + connector template
 
 ### Phase 2: Auth Vault
 **Goal**: Users can generate API keys and securely store encrypted credentials, with a Durable Objects coordinator ready for token refresh
@@ -185,7 +186,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Edge Gateway Foundation | 0/TBD | Not started | - |
+| 1. Edge Gateway Foundation | 0/3 | Planned | - |
 | 2. Auth Vault | 0/TBD | Not started | - |
 | 3. GitHub Connector | 0/TBD | Not started | - |
 | 4. CLI Core | 0/TBD | Not started | - |
