@@ -2,6 +2,7 @@
   "extends": "@feelr/tsconfig/worker.json",
   "compilerOptions": {
     "outDir": "dist",
+    "types": ["@cloudflare/workers-types", "@cloudflare/vitest-pool-workers"],
     "paths": {
       "@feelr/connector-sdk": ["../../packages/connector-sdk/src"]
     }
