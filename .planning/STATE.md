@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 1 of 10 (Edge Gateway Foundation)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-05 -- Completed 01-01-PLAN.md (Monorepo Scaffold + Connector SDK)
+Last activity: 2026-02-05 -- Completed 01-02-PLAN.md (Gateway Core + Dispatch)
 
-Progress: [█░░░░░░░░░] ~3%
+Progress: [██░░░░░░░░] ~7%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 4 min
-- Total execution time: 4 min
+- Total plans completed: 2
+- Average duration: 5 min
+- Total execution time: 10 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-edge-gateway-foundation | 1/3 | 4 min | 4 min |
+| 01-edge-gateway-foundation | 2/3 | 10 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (4 min)
-- Trend: baseline
+- Last 5 plans: 01-01 (4 min), 01-02 (6 min)
+- Trend: stable
 
 *Updated after each plan completion*
 
@@ -49,6 +49,11 @@ Recent decisions affecting current work:
 - [01-01]: @hono/zod-openapi pinned to 0.19.x (not 1.x) for Zod 3 compatibility -- 1.x requires Zod 4 peer dep
 - [01-01]: Using Zod 3 (z.object().strict()) throughout, not Zod 4 -- production stability concern
 - [01-01]: Connector SDK exports raw TypeScript source (no build step) for monorepo internal consumption
+- [01-02]: AppEnv type is gateway-internal, not exported to connector-sdk
+- [01-02]: Request ID generated in API key middleware via crypto.randomUUID()
+- [01-02]: app.all() for dispatch route -- RPC-style, method-agnostic
+- [01-02]: System params (key, raw, cursor) filtered before forwarding to action handlers
+- [01-02]: Param defaults applied from ActionDefinition when param is undefined
 
 ### Pending Todos
 
@@ -63,5 +68,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 01-01-PLAN.md
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
