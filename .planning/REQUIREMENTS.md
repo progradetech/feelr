@@ -128,56 +128,56 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GATE-01 | TBD | Pending |
-| GATE-02 | TBD | Pending |
-| GATE-03 | TBD | Pending |
-| GATE-04 | TBD | Pending |
-| GATE-05 | TBD | Pending |
-| GATE-06 | TBD | Pending |
-| CONN-01 | TBD | Pending |
-| CONN-02 | TBD | Pending |
-| CONN-03 | TBD | Pending |
-| CONN-04 | TBD | Pending |
-| CONN-05 | TBD | Pending |
-| CONN-06 | TBD | Pending |
-| AUTH-01 | TBD | Pending |
-| AUTH-02 | TBD | Pending |
-| AUTH-03 | TBD | Pending |
-| AUTH-04 | TBD | Pending |
-| AUTH-05 | TBD | Pending |
-| AUTH-06 | TBD | Pending |
-| CLI-01 | TBD | Pending |
-| CLI-02 | TBD | Pending |
-| CLI-03 | TBD | Pending |
-| CLI-04 | TBD | Pending |
-| CLI-05 | TBD | Pending |
-| CLI-06 | TBD | Pending |
-| CLI-07 | TBD | Pending |
-| DASH-01 | TBD | Pending |
-| DASH-02 | TBD | Pending |
-| DASH-03 | TBD | Pending |
-| DASH-04 | TBD | Pending |
-| COMP-01 | TBD | Pending |
-| COMP-02 | TBD | Pending |
-| COMP-03 | TBD | Pending |
-| COMP-04 | TBD | Pending |
-| COMP-05 | TBD | Pending |
-| PLAT-01 | TBD | Pending |
-| PLAT-02 | TBD | Pending |
-| PLAT-03 | TBD | Pending |
-| PLAT-04 | TBD | Pending |
-| SELF-01 | TBD | Pending |
-| SELF-02 | TBD | Pending |
-| SELF-03 | TBD | Pending |
-| DIST-01 | TBD | Pending |
-| DIST-02 | TBD | Pending |
-| DIST-03 | TBD | Pending |
+| GATE-01 | Phase 1: Edge Gateway Foundation | Pending |
+| GATE-02 | Phase 1: Edge Gateway Foundation | Pending |
+| GATE-03 | Phase 1: Edge Gateway Foundation | Pending |
+| GATE-04 | Phase 1: Edge Gateway Foundation | Pending |
+| GATE-05 | Phase 3: GitHub Connector | Pending |
+| GATE-06 | Phase 5: OAuth Connectors | Pending |
+| CONN-01 | Phase 3: GitHub Connector | Pending |
+| CONN-02 | Phase 5: OAuth Connectors | Pending |
+| CONN-03 | Phase 5: OAuth Connectors | Pending |
+| CONN-04 | Phase 5: OAuth Connectors | Pending |
+| CONN-05 | Phase 1: Edge Gateway Foundation | Pending |
+| CONN-06 | Phase 1: Edge Gateway Foundation | Pending |
+| AUTH-01 | Phase 2: Auth Vault | Pending |
+| AUTH-02 | Phase 2: Auth Vault | Pending |
+| AUTH-03 | Phase 5: OAuth Connectors | Pending |
+| AUTH-04 | Phase 2: Auth Vault | Pending |
+| AUTH-05 | Phase 5: OAuth Connectors | Pending |
+| AUTH-06 | Phase 2: Auth Vault | Pending |
+| CLI-01 | Phase 4: CLI Core | Pending |
+| CLI-02 | Phase 4: CLI Core | Pending |
+| CLI-03 | Phase 5: OAuth Connectors | Pending |
+| CLI-04 | Phase 4: CLI Core | Pending |
+| CLI-05 | Phase 4: CLI Core | Pending |
+| CLI-06 | Phase 4: CLI Core | Pending |
+| CLI-07 | Phase 4: CLI Core | Pending |
+| DASH-01 | Phase 6: Dashboard | Pending |
+| DASH-02 | Phase 6: Dashboard | Pending |
+| DASH-03 | Phase 6: Dashboard | Pending |
+| DASH-04 | Phase 6: Dashboard | Pending |
+| COMP-01 | Phase 8: Composable Actions | Pending |
+| COMP-02 | Phase 8: Composable Actions | Pending |
+| COMP-03 | Phase 8: Composable Actions | Pending |
+| COMP-04 | Phase 8: Composable Actions | Pending |
+| COMP-05 | Phase 8: Composable Actions | Pending |
+| PLAT-01 | Phase 10: Launch Prep | Pending |
+| PLAT-02 | Phase 7: Production Hardening | Pending |
+| PLAT-03 | Phase 7: Production Hardening | Pending |
+| PLAT-04 | Phase 10: Launch Prep | Pending |
+| SELF-01 | Phase 9: Self-Hosting | Pending |
+| SELF-02 | Phase 9: Self-Hosting | Pending |
+| SELF-03 | Phase 9: Self-Hosting | Pending |
+| DIST-01 | Phase 10: Launch Prep | Pending |
+| DIST-02 | Phase 10: Launch Prep | Pending |
+| DIST-03 | Phase 10: Launch Prep | Pending |
 
 **Coverage:**
 - v1 requirements: 38 total
-- Mapped to phases: 0
-- Unmapped: 38 (roadmap pending)
+- Mapped to phases: 38
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-05*
-*Last updated: 2026-02-05 after initial definition*
+*Last updated: 2026-02-05 after roadmap creation*
