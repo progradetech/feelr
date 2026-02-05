@@ -1,0 +1,15 @@
+{
+  "name": "feelr",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "deploy": "turbo run deploy"
+  },
+  "devDependencies": {
+    "turbo": "latest"
+  }
+}

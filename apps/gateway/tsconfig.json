@@ -1,0 +1,10 @@
+{
+  "extends": "@feelr/tsconfig/worker.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "paths": {
+      "@feelr/connector-sdk": ["../../packages/connector-sdk/src"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}
