@@ -31,6 +31,10 @@ func init() {
 	rootCmd.PersistentFlags().Bool("dry-run", false, "Show HTTP request without executing")
 	rootCmd.PersistentFlags().Bool("color", false, "Enable colored output")
 	rootCmd.PersistentFlags().String("gateway", "", "Override gateway URL")
+
+	// Register subcommands.
+	rootCmd.AddCommand(runCmd)
+	rootCmd.AddCommand(toolsCmd)
 }
 
 // Execute runs the root command. Called from main.go.
