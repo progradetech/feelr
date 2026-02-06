@@ -105,12 +105,15 @@ Plans:
   3. Discord connector supports at least 5 actions covering messages, channels, roles, and moderation
   4. `feelr auth slack` opens browser for OAuth, handles provider-specific quirks, stores encrypted tokens, and confirms success
   5. Every connector action has an agent-optimized description of 50-100 tokens accessible through the tools discovery endpoint
-**Plans**: TBD
+**Plans**: 6 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
-- [ ] 05-03: TBD
+- [ ] 05-01-PLAN.md -- Slack connector package (slackFetch + flatten + 6 actions)
+- [ ] 05-02-PLAN.md -- Stripe connector package (stripeFetch + flatten + 8 actions)
+- [ ] 05-03-PLAN.md -- Discord connector package (discordFetch + flatten + 7 actions)
+- [ ] 05-04-PLAN.md -- Gateway wiring (register connectors, tools search, OAuth endpoints, token refresh)
+- [ ] 05-05-PLAN.md -- CLI auth command (OAuth flow + token input + admin client)
+- [ ] 05-06-PLAN.md -- CLI tools --search flag for cross-connector discovery
 
 ### Phase 6: Dashboard
 **Goal**: Users can manage their Feelr account through a web interface without touching the CLI
@@ -198,7 +201,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 2. Auth Vault | 5/5 | Complete | 2026-02-06 |
 | 3. GitHub Connector | 4/4 | Complete | 2026-02-06 |
 | 4. CLI Core | 5/5 | Complete | 2026-02-06 |
-| 5. OAuth Connectors | 0/TBD | Not started | - |
+| 5. OAuth Connectors | 0/6 | Not started | - |
 | 6. Dashboard | 0/TBD | Not started | - |
 | 7. Production Hardening | 0/TBD | Not started | - |
 | 8. Composable Actions | 0/TBD | Not started | - |
