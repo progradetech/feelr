@@ -19,7 +19,8 @@ var toolsCmd = &cobra.Command{
 
   feelr tools                    List all connectors
   feelr tools github             List actions for a connector
-  feelr tools github.issues.list Show parameter schema for an action`,
+  feelr tools github.issues.list Show parameter schema for an action
+  feelr tools --search message   Search actions across all connectors`,
 	Args:              cobra.MaximumNArgs(1),
 	ValidArgsFunction: completeToolsArgs,
 	RunE:              runTools,
@@ -28,6 +29,8 @@ var toolsCmd = &cobra.Command{
 func init() {
 	// Local flag for JSON Schema output on action detail.
 	toolsCmd.Flags().Bool("schema", false, "Output raw JSON Schema for an action")
+	// Search flag for cross-connector action discovery.
+	toolsCmd.Flags().String("search", "", "Search actions across all connectors by name or description")
 }
 
 // completeToolsArgs provides dynamic shell completion for the tools command.
@@ -131,6 +134,12 @@ func runTools(cmd *cobra.Command, args []string) error {
 	// Create gateway client.
 	gwClient := client.NewGatewayClient(gatewayURL, cfg.APIKey)
 
+	// Search takes precedence over positional args.
+	searchFlag, _ := cmd.Flags().GetString("search")
+	if searchFlag != "" {
+		return toolsSearch(gwClient, searchFlag, formatFlag, verboseFlag, colorFlag)
+	}
+
 	// Determine discovery level based on args.
 	if len(args) == 0 {
 		return toolsListConnectors(gwClient, formatFlag, verboseFlag, colorFlag)
@@ -198,6 +207,19 @@ func toolsActionDetail(gwClient *client.GatewayClient, connector, action string,
 		out, _ := json.MarshalIndent(parsed, "", "  ")
 		fmt.Fprintln(os.Stdout, string(out))
 		return nil
+	}
+
+	formatter := output.NewFormatter(format, verbose, color, os.Stdout, os.Stderr)
+	return formatter.FormatData(resp.Data, resp.Meta)
+}
+
+// toolsSearch handles cross-connector search: `feelr tools --search message`.
+func toolsSearch(gwClient *client.GatewayClient, query, format string, verbose, color bool) error {
+	resp, err := gwClient.GetToolsSearch(query)
+	if err != nil {
+		formatter := output.NewFormatter(format, verbose, color, os.Stdout, os.Stderr)
+		formatter.FormatError(err)
+		return err
 	}
 
 	formatter := output.NewFormatter(format, verbose, color, os.Stdout, os.Stderr)
