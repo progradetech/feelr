@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 5 in progress (OAuth Connectors). Slack, Stripe, Discord connectors complete (Plans 01-03). Gateway wired (Plan 04). CLI auth command complete (Plan 05).
+**Current focus:** Phase 5 complete (OAuth Connectors). All 6 plans delivered: Slack/Stripe/Discord connectors, gateway wiring, CLI auth command, CLI tools search. Ready for Phase 6 (Dashboard).
 
 ## Current Position
 
 Phase: 5 of 10 (OAuth Connectors)
-Plan: 5 of 6 in current phase
-Status: In progress
-Last activity: 2026-02-06 -- Completed 05-05-PLAN.md (CLI Auth Command)
+Plan: 6 of 6 in current phase
+Status: Phase complete
+Last activity: 2026-02-06 -- Completed 05-06-PLAN.md (CLI Tools Search Flag)
 
-Progress: [██████████████████████] ~81%
+Progress: [███████████████████████] ~85%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 22
+- Total plans completed: 23
 - Average duration: 3 min
-- Total execution time: 75 min
+- Total execution time: 77 min
 
 **By Phase:**
 
@@ -32,10 +32,10 @@ Progress: [██████████████████████] ~
 | 03-github-connector | 4/4 | 10 min | 3 min |
 | 04-cli-core | 5/5 | 17 min | 3 min |
 
-| 05-oauth-connectors | 5/6 | 18 min | 4 min |
+| 05-oauth-connectors | 6/6 | 20 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-01 (3 min), 05-02 (3 min), 05-03 (3 min), 05-04 (4 min), 05-05 (5 min)
+- Last 5 plans: 05-02 (3 min), 05-03 (3 min), 05-04 (4 min), 05-05 (5 min), 05-06 (2 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -116,6 +116,8 @@ Recent decisions affecting current work:
 - [05-05]: Admin client pattern with Bearer token for /admin/* endpoints (separate from API key client)
 - [05-05]: OnAuthExpired callback with single-retry in GatewayClient.doRequest
 - [05-05]: LoadAdminToken reads admin_token from config file profile section
+- [05-06]: Search flag takes precedence over positional args (--search wins if both provided)
+- [05-06]: GetToolsSearch as separate method from GetTools for backward compat
 
 ### Pending Todos
 
@@ -131,5 +133,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 05-05-PLAN.md (CLI Auth Command)
+Stopped at: Completed 05-06-PLAN.md (CLI Tools Search Flag) -- Phase 05 complete
 Resume file: None
