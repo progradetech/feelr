@@ -86,6 +86,9 @@ Recent decisions affecting current work:
 - [04-02]: cursor as URL query param (not body field) matching gateway convention
 - [04-02]: JSON unwrapped data default, full envelope with --verbose
 - [04-02]: All data to stdout, all errors to stderr (stream separation)
+- [04-03]: Unified CLIError type from client package (removed duplicate in main.go)
+- [04-03]: NOT_FOUND error code mapped to exit code 3 in client.doRequest
+- [04-03]: Key=value positional args for action params, flags only for system params
 - [04-04]: parseToolsArg splits on first dot (connector="github", action="issues.list")
 - [04-04]: 404 gateway errors mapped to exit code 3 via NOT_FOUND code detection
 - [04-04]: --schema flag bypasses formatter for raw JSON output
