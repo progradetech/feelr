@@ -73,3 +73,45 @@ func ConfigPath() string {
 	}
 	return filepath.Join(home, ".feelr", "config.toml")
 }
+
+// Exists checks whether the config file exists at the default location.
+func Exists() bool {
+	_, err := os.Stat(ConfigPath())
+	return err == nil
+}
+
+// Write writes a config file for the given profile to ~/.feelr/config.toml.
+// Uses simple string formatting (not Viper) to preserve comments and formatting.
+// The config directory is created with 0700 permissions and the file with 0600
+// (since it contains API keys).
+func Write(cfg *Config) error {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("determining home directory: %w", err)
+	}
+
+	dir := filepath.Join(home, ".feelr")
+	if err := os.MkdirAll(dir, 0700); err != nil {
+		return fmt.Errorf("creating config directory: %w", err)
+	}
+
+	profile := cfg.Profile
+	if profile == "" {
+		profile = "default"
+	}
+
+	content := fmt.Sprintf(`# Feelr configuration
+# See: https://feelr.dev/docs/config
+
+[%s]
+gateway = "%s"
+api_key = "%s"
+`, profile, cfg.Gateway, cfg.APIKey)
+
+	configFile := filepath.Join(dir, "config.toml")
+	if err := os.WriteFile(configFile, []byte(content), 0600); err != nil {
+		return fmt.Errorf("writing config file: %w", err)
+	}
+
+	return nil
+}
