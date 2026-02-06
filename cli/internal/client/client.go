@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -110,6 +111,20 @@ func (c *GatewayClient) GetTools(path string) (*gateway.GatewayResponse, error) 
 	url := fmt.Sprintf("%s/v1/tools%s", c.baseURL, path)
 
 	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("building request: %w", err)
+	}
+	c.setHeaders(req)
+
+	return c.doRequest(req)
+}
+
+// GetToolsSearch searches actions across all connectors by name or description.
+// Sends GET /v1/tools?search={query} to the gateway.
+func (c *GatewayClient) GetToolsSearch(query string) (*gateway.GatewayResponse, error) {
+	reqURL := fmt.Sprintf("%s/v1/tools?search=%s", c.baseURL, url.QueryEscape(query))
+
+	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("building request: %w", err)
 	}
