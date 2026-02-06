@@ -2,6 +2,10 @@ name = "feelr-gateway"
 main = "src/index.ts"
 compatibility_date = "2026-02-05"
 
+# Worker Secrets (set via: npx wrangler secret put <NAME>)
+# Required: ENCRYPTION_KEY, ADMIN_TOKEN
+# For Slack OAuth: SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
+
 [vars]
 ENVIRONMENT = "development"
 

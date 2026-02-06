@@ -10,16 +10,20 @@
  * - All refresh writes go through this DO (single-writer guarantee)
  * - Alarms fire 5 minutes before token expiry for proactive refresh
  * - 3-retry exponential backoff on refresh failure, then status = 'failed'
- * - Refresh logic is stubbed pending connector implementation (Phase 3/5)
+ * - Real refresh via provider-specific adapters (Slack OAuth token rotation)
  */
 
 import { DurableObject } from 'cloudflare:workers'
 import type { TokenState } from '../auth/types'
+import { getRefreshAdapter } from '../connectors/refresh-adapters'
+import { encrypt } from '../auth/crypto'
 
 /** Env bindings available to the Durable Object */
 interface Env {
   AUTH_KV: KVNamespace
   ENCRYPTION_KEY: string
+  SLACK_CLIENT_ID: string
+  SLACK_CLIENT_SECRET: string
 }
 
 /** Row shape returned from the tokens SQLite table */
@@ -212,17 +216,32 @@ export class TokenCoordinator extends DurableObject<Env> {
   }
 
   /**
-   * Attempt to refresh a single token.
+   * Attempt to refresh a single token using the provider's refresh adapter.
    *
    * After 3 failed retries, marks token status as 'failed' (not deleted).
-   * On success (stubbed for Phase 2), marks token as 'active'.
+   * On success, updates token in SQLite and KV with new access/refresh tokens.
    *
-   * STUB: Actual OAuth refresh will be implemented in Phase 3/5 when
-   * connectors provide their refresh logic. For now, logs intent and
-   * sets status back to 'active'.
+   * Providers without refresh adapters (GitHub, Discord, Stripe) are skipped --
+   * their tokens don't expire or don't support refresh.
    */
   private async performRefresh(token: TokenRow): Promise<void> {
     const now = Date.now()
+
+    // Check if provider has a refresh adapter
+    const adapter = getRefreshAdapter(token.connector)
+    if (!adapter) {
+      // No refresh adapter -- this connector's tokens don't support refresh
+      // (GitHub PATs, Discord bot tokens, Stripe API keys)
+      console.log(
+        JSON.stringify({
+          event: 'token_refresh_skipped',
+          connector: token.connector,
+          reason: 'No refresh adapter for this provider',
+          timestamp: new Date(now).toISOString(),
+        })
+      )
+      return
+    }
 
     if (token.retry_count >= MAX_RETRIES) {
       // Mark as failed after exhausting retries
@@ -250,26 +269,48 @@ export class TokenCoordinator extends DurableObject<Env> {
     )
 
     try {
-      // STUB: Actual OAuth refresh comes in Phase 3/5.
-      // Connector-specific refresh adapters will be injected here.
-      // For Phase 2: log refresh intent and reset to active.
+      // Call provider-specific refresh adapter
+      const result = await adapter.refresh(token.refresh_token, {
+        SLACK_CLIENT_ID: this.env.SLACK_CLIENT_ID,
+        SLACK_CLIENT_SECRET: this.env.SLACK_CLIENT_SECRET,
+      })
+
       console.log(
         JSON.stringify({
-          event: 'token_refresh_stub',
+          event: 'token_refresh_success',
           connector: token.connector,
-          message: 'Refresh logic pending connector implementation',
+          expiresAt: new Date(result.expiresAt).toISOString(),
           timestamp: new Date(now).toISOString(),
         })
       )
 
-      // Stub success: set back to active
+      // Update token row with new credentials
       this.ctx.storage.sql.exec(
-        `UPDATE tokens SET status = 'active', last_refresh_at = ?, updated_at = ?
+        `UPDATE tokens SET
+          access_token = ?,
+          refresh_token = ?,
+          expires_at = ?,
+          status = 'active',
+          retry_count = 0,
+          last_refresh_at = ?,
+          updated_at = ?
          WHERE connector = ?`,
+        result.accessToken,
+        result.refreshToken,
+        result.expiresAt,
         now,
         now,
         token.connector
       )
+
+      // Also update KV with new encrypted credential
+      const credentialRecord = JSON.stringify({
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+        expiresAt: result.expiresAt,
+      })
+      const encrypted = await encrypt(credentialRecord, this.env.ENCRYPTION_KEY)
+      await this.env.AUTH_KV.put(`cred:${token.connector}`, encrypted)
     } catch (err) {
       // Increment retry count with exponential backoff scheduling
       const nextRetryDelay = Math.pow(2, token.retry_count) * 1000 // 1s, 2s, 4s

@@ -16,6 +16,10 @@ export interface AppEnv extends Env {
     ENCRYPTION_KEY: string
     /** Worker Secret: admin token for credential management endpoints */
     ADMIN_TOKEN: string
+    /** Worker Secret: Slack OAuth client ID (for OAuth config + token exchange) */
+    SLACK_CLIENT_ID: string
+    /** Worker Secret: Slack OAuth client secret (for token exchange + refresh) */
+    SLACK_CLIENT_SECRET: string
   }
   Variables: {
     requestId: string
