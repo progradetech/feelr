@@ -150,6 +150,8 @@ func (c *GatewayClient) doRequest(req *http.Request) (*gateway.GatewayResponse, 
 			exitCode := 1
 			if errResp.Error.Hint == "auth" {
 				exitCode = 2
+			} else if strings.Contains(errResp.Error.Code, "NOT_FOUND") {
+				exitCode = 3
 			}
 			return nil, &CLIError{
 				ExitCode: exitCode,
