@@ -124,11 +124,14 @@ Plans:
   2. Connected services view shows which connectors are authenticated with their status (connected / needs re-auth / expired)
   3. Usage stats display requests per key, per connector, and per time window (hour/day/month)
   4. Dashboard communicates exclusively through gateway `/internal/*` API routes -- no direct KV or D1 access
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
+- [ ] 06-01-PLAN.md -- Gateway D1 usage recording + /internal/* aggregation routes
+- [ ] 06-02-PLAN.md -- Next.js 16 dashboard scaffold + auth + sidebar layout
+- [ ] 06-03-PLAN.md -- API keys page (create, one-time reveal, list, type-to-confirm revoke)
+- [ ] 06-04-PLAN.md -- Connectors status cards + Overview landing page with sparkline
+- [ ] 06-05-PLAN.md -- Usage visualization page with charts, filters, and time presets
 
 ### Phase 7: Production Hardening
 **Goal**: The gateway enforces usage limits and tracks consumption for every API key
@@ -202,7 +205,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 3. GitHub Connector | 4/4 | Complete | 2026-02-06 |
 | 4. CLI Core | 5/5 | Complete | 2026-02-06 |
 | 5. OAuth Connectors | 6/6 | Complete | 2026-02-06 |
-| 6. Dashboard | 0/TBD | Not started | - |
+| 6. Dashboard | 0/5 | Not started | - |
 | 7. Production Hardening | 0/TBD | Not started | - |
 | 8. Composable Actions | 0/TBD | Not started | - |
 | 9. Self-Hosting | 0/TBD | Not started | - |
