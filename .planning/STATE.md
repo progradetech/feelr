@@ -5,34 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 2 (Auth Vault) -- crypto foundation, key management, DO coordinator, and credential storage complete; integration tests next
+**Current focus:** Phase 2 (Auth Vault) COMPLETE -- all 5 plans executed, 76 tests prove all success criteria. Ready for Phase 3 (GitHub Connector).
 
 ## Current Position
 
 Phase: 2 of 10 (Auth Vault)
-Plan: 4 of 5 in current phase
-Status: In progress
-Last activity: 2026-02-06 -- Completed 02-04-PLAN.md (Admin Auth, Encrypted Credentials, Dispatch Wiring)
+Plan: 5 of 5 in current phase
+Status: Phase complete
+Last activity: 2026-02-06 -- Completed 02-05-PLAN.md (Integration Tests)
 
-Progress: [███████░░░] ~25%
+Progress: [████████░░] ~30%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: 3 min
-- Total execution time: 23 min
+- Total plans completed: 8
+- Average duration: 4 min
+- Total execution time: 30 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-edge-gateway-foundation | 3/3 | 14 min | 5 min |
-| 02-auth-vault | 4/5 | 9 min | 2 min |
+| 02-auth-vault | 5/5 | 16 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (2 min), 02-02 (2 min), 02-03 (3 min), 02-04 (2 min)
-- Trend: stable, fast
+- Last 5 plans: 02-01 (2 min), 02-02 (2 min), 02-03 (3 min), 02-04 (2 min), 02-05 (7 min)
+- Trend: stable, test plan took longer due to 76-test comprehensive suite + Phase 1 regression fix
 
 *Updated after each plan completion*
 
@@ -75,6 +75,9 @@ Recent decisions affecting current work:
 - [02-04]: KV-direct reads for dispatch latency (no DO round-trip in request path)
 - [02-04]: Separate Hono instances for key routes and credential routes, both at /admin
 - [02-04]: Local TokenCoordinatorRpc interface for structural typing without DO import
+- [02-05]: DO stub RPC calls over runInDurableObject for test stability (avoids storage isolation conflicts)
+- [02-05]: miniflare bindings for Worker Secrets in test (vitest.config.ts, not wrangler.toml)
+- [02-05]: ProvidedEnv type augmentation via env.d.ts for cloudflare:test type safety
 
 ### Pending Todos
 
@@ -89,5 +92,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 02-04-PLAN.md (Admin Auth, Encrypted Credentials, Dispatch Wiring)
+Stopped at: Completed 02-05-PLAN.md (Integration Tests) -- Phase 2 complete
 Resume file: None
