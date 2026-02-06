@@ -27,12 +27,12 @@ Requirements for initial launchable release. Each maps to roadmap phases.
 
 ### Authentication & Security
 
-- [ ] **AUTH-01**: User can generate, list, and revoke Feelr API keys via API and CLI
-- [ ] **AUTH-02**: User API tokens are encrypted at rest with AES-256-GCM via Web Crypto API before storage in KV
+- [x] **AUTH-01**: User can generate, list, and revoke Feelr API keys via API and CLI
+- [x] **AUTH-02**: User API tokens are encrypted at rest with AES-256-GCM via Web Crypto API before storage in KV
 - [ ] **AUTH-03**: OAuth flows work for Slack and Discord with provider-specific adapters handling quirks
-- [ ] **AUTH-04**: Token refresh uses Durable Objects as single-writer coordinator to prevent race conditions in distributed edge
+- [x] **AUTH-04**: Token refresh uses Durable Objects as single-writer coordinator to prevent race conditions in distributed edge
 - [ ] **AUTH-05**: `feelr auth <connector>` performs one-time setup that handles the OAuth dance, stores tokens, and confirms success
-- [ ] **AUTH-06**: Expired tokens are refreshed automatically (5-minute TTL buffer) without user intervention
+- [x] **AUTH-06**: Expired tokens are refreshed automatically (5-minute TTL buffer) without user intervention
 
 ### CLI
 
@@ -140,12 +140,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONN-04 | Phase 5: OAuth Connectors | Pending |
 | CONN-05 | Phase 1: Edge Gateway Foundation | Complete |
 | CONN-06 | Phase 1: Edge Gateway Foundation | Complete |
-| AUTH-01 | Phase 2: Auth Vault | Pending |
-| AUTH-02 | Phase 2: Auth Vault | Pending |
+| AUTH-01 | Phase 2: Auth Vault | Complete |
+| AUTH-02 | Phase 2: Auth Vault | Complete |
 | AUTH-03 | Phase 5: OAuth Connectors | Pending |
-| AUTH-04 | Phase 2: Auth Vault | Pending |
+| AUTH-04 | Phase 2: Auth Vault | Complete |
 | AUTH-05 | Phase 5: OAuth Connectors | Pending |
-| AUTH-06 | Phase 2: Auth Vault | Pending |
+| AUTH-06 | Phase 2: Auth Vault | Complete |
 | CLI-01 | Phase 4: CLI Core | Pending |
 | CLI-02 | Phase 4: CLI Core | Pending |
 | CLI-03 | Phase 5: OAuth Connectors | Pending |

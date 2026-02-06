@@ -13,7 +13,7 @@ Feelr delivers an agent-friendly API simplification layer in 10 phases, progress
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Edge Gateway Foundation** - Hono gateway skeleton with routing, response envelope, error format, and Connector SDK types
-- [ ] **Phase 2: Auth Vault** - Encrypted credential storage with API key management, Durable Objects token coordinator, and auto-refresh
+- [x] **Phase 2: Auth Vault** - Encrypted credential storage with API key management, Durable Objects token coordinator, and auto-refresh
 - [ ] **Phase 3: GitHub Connector** - First end-to-end connector validating the entire gateway-to-response pipeline
 - [ ] **Phase 4: CLI Core** - Go binary providing run, tools, status, output modes, and shell completion for agent consumption
 - [ ] **Phase 5: OAuth Connectors** - Slack, Discord, and Stripe connectors with OAuth flows and agent-optimized discovery
@@ -54,11 +54,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 02-01-PLAN.md -- Crypto foundation, auth types, wrangler KV/DO config, AppEnv update
-- [ ] 02-02-PLAN.md -- API key management (generate, list, revoke) + middleware upgrade
-- [ ] 02-03-PLAN.md -- Durable Object Token Coordinator with alarm-based proactive refresh
-- [ ] 02-04-PLAN.md -- Admin auth, encrypted credential storage, dispatch wiring
-- [ ] 02-05-PLAN.md -- Integration tests for keys, credentials, crypto, and DO coordinator
+- [x] 02-01-PLAN.md -- Crypto foundation, auth types, wrangler KV/DO config, AppEnv update
+- [x] 02-02-PLAN.md -- API key management (generate, list, revoke) + middleware upgrade
+- [x] 02-03-PLAN.md -- Durable Object Token Coordinator with alarm-based proactive refresh
+- [x] 02-04-PLAN.md -- Admin auth, encrypted credential storage, dispatch wiring
+- [x] 02-05-PLAN.md -- Integration tests for keys, credentials, crypto, and DO coordinator
 
 ### Phase 3: GitHub Connector
 **Goal**: A complete GitHub connector validates the full pipeline from authenticated request through flattened response
@@ -190,7 +190,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Edge Gateway Foundation | 3/3 | Complete | 2026-02-05 |
-| 2. Auth Vault | 0/TBD | Not started | - |
+| 2. Auth Vault | 5/5 | Complete | 2026-02-06 |
 | 3. GitHub Connector | 0/TBD | Not started | - |
 | 4. CLI Core | 0/TBD | Not started | - |
 | 5. OAuth Connectors | 0/TBD | Not started | - |
