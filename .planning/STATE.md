@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 4 in progress (CLI Core). Go module scaffold + config + client + formatters complete.
+**Current focus:** Phase 4 in progress (CLI Core). Tools discovery + status health commands complete.
 
 ## Current Position
 
 Phase: 4 of 10 (CLI Core)
-Plan: 2 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-06 -- Completed 04-02-PLAN.md
+Last activity: 2026-02-06 -- Completed 04-04-PLAN.md
 
-Progress: [█████████████░░░░░░░] ~53%
+Progress: [████████████████░░░░] ~59%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
+- Total plans completed: 16
 - Average duration: 3 min
-- Total execution time: 47 min
+- Total execution time: 53 min
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: [█████████████░░░░░░░] ~53%
 | 01-edge-gateway-foundation | 3/3 | 14 min | 5 min |
 | 02-auth-vault | 5/5 | 16 min | 3 min |
 | 03-github-connector | 4/4 | 10 min | 3 min |
-| 04-cli-core | 2/5 | 7 min | 4 min |
+| 04-cli-core | 4/5 | 13 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-02 (3 min), 03-03 (2 min), 03-04 (5 min), 04-01 (2 min), 04-02 (5 min)
+- Last 5 plans: 03-03 (2 min), 03-04 (5 min), 04-01 (2 min), 04-02 (5 min), 04-04 (3 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -86,6 +86,10 @@ Recent decisions affecting current work:
 - [04-02]: cursor as URL query param (not body field) matching gateway convention
 - [04-02]: JSON unwrapped data default, full envelope with --verbose
 - [04-02]: All data to stdout, all errors to stderr (stream separation)
+- [04-04]: parseToolsArg splits on first dot (connector="github", action="issues.list")
+- [04-04]: 404 gateway errors mapped to exit code 3 via NOT_FOUND code detection
+- [04-04]: --schema flag bypasses formatter for raw JSON output
+- [04-04]: GetStatus accepts deep bool for ?deep=true query
 
 ### Pending Todos
 
@@ -101,5 +105,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 04-02-PLAN.md (Go module scaffold + config + client + formatters)
+Stopped at: Completed 04-04-PLAN.md (tools progressive discovery + status health check)
 Resume file: None
