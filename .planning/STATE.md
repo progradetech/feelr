@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 5 in progress (OAuth Connectors). Slack + Stripe connectors complete (Plans 01-02).
+**Current focus:** Phase 5 in progress (OAuth Connectors). Slack, Stripe, Discord connectors complete (Plans 01-03).
 
 ## Current Position
 
 Phase: 5 of 10 (OAuth Connectors)
-Plan: 2 of 6 in current phase
+Plan: 3 of 6 in current phase
 Status: In progress
-Last activity: 2026-02-06 -- Completed 05-02-PLAN.md (Stripe Connector Package)
+Last activity: 2026-02-06 -- Completed 05-03-PLAN.md (Discord Connector Package)
 
-Progress: [███████████████████░] ~70%
+Progress: [████████████████████] ~74%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
+- Total plans completed: 20
 - Average duration: 3 min
-- Total execution time: 63 min
+- Total execution time: 66 min
 
 **By Phase:**
 
@@ -32,10 +32,10 @@ Progress: [███████████████████░] ~70%
 | 03-github-connector | 4/4 | 10 min | 3 min |
 | 04-cli-core | 5/5 | 17 min | 3 min |
 
-| 05-oauth-connectors | 2/6 | 6 min | 3 min |
+| 05-oauth-connectors | 3/6 | 9 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-02 (5 min), 04-04 (3 min), 04-05 (4 min), 05-01 (3 min), 05-02 (3 min)
+- Last 5 plans: 04-04 (3 min), 04-05 (4 min), 05-01 (3 min), 05-02 (3 min), 05-03 (3 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -106,6 +106,10 @@ Recent decisions affecting current work:
 - [05-02]: Stripe uses Bearer token auth with API key (sk_*), not OAuth -- auth_type is api_key
 - [05-02]: POST bodies form-encoded via URLSearchParams, not JSON (Stripe API requirement)
 - [05-02]: Cursor pagination via starting_after param with last item ID (Stripe's native pattern)
+- [05-03]: Discord uses Bot token prefix (not Bearer) in Authorization header
+- [05-03]: auth_type is bearer_token since bot tokens are direct tokens like GitHub PATs
+- [05-03]: 204 No Content responses handled for roles.assign, members.ban, members.kick
+- [05-03]: members.list uses cursor pagination via last user_id (Discord's after param)
 
 ### Pending Todos
 
@@ -121,5 +125,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 05-02-PLAN.md (Stripe Connector Package)
+Stopped at: Completed 05-03-PLAN.md (Discord Connector Package)
 Resume file: None
