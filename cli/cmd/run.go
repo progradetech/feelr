@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/andrewprograde/feelr/cli/internal/auth"
 	"github.com/andrewprograde/feelr/cli/internal/client"
 	"github.com/andrewprograde/feelr/cli/internal/config"
 	"github.com/andrewprograde/feelr/cli/internal/output"
@@ -140,8 +141,38 @@ func runAction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// Create gateway client.
+	// Create gateway client with re-auth hook for token expiry.
 	gwClient := client.NewGatewayClient(gatewayURL, cfg.APIKey)
+	gwClient.OnAuthExpired = func(provider string) (bool, error) {
+		if !auth.IsInteractive() {
+			return false, auth.ReauthError(provider)
+		}
+		accepted, err := auth.PromptReauth(provider)
+		if err != nil || !accepted {
+			return false, auth.ReauthError(provider)
+		}
+		// Trigger re-auth flow for this provider.
+		providerCfg, provErr := auth.GetProvider(provider)
+		if provErr != nil {
+			return false, auth.ReauthError(provider)
+		}
+		// Load admin client for re-auth.
+		adminClient, adminErr := loadAdminClient(cmd)
+		if adminErr != nil {
+			return false, auth.ReauthError(provider)
+		}
+		switch providerCfg.AuthType {
+		case auth.AuthTypeOAuth2:
+			if flowErr := auth.PerformOAuthFlow(adminClient, providerCfg, false); flowErr != nil {
+				return false, flowErr
+			}
+		case auth.AuthTypeToken:
+			if tokenErr := auth.PromptToken(adminClient, providerCfg, ""); tokenErr != nil {
+				return false, tokenErr
+			}
+		}
+		return true, nil
+	}
 
 	// Handle --dry-run: show the request that would be sent.
 	if dryRunFlag {
