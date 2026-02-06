@@ -13,12 +13,12 @@ Requirements for initial launchable release. Each maps to roadmap phases.
 - [x] **GATE-02**: Every response follows a consistent envelope format `{ ok, data, error, meta }` regardless of connector
 - [x] **GATE-03**: Error responses include machine-parseable error code, human-readable message, and agent-actionable hint (retry, auth, abort)
 - [x] **GATE-04**: Response flattening layer transforms nested upstream API responses into flat, predictable JSON with essential fields only
-- [ ] **GATE-05**: Health check endpoint at `/status` returns service health including upstream connector reachability
+- [x] **GATE-05**: Health check endpoint at `/status` returns service health including upstream connector reachability
 - [ ] **GATE-06**: Each connector action has an agent-optimized description of ~50-100 tokens that enables accurate tool use
 
 ### Connectors
 
-- [ ] **CONN-01**: GitHub connector supports at least 8 actions covering issues (list, create, update, close), PRs (list, create, merge), and repos (list)
+- [x] **CONN-01**: GitHub connector supports at least 8 actions covering issues (list, create, update, close), PRs (list, create, merge), and repos (list)
 - [ ] **CONN-02**: Slack connector supports at least 3 actions: send message, list channels, search messages
 - [ ] **CONN-03**: Stripe connector supports at least 3 actions covering payments, customers, and invoices
 - [ ] **CONN-04**: Discord connector supports at least 5 actions covering send messages, list/manage channels, manage roles, and basic moderation
