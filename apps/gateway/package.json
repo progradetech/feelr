@@ -14,7 +14,10 @@
     "@hono/zod-validator": "^0.7.6",
     "zod": "^3.24.0",
     "@feelr/connector-sdk": "workspace:*",
-    "@feelr/connector-github": "workspace:*"
+    "@feelr/connector-github": "workspace:*",
+    "@feelr/connector-slack": "workspace:*",
+    "@feelr/connector-stripe": "workspace:*",
+    "@feelr/connector-discord": "workspace:*"
   },
   "devDependencies": {
     "@feelr/tsconfig": "workspace:*",

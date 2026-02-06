@@ -6,6 +6,9 @@ import { getCredential } from '../auth/credentials'
 import { registerConnector, getConnector } from '../connectors/registry'
 import { mockConnector } from '../connectors/mock'
 import { githubConnector } from '@feelr/connector-github'
+import { slackConnector } from '@feelr/connector-slack'
+import { stripeConnector } from '@feelr/connector-stripe'
+import { discordConnector } from '@feelr/connector-discord'
 
 /**
  * V1 API routes -- main dispatch layer.
@@ -19,6 +22,9 @@ const v1 = new OpenAPIHono<AppEnv>()
 // Register connectors on module load
 registerConnector(mockConnector)
 registerConnector(githubConnector)
+registerConnector(slackConnector)
+registerConnector(stripeConnector)
+registerConnector(discordConnector)
 
 // System params that should not be forwarded to action handlers
 const SYSTEM_PARAMS = new Set(['key', 'raw', 'cursor'])
