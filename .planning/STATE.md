@@ -5,33 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 2 (Auth Vault) -- crypto foundation complete, key management and DO coordinator next
+**Current focus:** Phase 2 (Auth Vault) -- crypto foundation and key management complete, DO coordinator and credential storage next
 
 ## Current Position
 
 Phase: 2 of 10 (Auth Vault)
-Plan: 1 of 5 in current phase
+Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-06 -- Completed 02-01-PLAN.md (Crypto Foundation, Auth Types, Wrangler KV/DO Config)
+Last activity: 2026-02-06 -- Completed 02-02-PLAN.md (API Key CRUD and KV-Backed Middleware)
 
-Progress: [████░░░░░░] ~13%
+Progress: [█████░░░░░] ~17%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: 4 min
-- Total execution time: 16 min
+- Total execution time: 18 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-edge-gateway-foundation | 3/3 | 14 min | 5 min |
-| 02-auth-vault | 1/5 | 2 min | 2 min |
+| 02-auth-vault | 2/5 | 4 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (4 min), 01-02 (6 min), 01-03 (4 min), 02-01 (2 min)
+- Last 5 plans: 01-02 (6 min), 01-03 (4 min), 02-01 (2 min), 02-02 (2 min)
 - Trend: improving
 
 *Updated after each plan completion*
@@ -62,6 +62,10 @@ Recent decisions affecting current work:
 - [02-01]: Packed IV+ciphertext in single base64 string (no separate IV storage)
 - [02-01]: SQLite-backed DO migration (new_sqlite_classes, not new_classes)
 - [02-01]: Placeholder KV namespace ID (user creates real one with wrangler CLI)
+- [02-02]: Admin routes at /admin, separate from /v1 API key scope
+- [02-02]: Local validateAdmin function (admin-auth middleware deferred to Plan 04)
+- [02-02]: Soft limit of 25 keys via KV list prefix count
+- [02-02]: lastUsedAt via waitUntil for non-blocking background write
 
 ### Pending Todos
 
@@ -76,5 +80,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 02-01-PLAN.md (Crypto Foundation, Auth Types, Wrangler KV/DO Config)
+Stopped at: Completed 02-02-PLAN.md (API Key CRUD and KV-Backed Middleware)
 Resume file: None
