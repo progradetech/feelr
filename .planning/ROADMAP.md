@@ -51,11 +51,14 @@ Plans:
   2. All stored tokens are encrypted with AES-256-GCM via Web Crypto API before writing to KV
   3. Token refresh operations are serialized through a Durable Object per user, preventing race conditions across edge locations
   4. Tokens within 5 minutes of expiration are refreshed automatically without user action
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md -- Crypto foundation, auth types, wrangler KV/DO config, AppEnv update
+- [ ] 02-02-PLAN.md -- API key management (generate, list, revoke) + middleware upgrade
+- [ ] 02-03-PLAN.md -- Durable Object Token Coordinator with alarm-based proactive refresh
+- [ ] 02-04-PLAN.md -- Admin auth, encrypted credential storage, dispatch wiring
+- [ ] 02-05-PLAN.md -- Integration tests for keys, credentials, crypto, and DO coordinator
 
 ### Phase 3: GitHub Connector
 **Goal**: A complete GitHub connector validates the full pipeline from authenticated request through flattened response
