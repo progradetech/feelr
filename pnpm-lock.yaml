@@ -14,6 +14,9 @@ importers:
 
   apps/gateway:
     dependencies:
+      '@feelr/connector-github':
+        specifier: workspace:*
+        version: link:../../connectors/github
       '@feelr/connector-sdk':
         specifier: workspace:*
         version: link:../../packages/connector-sdk
