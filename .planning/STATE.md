@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 5 in progress (OAuth Connectors). Slack, Stripe, Discord connectors complete (Plans 01-03). Gateway wired with all 4 connectors (Plan 04).
+**Current focus:** Phase 5 in progress (OAuth Connectors). Slack, Stripe, Discord connectors complete (Plans 01-03). Gateway wired (Plan 04). CLI auth command complete (Plan 05).
 
 ## Current Position
 
 Phase: 5 of 10 (OAuth Connectors)
-Plan: 4 of 6 in current phase
+Plan: 5 of 6 in current phase
 Status: In progress
-Last activity: 2026-02-06 -- Completed 05-04-PLAN.md (Gateway Connector Wiring)
+Last activity: 2026-02-06 -- Completed 05-05-PLAN.md (CLI Auth Command)
 
-Progress: [█████████████████████] ~78%
+Progress: [██████████████████████] ~81%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
+- Total plans completed: 22
 - Average duration: 3 min
-- Total execution time: 70 min
+- Total execution time: 75 min
 
 **By Phase:**
 
@@ -32,10 +32,10 @@ Progress: [█████████████████████] ~78%
 | 03-github-connector | 4/4 | 10 min | 3 min |
 | 04-cli-core | 5/5 | 17 min | 3 min |
 
-| 05-oauth-connectors | 4/6 | 13 min | 3 min |
+| 05-oauth-connectors | 5/6 | 18 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-05 (4 min), 05-01 (3 min), 05-02 (3 min), 05-03 (3 min), 05-04 (4 min)
+- Last 5 plans: 05-01 (3 min), 05-02 (3 min), 05-03 (3 min), 05-04 (4 min), 05-05 (5 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -113,6 +113,9 @@ Recent decisions affecting current work:
 - [05-04]: Refresh adapter registry pattern for provider-specific token refresh (getRefreshAdapter)
 - [05-04]: OAuth exchange only for Slack (Discord/Stripe return auth_type guidance via /oauth/config)
 - [05-04]: Token rotation detection via expires_in field presence in Slack OAuth response
+- [05-05]: Admin client pattern with Bearer token for /admin/* endpoints (separate from API key client)
+- [05-05]: OnAuthExpired callback with single-retry in GatewayClient.doRequest
+- [05-05]: LoadAdminToken reads admin_token from config file profile section
 
 ### Pending Todos
 
@@ -128,5 +131,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 05-04-PLAN.md (Gateway Connector Wiring)
+Stopped at: Completed 05-05-PLAN.md (CLI Auth Command)
 Resume file: None
