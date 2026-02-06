@@ -14,6 +14,9 @@ export type ErrorCode =
   | 'RATE_LIMITED'
   | 'INTERNAL_ERROR'
   | 'NOT_FOUND'
+  | 'CREDENTIAL_EXPIRED'     // Credential refresh failed, user needs to re-authenticate
+  | 'ADMIN_AUTH_REQUIRED'     // Admin token not provided
+  | 'ADMIN_AUTH_INVALID'      // Admin token invalid
 
 /**
  * Actionable hints that tell agents what to do about an error.
