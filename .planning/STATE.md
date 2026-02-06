@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 4 complete and verified (5/5 must-haves). Ready for Phase 5 (OAuth Connectors).
+**Current focus:** Phase 5 in progress (OAuth Connectors). Slack connector complete (Plan 01).
 
 ## Current Position
 
-Phase: 4 of 10 (CLI Core)
-Plan: 5 of 5 in current phase
-Status: Phase complete, verified
-Last activity: 2026-02-06 -- Phase 4 verified (5/5 must-haves passed)
+Phase: 5 of 10 (OAuth Connectors)
+Plan: 1 of 6 in current phase
+Status: In progress
+Last activity: 2026-02-06 -- Completed 05-01-PLAN.md (Slack Connector Package)
 
-Progress: [█████████████████░░░] ~63%
+Progress: [██████████████████░░] ~67%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
+- Total plans completed: 18
 - Average duration: 3 min
-- Total execution time: 57 min
+- Total execution time: 60 min
 
 **By Phase:**
 
@@ -32,8 +32,10 @@ Progress: [█████████████████░░░] ~63%
 | 03-github-connector | 4/4 | 10 min | 3 min |
 | 04-cli-core | 5/5 | 17 min | 3 min |
 
+| 05-oauth-connectors | 1/6 | 3 min | 3 min |
+
 **Recent Trend:**
-- Last 5 plans: 03-04 (5 min), 04-01 (2 min), 04-02 (5 min), 04-04 (3 min), 04-05 (4 min)
+- Last 5 plans: 04-01 (2 min), 04-02 (5 min), 04-04 (3 min), 04-05 (4 min), 05-01 (3 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -98,6 +100,9 @@ Recent decisions affecting current work:
 - [04-05]: Config file 0600, directory 0700 (API key security)
 - [04-05]: Cobra-native errors wrapped as CLIError exit code 4 in Execute()
 - [04-05]: All prompts to stderr (stdout reserved for data)
+- [05-01]: slackFetch checks json.ok field for error detection, not HTTP status (only 429 uses real HTTP status)
+- [05-01]: search.messages uses page-based pagination (cursor carries page number), other Slack actions use cursor-based
+- [05-01]: missing_scope error includes needed scope from json.needed field for actionable error detail
 
 ### Pending Todos
 
@@ -113,5 +118,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Phase 4 complete and verified -- ready for Phase 5
+Stopped at: Completed 05-01-PLAN.md (Slack Connector Package)
 Resume file: None
