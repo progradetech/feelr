@@ -77,6 +77,9 @@ v1.all('/:connector/:action', async (c) => {
     }
   }
 
+  // Extract cursor before filtering system params
+  const cursor = rawParams.cursor !== undefined ? String(rawParams.cursor) : undefined
+
   // Remove system params before forwarding to handler
   const actionParams: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(rawParams)) {
@@ -113,6 +116,7 @@ v1.all('/:connector/:action', async (c) => {
     params: actionParams,
     fetch: fetch,
     credential,
+    cursor,
   })
   const durationMs = Math.round(performance.now() - startTime)
 
