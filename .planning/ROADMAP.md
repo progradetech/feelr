@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Edge Gateway Foundation** - Hono gateway skeleton with routing, response envelope, error format, and Connector SDK types
 - [x] **Phase 2: Auth Vault** - Encrypted credential storage with API key management, Durable Objects token coordinator, and auto-refresh
-- [ ] **Phase 3: GitHub Connector** - First end-to-end connector validating the entire gateway-to-response pipeline
+- [x] **Phase 3: GitHub Connector** - First end-to-end connector validating the entire gateway-to-response pipeline
 - [ ] **Phase 4: CLI Core** - Go binary providing run, tools, status, output modes, and shell completion for agent consumption
 - [ ] **Phase 5: OAuth Connectors** - Slack, Discord, and Stripe connectors with OAuth flows and agent-optimized discovery
 - [ ] **Phase 6: Dashboard** - Next.js web UI for API key management, connector status, and usage visualization
@@ -74,7 +74,7 @@ Plans:
 - [x] 03-01-PLAN.md -- SDK cursor support + GitHub connector package scaffold + shared helpers (githubFetch, flatten)
 - [x] 03-02-PLAN.md -- All 10 action handlers + ConnectorDefinition + gateway registration
 - [x] 03-03-PLAN.md -- /status endpoint with shallow/deep health checks + rate limit info
-- [ ] 03-04-PLAN.md -- Unit tests (helpers, flatten, error mapping) + integration tests (dispatch, status)
+- [x] 03-04-PLAN.md -- Unit tests (helpers, flatten, error mapping) + integration tests (dispatch, status)
 
 ### Phase 4: CLI Core
 **Goal**: Agents and developers can interact with Feelr entirely through a single Go binary with progressive discovery and pipeline-friendly output
@@ -193,7 +193,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 |-------|----------------|--------|-----------|
 | 1. Edge Gateway Foundation | 3/3 | Complete | 2026-02-05 |
 | 2. Auth Vault | 5/5 | Complete | 2026-02-06 |
-| 3. GitHub Connector | 1/4 | In progress | - |
+| 3. GitHub Connector | 4/4 | Complete | 2026-02-06 |
 | 4. CLI Core | 0/TBD | Not started | - |
 | 5. OAuth Connectors | 0/TBD | Not started | - |
 | 6. Dashboard | 0/TBD | Not started | - |
