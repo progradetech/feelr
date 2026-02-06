@@ -42,6 +42,8 @@ export interface ActionContext {
   fetch: typeof globalThis.fetch
   /** User's upstream API credential (decrypted). Undefined in Phase 1. */
   credential?: string
+  /** Pagination cursor from ?cursor= system param. Connectors use this to fetch the next page. */
+  cursor?: string
 }
 
 /**
