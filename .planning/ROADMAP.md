@@ -72,7 +72,7 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md -- SDK cursor support + GitHub connector package scaffold + shared helpers (githubFetch, flatten)
-- [ ] 03-02-PLAN.md -- All 10 action handlers + ConnectorDefinition + gateway registration
+- [x] 03-02-PLAN.md -- All 10 action handlers + ConnectorDefinition + gateway registration
 - [x] 03-03-PLAN.md -- /status endpoint with shallow/deep health checks + rate limit info
 - [ ] 03-04-PLAN.md -- Unit tests (helpers, flatten, error mapping) + integration tests (dispatch, status)
 

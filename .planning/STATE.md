@@ -32,7 +32,7 @@ Progress: [███████████░] ~42%
 | 03-github-connector | 3/4 | 5 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-04 (2 min), 02-05 (7 min), 03-01 (3 min), 03-02 (~TBD), 03-03 (2 min)
+- Last 5 plans: 02-04 (2 min), 02-05 (7 min), 03-01 (3 min), 03-02 (3 min), 03-03 (2 min)
 - Trend: stable
 
 *Updated after each plan completion*
