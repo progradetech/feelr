@@ -80,6 +80,26 @@ func Exists() bool {
 	return err == nil
 }
 
+// LoadAdminToken reads the admin_token from the config file for the given profile.
+// Returns empty string if not found.
+func LoadAdminToken(profile string) string {
+	v := viper.New()
+	v.SetConfigName("config")
+	v.SetConfigType("toml")
+
+	home, err := os.UserHomeDir()
+	if err == nil {
+		v.AddConfigPath(filepath.Join(home, ".feelr"))
+	}
+	v.AddConfigPath(".")
+
+	if err := v.ReadInConfig(); err != nil {
+		return ""
+	}
+
+	return v.GetString(profile + ".admin_token")
+}
+
 // Write writes a config file for the given profile to ~/.feelr/config.toml.
 // Uses simple string formatting (not Viper) to preserve comments and formatting.
 // The config directory is created with 0700 permissions and the file with 0600
