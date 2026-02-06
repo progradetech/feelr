@@ -2,6 +2,7 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import type { AppEnv } from '../lib/types'
 import { FeelrError } from '../lib/errors'
 import { wrapResponse } from '../lib/envelope'
+import { getCredential } from '../auth/credentials'
 import { registerConnector, getConnector } from '../connectors/registry'
 import { mockConnector } from '../connectors/mock'
 
@@ -91,11 +92,27 @@ v1.all('/:connector/:action', async (c) => {
     }
   }
 
+  // Retrieve decrypted credential for this connector (if stored)
+  // Reads directly from KV -- no DO round-trip in the request path.
+  // The DO handles refresh in the background via alarms.
+  let credential: string | undefined
+  try {
+    const credRecord = await getCredential(connectorName, c.env.AUTH_KV, c.env.ENCRYPTION_KEY)
+    if (credRecord) {
+      credential = credRecord.accessToken
+    }
+  } catch {
+    // Credential retrieval failed -- proceed without credential.
+    // This is non-fatal: mock connector doesn't use credentials,
+    // and connectors should handle missing credentials gracefully.
+  }
+
   // Execute action handler
   const startTime = performance.now()
   const result = await action.handler({
     params: actionParams,
     fetch: fetch,
+    credential,
   })
   const durationMs = Math.round(performance.now() - startTime)
 
