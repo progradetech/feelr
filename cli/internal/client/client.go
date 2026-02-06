@@ -81,8 +81,12 @@ func (c *GatewayClient) GetTools(path string) (*gateway.GatewayResponse, error) 
 }
 
 // GetStatus fetches gateway health status.
-func (c *GatewayClient) GetStatus() (*gateway.GatewayResponse, error) {
+// If deep is true, appends ?deep=true for a deep health check.
+func (c *GatewayClient) GetStatus(deep bool) (*gateway.GatewayResponse, error) {
 	url := fmt.Sprintf("%s/status", c.baseURL)
+	if deep {
+		url += "?deep=true"
+	}
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
