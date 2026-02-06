@@ -8,6 +8,7 @@ import { apiKeyMiddleware } from './middleware/api-key'
 import { v1Routes } from './routes/v1'
 import { keyRoutes } from './routes/keys'
 import { adminRoutes } from './routes/admin'
+import { statusRoutes } from './routes/status'
 
 /**
  * Feelr Gateway -- OpenAPIHono application.
@@ -21,6 +22,7 @@ import { adminRoutes } from './routes/admin'
  * Route structure:
  * - /v1/*     - Connector dispatch (requires API key)
  * - /admin/*  - Key + credential management (requires admin token, own auth)
+ * - /status   - Service health + connector health (requires API key)
  * - /health   - Health check (no auth)
  */
 const app = new OpenAPIHono<AppEnv>()
@@ -43,6 +45,9 @@ app.route('/admin', adminRoutes)
 
 // Mount v1 dispatch routes
 app.route('/v1', v1Routes)
+
+// Mount status route (/status -- requires API key, reports connector health)
+app.route('', statusRoutes)
 
 // OpenAPI documentation endpoint
 app.doc('/openapi.json', {
