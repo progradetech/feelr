@@ -37,6 +37,18 @@ func init() {
 	rootCmd.AddCommand(toolsCmd)
 	rootCmd.AddCommand(statusCmd)
 	rootCmd.AddCommand(initCmd)
+	rootCmd.AddCommand(completionCmd)
+}
+
+// getProfile reads the --profile flag value from the command, returning
+// "default" if the flag is missing or empty. Shared by completion functions
+// and subcommands that need the profile before full flag parsing.
+func getProfile(cmd *cobra.Command) string {
+	p, _ := cmd.Flags().GetString("profile")
+	if p == "" {
+		return "default"
+	}
+	return p
 }
 
 // Execute runs the root command. Called from main.go.
