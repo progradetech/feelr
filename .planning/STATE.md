@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 4 in progress (CLI Core). Tools discovery + status health commands complete.
+**Current focus:** Phase 4 complete (CLI Core). Ready for Phase 5 (OAuth Connectors).
 
 ## Current Position
 
 Phase: 4 of 10 (CLI Core)
-Plan: 4 of 5 in current phase
-Status: In progress
-Last activity: 2026-02-06 -- Completed 04-04-PLAN.md
+Plan: 5 of 5 in current phase
+Status: Phase complete
+Last activity: 2026-02-06 -- Completed 04-05-PLAN.md
 
-Progress: [████████████████░░░░] ~59%
+Progress: [█████████████████░░░] ~63%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
+- Total plans completed: 17
 - Average duration: 3 min
-- Total execution time: 53 min
+- Total execution time: 57 min
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: [████████████████░░░░] ~59%
 | 01-edge-gateway-foundation | 3/3 | 14 min | 5 min |
 | 02-auth-vault | 5/5 | 16 min | 3 min |
 | 03-github-connector | 4/4 | 10 min | 3 min |
-| 04-cli-core | 4/5 | 13 min | 3 min |
+| 04-cli-core | 5/5 | 17 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-03 (2 min), 03-04 (5 min), 04-01 (2 min), 04-02 (5 min), 04-04 (3 min)
+- Last 5 plans: 03-04 (5 min), 04-01 (2 min), 04-02 (5 min), 04-04 (3 min), 04-05 (4 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -93,6 +93,11 @@ Recent decisions affecting current work:
 - [04-04]: 404 gateway errors mapped to exit code 3 via NOT_FOUND code detection
 - [04-04]: --schema flag bypasses formatter for raw JSON output
 - [04-04]: GetStatus accepts deep bool for ?deep=true query
+- [04-05]: golang.org/x/term for terminal detection (standard library extension)
+- [04-05]: TOML writing via string formatting (not Viper write, preserves comments)
+- [04-05]: Config file 0600, directory 0700 (API key security)
+- [04-05]: Cobra-native errors wrapped as CLIError exit code 4 in Execute()
+- [04-05]: All prompts to stderr (stdout reserved for data)
 
 ### Pending Todos
 
@@ -108,5 +113,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 04-04-PLAN.md (tools progressive discovery + status health check)
+Stopped at: Completed 04-05-PLAN.md (init wizard, shell completion, exit codes) -- Phase 4 COMPLETE
 Resume file: None
