@@ -36,6 +36,7 @@ func init() {
 	rootCmd.AddCommand(runCmd)
 	rootCmd.AddCommand(toolsCmd)
 	rootCmd.AddCommand(statusCmd)
+	rootCmd.AddCommand(initCmd)
 }
 
 // Execute runs the root command. Called from main.go.
