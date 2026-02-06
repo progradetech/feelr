@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"errors"
+
+	"github.com/andrewprograde/feelr/cli/internal/client"
 	"github.com/spf13/cobra"
 )
 
@@ -52,7 +55,23 @@ func getProfile(cmd *cobra.Command) string {
 }
 
 // Execute runs the root command. Called from main.go.
+// Cobra-generated errors (unknown commands, missing/extra args, unknown flags)
+// are wrapped as CLIError with exit code 4 (usage error) so that main.go's
+// exitCodeFromError returns a consistent code.
 func Execute() error {
 	rootCmd.Version = version
-	return rootCmd.Execute()
+	err := rootCmd.Execute()
+	if err != nil {
+		// If it's already a CLIError, return as-is.
+		var cliErr *client.CLIError
+		if errors.As(err, &cliErr) {
+			return err
+		}
+		// Wrap Cobra's native errors as usage errors (exit code 4).
+		return &client.CLIError{
+			ExitCode: 4,
+			Message:  err.Error(),
+		}
+	}
+	return nil
 }
