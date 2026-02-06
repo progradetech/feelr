@@ -36,13 +36,13 @@ Requirements for initial launchable release. Each maps to roadmap phases.
 
 ### CLI
 
-- [ ] **CLI-01**: Go binary provides `feelr run <connector> <action>` to execute any connector action
-- [ ] **CLI-02**: `feelr tools` returns connector list; `feelr tools <connector>` returns action list; `feelr tools <connector>.<action>` returns full schema (progressive 3-level discovery)
+- [x] **CLI-01**: Go binary provides `feelr run <connector> <action>` to execute any connector action
+- [x] **CLI-02**: `feelr tools` returns connector list; `feelr tools <connector>` returns action list; `feelr tools <connector>.<action>` returns full schema (progressive 3-level discovery)
 - [ ] **CLI-03**: `feelr auth <connector>` opens browser for OAuth setup with device code flow fallback for headless/SSH
-- [ ] **CLI-04**: `feelr status` shows service health and connected connector status
-- [ ] **CLI-05**: Output defaults to JSON; `--format` flag supports json, minimal, and table modes
-- [ ] **CLI-06**: Shell completion works for bash, zsh, and fish via `feelr completion`
-- [ ] **CLI-07**: CLI exit codes are meaningful (0 = success, 1 = error, 2 = auth required) for script consumption
+- [x] **CLI-04**: `feelr status` shows service health and connected connector status
+- [x] **CLI-05**: Output defaults to JSON; `--format` flag supports json, minimal, and table modes
+- [x] **CLI-06**: Shell completion works for bash, zsh, and fish via `feelr completion`
+- [x] **CLI-07**: CLI exit codes are meaningful (0 = success, 1 = error, 2 = auth required) for script consumption
 
 ### Dashboard
 
@@ -132,9 +132,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GATE-02 | Phase 1: Edge Gateway Foundation | Complete |
 | GATE-03 | Phase 1: Edge Gateway Foundation | Complete |
 | GATE-04 | Phase 1: Edge Gateway Foundation | Complete |
-| GATE-05 | Phase 3: GitHub Connector | Pending |
+| GATE-05 | Phase 3: GitHub Connector | Complete |
 | GATE-06 | Phase 5: OAuth Connectors | Pending |
-| CONN-01 | Phase 3: GitHub Connector | Pending |
+| CONN-01 | Phase 3: GitHub Connector | Complete |
 | CONN-02 | Phase 5: OAuth Connectors | Pending |
 | CONN-03 | Phase 5: OAuth Connectors | Pending |
 | CONN-04 | Phase 5: OAuth Connectors | Pending |
@@ -146,13 +146,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-04 | Phase 2: Auth Vault | Complete |
 | AUTH-05 | Phase 5: OAuth Connectors | Pending |
 | AUTH-06 | Phase 2: Auth Vault | Complete |
-| CLI-01 | Phase 4: CLI Core | Pending |
-| CLI-02 | Phase 4: CLI Core | Pending |
+| CLI-01 | Phase 4: CLI Core | Complete |
+| CLI-02 | Phase 4: CLI Core | Complete |
 | CLI-03 | Phase 5: OAuth Connectors | Pending |
-| CLI-04 | Phase 4: CLI Core | Pending |
-| CLI-05 | Phase 4: CLI Core | Pending |
-| CLI-06 | Phase 4: CLI Core | Pending |
-| CLI-07 | Phase 4: CLI Core | Pending |
+| CLI-04 | Phase 4: CLI Core | Complete |
+| CLI-05 | Phase 4: CLI Core | Complete |
+| CLI-06 | Phase 4: CLI Core | Complete |
+| CLI-07 | Phase 4: CLI Core | Complete |
 | DASH-01 | Phase 6: Dashboard | Pending |
 | DASH-02 | Phase 6: Dashboard | Pending |
 | DASH-03 | Phase 6: Dashboard | Pending |

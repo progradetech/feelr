@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Edge Gateway Foundation** - Hono gateway skeleton with routing, response envelope, error format, and Connector SDK types
 - [x] **Phase 2: Auth Vault** - Encrypted credential storage with API key management, Durable Objects token coordinator, and auto-refresh
 - [x] **Phase 3: GitHub Connector** - First end-to-end connector validating the entire gateway-to-response pipeline
-- [ ] **Phase 4: CLI Core** - Go binary providing run, tools, status, output modes, and shell completion for agent consumption
+- [x] **Phase 4: CLI Core** - Go binary providing run, tools, status, output modes, and shell completion for agent consumption
 - [ ] **Phase 5: OAuth Connectors** - Slack, Discord, and Stripe connectors with OAuth flows and agent-optimized discovery
 - [ ] **Phase 6: Dashboard** - Next.js web UI for API key management, connector status, and usage visualization
 - [ ] **Phase 7: Production Hardening** - Rate limiting per API key and usage metering with persistent storage
@@ -89,11 +89,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 04-01-PLAN.md -- Gateway /v1/tools discovery endpoint (TypeScript)
-- [ ] 04-02-PLAN.md -- Go module scaffold + config + HTTP client + output formatters
-- [ ] 04-03-PLAN.md -- `run` command with key=value params, dry-run, output formatting
-- [ ] 04-04-PLAN.md -- `tools` progressive discovery + `status` health check commands
-- [ ] 04-05-PLAN.md -- `init` wizard + shell completion + exit code wiring
+- [x] 04-01-PLAN.md -- Gateway /v1/tools discovery endpoint (TypeScript)
+- [x] 04-02-PLAN.md -- Go module scaffold + config + HTTP client + output formatters
+- [x] 04-03-PLAN.md -- `run` command with key=value params, dry-run, output formatting
+- [x] 04-04-PLAN.md -- `tools` progressive discovery + `status` health check commands
+- [x] 04-05-PLAN.md -- `init` wizard + shell completion + exit code wiring
 
 ### Phase 5: OAuth Connectors
 **Goal**: Users can connect OAuth-based services through browser or CLI, and agents can discover all available actions with minimal token overhead
@@ -197,7 +197,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 1. Edge Gateway Foundation | 3/3 | Complete | 2026-02-05 |
 | 2. Auth Vault | 5/5 | Complete | 2026-02-06 |
 | 3. GitHub Connector | 4/4 | Complete | 2026-02-06 |
-| 4. CLI Core | 0/5 | Not started | - |
+| 4. CLI Core | 5/5 | Complete | 2026-02-06 |
 | 5. OAuth Connectors | 0/TBD | Not started | - |
 | 6. Dashboard | 0/TBD | Not started | - |
 | 7. Production Hardening | 0/TBD | Not started | - |
