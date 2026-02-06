@@ -20,13 +20,68 @@ var toolsCmd = &cobra.Command{
   feelr tools                    List all connectors
   feelr tools github             List actions for a connector
   feelr tools github.issues.list Show parameter schema for an action`,
-	Args: cobra.MaximumNArgs(1),
-	RunE: runTools,
+	Args:              cobra.MaximumNArgs(1),
+	ValidArgsFunction: completeToolsArgs,
+	RunE:              runTools,
 }
 
 func init() {
 	// Local flag for JSON Schema output on action detail.
 	toolsCmd.Flags().Bool("schema", false, "Output raw JSON Schema for an action")
+}
+
+// completeToolsArgs provides dynamic shell completion for the tools command.
+// Completes connector names, and connector.action names if a dot is present.
+func completeToolsArgs(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	if len(args) > 0 {
+		// tools only takes one arg.
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	cfg, err := config.Load(getProfile(cmd))
+	if err != nil || cfg.APIKey == "" {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+	gwClient := client.NewGatewayClient(cfg.Gateway, cfg.APIKey)
+
+	// If toComplete contains a dot, complete action names for that connector.
+	if idx := strings.Index(toComplete, "."); idx >= 0 {
+		connector := toComplete[:idx]
+		resp, err := gwClient.GetTools("/" + connector)
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		var connectorDetail struct {
+			Actions []struct {
+				Name string `json:"name"`
+			} `json:"actions"`
+		}
+		if err := json.Unmarshal(resp.Data, &connectorDetail); err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		names := make([]string, len(connectorDetail.Actions))
+		for i, a := range connectorDetail.Actions {
+			names[i] = connector + "." + a.Name
+		}
+		return names, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	// Complete connector names (with trailing dot hint for further completion).
+	resp, err := gwClient.GetTools("")
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+	var connectors []struct {
+		Name string `json:"name"`
+	}
+	if err := json.Unmarshal(resp.Data, &connectors); err != nil {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+	names := make([]string, len(connectors))
+	for i, c := range connectors {
+		names[i] = c.Name
+	}
+	return names, cobra.ShellCompDirectiveNoSpace
 }
 
 // parseToolsArg splits a tools argument into connector and action parts.

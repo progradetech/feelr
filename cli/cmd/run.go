@@ -13,6 +13,60 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// completeRunArgs provides dynamic shell completion for the run command.
+// It completes connector names for the first argument and action names
+// for the second argument by querying the gateway's tools endpoint.
+func completeRunArgs(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	cfg, err := config.Load(getProfile(cmd))
+	if err != nil || cfg.APIKey == "" {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+	gwClient := client.NewGatewayClient(cfg.Gateway, cfg.APIKey)
+
+	if len(args) == 0 {
+		// Complete connector names.
+		resp, err := gwClient.GetTools("")
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		var connectors []struct {
+			Name string `json:"name"`
+		}
+		if err := json.Unmarshal(resp.Data, &connectors); err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		names := make([]string, len(connectors))
+		for i, c := range connectors {
+			names[i] = c.Name
+		}
+		return names, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	if len(args) == 1 {
+		// Complete action names for the given connector.
+		resp, err := gwClient.GetTools("/" + args[0])
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		var connector struct {
+			Actions []struct {
+				Name string `json:"name"`
+			} `json:"actions"`
+		}
+		if err := json.Unmarshal(resp.Data, &connector); err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		names := make([]string, len(connector.Actions))
+		for i, a := range connector.Actions {
+			names[i] = a.Name
+		}
+		return names, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	// No completion for key=value params.
+	return nil, cobra.ShellCompDirectiveNoFileComp
+}
+
 var runCmd = &cobra.Command{
 	Use:   "run <connector> <action> [key=value...]",
 	Short: "Execute a connector action",
@@ -27,8 +81,9 @@ Examples:
   feelr run github issues.get repo=owner/repo number=42 --verbose
   feelr run github issues.list repo=owner/repo --cursor abc123
   feelr run github issues.list repo=owner/repo --dry-run`,
-	Args: cobra.MinimumNArgs(2),
-	RunE: runAction,
+	Args:              cobra.MinimumNArgs(2),
+	ValidArgsFunction: completeRunArgs,
+	RunE:              runAction,
 }
 
 func init() {
