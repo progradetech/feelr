@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 2 complete -- verified 4/4 must-haves. Ready for Phase 3 (GitHub Connector).
+**Current focus:** Phase 3 in progress -- GitHub Connector. Plan 01 complete (SDK cursor + scaffold + helpers).
 
 ## Current Position
 
-Phase: 2 of 10 (Auth Vault) -- COMPLETE
-Plan: 5 of 5 in current phase
-Status: Phase complete, verified
-Last activity: 2026-02-06 -- Phase 2 verified (4/4 must-haves passed)
+Phase: 3 of 10 (GitHub Connector)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-02-06 -- Completed 03-01-PLAN.md
 
-Progress: [████████░░] ~30%
+Progress: [█████████░] ~35%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
+- Total plans completed: 9
 - Average duration: 4 min
-- Total execution time: 30 min
+- Total execution time: 33 min
 
 **By Phase:**
 
@@ -29,10 +29,11 @@ Progress: [████████░░] ~30%
 |-------|-------|-------|----------|
 | 01-edge-gateway-foundation | 3/3 | 14 min | 5 min |
 | 02-auth-vault | 5/5 | 16 min | 3 min |
+| 03-github-connector | 1/4 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (2 min), 02-02 (2 min), 02-03 (3 min), 02-04 (2 min), 02-05 (7 min)
-- Trend: stable, test plan took longer due to 76-test comprehensive suite + Phase 1 regression fix
+- Last 5 plans: 02-02 (2 min), 02-03 (3 min), 02-04 (2 min), 02-05 (7 min), 03-01 (3 min)
+- Trend: stable
 
 *Updated after each plan completion*
 
@@ -78,6 +79,7 @@ Recent decisions affecting current work:
 - [02-05]: DO stub RPC calls over runInDurableObject for test stability (avoids storage isolation conflicts)
 - [02-05]: miniflare bindings for Worker Secrets in test (vitest.config.ts, not wrangler.toml)
 - [02-05]: ProvidedEnv type augmentation via env.d.ts for cloudflare:test type safety
+- [03-01]: cursor passed via dedicated ActionContext field (not left in actionParams)
 
 ### Pending Todos
 
@@ -92,5 +94,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Phase 2 complete and verified -- ready for Phase 3
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None

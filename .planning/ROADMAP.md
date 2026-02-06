@@ -71,7 +71,7 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 03-01-PLAN.md -- SDK cursor support + GitHub connector package scaffold + shared helpers (githubFetch, flatten)
+- [x] 03-01-PLAN.md -- SDK cursor support + GitHub connector package scaffold + shared helpers (githubFetch, flatten)
 - [ ] 03-02-PLAN.md -- All 10 action handlers + ConnectorDefinition + gateway registration
 - [ ] 03-03-PLAN.md -- /status endpoint with shallow/deep health checks + rate limit info
 - [ ] 03-04-PLAN.md -- Unit tests (helpers, flatten, error mapping) + integration tests (dispatch, status)
@@ -193,7 +193,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 |-------|----------------|--------|-----------|
 | 1. Edge Gateway Foundation | 3/3 | Complete | 2026-02-05 |
 | 2. Auth Vault | 5/5 | Complete | 2026-02-06 |
-| 3. GitHub Connector | 0/4 | Not started | - |
+| 3. GitHub Connector | 1/4 | In progress | - |
 | 4. CLI Core | 0/TBD | Not started | - |
 | 5. OAuth Connectors | 0/TBD | Not started | - |
 | 6. Dashboard | 0/TBD | Not started | - |
