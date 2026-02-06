@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/andrewprograde/feelr/cli/cmd"
+	"github.com/andrewprograde/feelr/cli/internal/client"
 )
 
 // version is set by -ldflags at build time.
@@ -22,19 +23,9 @@ func main() {
 }
 
 func exitCodeFromError(err error) int {
-	var cliErr *CLIError
+	var cliErr *client.CLIError
 	if errors.As(err, &cliErr) {
 		return cliErr.ExitCode
 	}
 	return 1
-}
-
-// CLIError represents a CLI error with a specific exit code.
-type CLIError struct {
-	ExitCode int
-	Message  string
-}
-
-func (e *CLIError) Error() string {
-	return e.Message
 }
