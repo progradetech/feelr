@@ -81,6 +81,22 @@ importers:
         specifier: ~3.2.0
         version: 3.2.4(yaml@2.8.2)
 
+  connectors/slack:
+    dependencies:
+      '@feelr/connector-sdk':
+        specifier: workspace:*
+        version: link:../../packages/connector-sdk
+    devDependencies:
+      '@feelr/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+      vitest:
+        specifier: ~3.2.0
+        version: 3.2.4(yaml@2.8.2)
+
   packages/connector-sdk:
     dependencies:
       zod:
