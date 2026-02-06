@@ -4,3 +4,20 @@ compatibility_date = "2026-02-05"
 
 [vars]
 ENVIRONMENT = "development"
+
+# KV Namespaces
+# Create with: npx wrangler kv namespace create AUTH_KV
+# Then replace the placeholder ID below with the real one.
+[[kv_namespaces]]
+binding = "AUTH_KV"
+id = "placeholder-create-with-wrangler"
+
+# Durable Objects
+[durable_objects]
+bindings = [
+  { name = "TOKEN_COORDINATOR", class_name = "TokenCoordinator" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["TokenCoordinator"]
