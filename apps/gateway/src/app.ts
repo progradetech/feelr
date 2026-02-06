@@ -6,6 +6,7 @@ import { wrapError } from './lib/envelope'
 import { errorHandler } from './middleware/error-handler'
 import { apiKeyMiddleware } from './middleware/api-key'
 import { v1Routes } from './routes/v1'
+import { keyRoutes } from './routes/keys'
 
 /**
  * Feelr Gateway -- OpenAPIHono application.
@@ -13,8 +14,13 @@ import { v1Routes } from './routes/v1'
  * Middleware chain:
  * 1. CORS (global)
  * 2. Logger (global)
- * 3. API key extraction (v1/* only)
+ * 3. API key validation (v1/* only -- KV-backed with timing-safe hash comparison)
  * 4. Error handler (global, registered via onError)
+ *
+ * Route structure:
+ * - /v1/*     - Connector dispatch (requires API key)
+ * - /admin/*  - Key management (requires admin token, own auth)
+ * - /health   - Health check (no auth)
  */
 const app = new OpenAPIHono<AppEnv>()
 
@@ -25,8 +31,11 @@ app.use('*', logger())
 // Global error handler
 app.onError(errorHandler)
 
-// API key middleware on v1 routes only
+// API key middleware on v1 routes only (admin routes use their own auth)
 app.use('/v1/*', apiKeyMiddleware)
+
+// Mount admin key management routes (/admin/keys)
+app.route('/admin', keyRoutes)
 
 // Mount v1 dispatch routes
 app.route('/v1', v1Routes)
