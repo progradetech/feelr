@@ -14,14 +14,14 @@ Requirements for initial launchable release. Each maps to roadmap phases.
 - [x] **GATE-03**: Error responses include machine-parseable error code, human-readable message, and agent-actionable hint (retry, auth, abort)
 - [x] **GATE-04**: Response flattening layer transforms nested upstream API responses into flat, predictable JSON with essential fields only
 - [x] **GATE-05**: Health check endpoint at `/status` returns service health including upstream connector reachability
-- [ ] **GATE-06**: Each connector action has an agent-optimized description of ~50-100 tokens that enables accurate tool use
+- [x] **GATE-06**: Each connector action has an agent-optimized description of ~50-100 tokens that enables accurate tool use
 
 ### Connectors
 
 - [x] **CONN-01**: GitHub connector supports at least 8 actions covering issues (list, create, update, close), PRs (list, create, merge), and repos (list)
-- [ ] **CONN-02**: Slack connector supports at least 3 actions: send message, list channels, search messages
-- [ ] **CONN-03**: Stripe connector supports at least 3 actions covering payments, customers, and invoices
-- [ ] **CONN-04**: Discord connector supports at least 5 actions covering send messages, list/manage channels, manage roles, and basic moderation
+- [x] **CONN-02**: Slack connector supports at least 3 actions: send message, list channels, search messages
+- [x] **CONN-03**: Stripe connector supports at least 3 actions covering payments, customers, and invoices
+- [x] **CONN-04**: Discord connector supports at least 5 actions covering send messages, list/manage channels, manage roles, and basic moderation
 - [x] **CONN-05**: Connector SDK defines a standard interface (`ConnectorDefinition`, `ActionDefinition`) that all connectors implement
 - [x] **CONN-06**: Connector SDK uses only Web Standard APIs (fetch, Request, Response, crypto) — no Cloudflare-specific bindings in connector code
 
@@ -29,16 +29,16 @@ Requirements for initial launchable release. Each maps to roadmap phases.
 
 - [x] **AUTH-01**: User can generate, list, and revoke Feelr API keys via API and CLI
 - [x] **AUTH-02**: User API tokens are encrypted at rest with AES-256-GCM via Web Crypto API before storage in KV
-- [ ] **AUTH-03**: OAuth flows work for Slack and Discord with provider-specific adapters handling quirks
+- [x] **AUTH-03**: OAuth flows work for Slack and Discord with provider-specific adapters handling quirks
 - [x] **AUTH-04**: Token refresh uses Durable Objects as single-writer coordinator to prevent race conditions in distributed edge
-- [ ] **AUTH-05**: `feelr auth <connector>` performs one-time setup that handles the OAuth dance, stores tokens, and confirms success
+- [x] **AUTH-05**: `feelr auth <connector>` performs one-time setup that handles the OAuth dance, stores tokens, and confirms success
 - [x] **AUTH-06**: Expired tokens are refreshed automatically (5-minute TTL buffer) without user intervention
 
 ### CLI
 
 - [x] **CLI-01**: Go binary provides `feelr run <connector> <action>` to execute any connector action
 - [x] **CLI-02**: `feelr tools` returns connector list; `feelr tools <connector>` returns action list; `feelr tools <connector>.<action>` returns full schema (progressive 3-level discovery)
-- [ ] **CLI-03**: `feelr auth <connector>` opens browser for OAuth setup with device code flow fallback for headless/SSH
+- [x] **CLI-03**: `feelr auth <connector>` opens browser for OAuth setup with device code flow fallback for headless/SSH
 - [x] **CLI-04**: `feelr status` shows service health and connected connector status
 - [x] **CLI-05**: Output defaults to JSON; `--format` flag supports json, minimal, and table modes
 - [x] **CLI-06**: Shell completion works for bash, zsh, and fish via `feelr completion`

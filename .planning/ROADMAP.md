@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Auth Vault** - Encrypted credential storage with API key management, Durable Objects token coordinator, and auto-refresh
 - [x] **Phase 3: GitHub Connector** - First end-to-end connector validating the entire gateway-to-response pipeline
 - [x] **Phase 4: CLI Core** - Go binary providing run, tools, status, output modes, and shell completion for agent consumption
-- [ ] **Phase 5: OAuth Connectors** - Slack, Discord, and Stripe connectors with OAuth flows and agent-optimized discovery
+- [x] **Phase 5: OAuth Connectors** - Slack, Discord, and Stripe connectors with OAuth flows and agent-optimized discovery
 - [ ] **Phase 6: Dashboard** - Next.js web UI for API key management, connector status, and usage visualization
 - [ ] **Phase 7: Production Hardening** - Rate limiting per API key and usage metering with persistent storage
 - [ ] **Phase 8: Composable Actions** - Chain engine with pre-built workflows, custom chains, data passing, and conditionals
@@ -108,12 +108,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 05-01-PLAN.md -- Slack connector package (slackFetch + flatten + 6 actions)
-- [ ] 05-02-PLAN.md -- Stripe connector package (stripeFetch + flatten + 8 actions)
-- [ ] 05-03-PLAN.md -- Discord connector package (discordFetch + flatten + 7 actions)
-- [ ] 05-04-PLAN.md -- Gateway wiring (register connectors, tools search, OAuth endpoints, token refresh)
-- [ ] 05-05-PLAN.md -- CLI auth command (OAuth flow + token input + admin client)
-- [ ] 05-06-PLAN.md -- CLI tools --search flag for cross-connector discovery
+- [x] 05-01-PLAN.md -- Slack connector package (slackFetch + flatten + 6 actions)
+- [x] 05-02-PLAN.md -- Stripe connector package (stripeFetch + flatten + 8 actions)
+- [x] 05-03-PLAN.md -- Discord connector package (discordFetch + flatten + 7 actions)
+- [x] 05-04-PLAN.md -- Gateway wiring (register connectors, tools search, OAuth endpoints, token refresh)
+- [x] 05-05-PLAN.md -- CLI auth command (OAuth flow + token input + admin client)
+- [x] 05-06-PLAN.md -- CLI tools --search flag for cross-connector discovery
 
 ### Phase 6: Dashboard
 **Goal**: Users can manage their Feelr account through a web interface without touching the CLI
@@ -201,7 +201,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 2. Auth Vault | 5/5 | Complete | 2026-02-06 |
 | 3. GitHub Connector | 4/4 | Complete | 2026-02-06 |
 | 4. CLI Core | 5/5 | Complete | 2026-02-06 |
-| 5. OAuth Connectors | 0/6 | Not started | - |
+| 5. OAuth Connectors | 6/6 | Complete | 2026-02-06 |
 | 6. Dashboard | 0/TBD | Not started | - |
 | 7. Production Hardening | 0/TBD | Not started | - |
 | 8. Composable Actions | 0/TBD | Not started | - |
