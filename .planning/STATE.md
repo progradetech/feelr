@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 5 in progress (OAuth Connectors). Slack connector complete (Plan 01).
+**Current focus:** Phase 5 in progress (OAuth Connectors). Slack + Stripe connectors complete (Plans 01-02).
 
 ## Current Position
 
 Phase: 5 of 10 (OAuth Connectors)
-Plan: 1 of 6 in current phase
+Plan: 2 of 6 in current phase
 Status: In progress
-Last activity: 2026-02-06 -- Completed 05-01-PLAN.md (Slack Connector Package)
+Last activity: 2026-02-06 -- Completed 05-02-PLAN.md (Stripe Connector Package)
 
-Progress: [██████████████████░░] ~67%
+Progress: [███████████████████░] ~70%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: 3 min
-- Total execution time: 60 min
+- Total execution time: 63 min
 
 **By Phase:**
 
@@ -32,10 +32,10 @@ Progress: [██████████████████░░] ~67%
 | 03-github-connector | 4/4 | 10 min | 3 min |
 | 04-cli-core | 5/5 | 17 min | 3 min |
 
-| 05-oauth-connectors | 1/6 | 3 min | 3 min |
+| 05-oauth-connectors | 2/6 | 6 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (2 min), 04-02 (5 min), 04-04 (3 min), 04-05 (4 min), 05-01 (3 min)
+- Last 5 plans: 04-02 (5 min), 04-04 (3 min), 04-05 (4 min), 05-01 (3 min), 05-02 (3 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -103,6 +103,9 @@ Recent decisions affecting current work:
 - [05-01]: slackFetch checks json.ok field for error detection, not HTTP status (only 429 uses real HTTP status)
 - [05-01]: search.messages uses page-based pagination (cursor carries page number), other Slack actions use cursor-based
 - [05-01]: missing_scope error includes needed scope from json.needed field for actionable error detail
+- [05-02]: Stripe uses Bearer token auth with API key (sk_*), not OAuth -- auth_type is api_key
+- [05-02]: POST bodies form-encoded via URLSearchParams, not JSON (Stripe API requirement)
+- [05-02]: Cursor pagination via starting_after param with last item ID (Stripe's native pattern)
 
 ### Pending Todos
 
@@ -118,5 +121,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 05-01-PLAN.md (Slack Connector Package)
+Stopped at: Completed 05-02-PLAN.md (Stripe Connector Package)
 Resume file: None
