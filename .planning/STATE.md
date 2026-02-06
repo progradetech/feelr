@@ -5,33 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 1 complete -- ready for Phase 2 (Auth Vault)
+**Current focus:** Phase 2 (Auth Vault) -- crypto foundation complete, key management and DO coordinator next
 
 ## Current Position
 
-Phase: 1 of 10 (Edge Gateway Foundation) -- COMPLETE
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-02-05 -- Completed 01-03-PLAN.md (Integration Tests & Connector Template)
+Phase: 2 of 10 (Auth Vault)
+Plan: 1 of 5 in current phase
+Status: In progress
+Last activity: 2026-02-06 -- Completed 02-01-PLAN.md (Crypto Foundation, Auth Types, Wrangler KV/DO Config)
 
-Progress: [███░░░░░░░] ~10%
+Progress: [████░░░░░░] ~13%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 5 min
-- Total execution time: 14 min
+- Total plans completed: 4
+- Average duration: 4 min
+- Total execution time: 16 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-edge-gateway-foundation | 3/3 | 14 min | 5 min |
+| 02-auth-vault | 1/5 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (4 min), 01-02 (6 min), 01-03 (4 min)
-- Trend: stable
+- Last 5 plans: 01-01 (4 min), 01-02 (6 min), 01-03 (4 min), 02-01 (2 min)
+- Trend: improving
 
 *Updated after each plan completion*
 
@@ -55,6 +56,12 @@ Recent decisions affecting current work:
 - [01-02]: System params (key, raw, cursor) filtered before forwarding to action handlers
 - [01-02]: Param defaults applied from ActionDefinition when param is undefined
 - [01-03]: @cloudflare/vitest-pool-workers added to gateway tsconfig types for cloudflare:test module resolution
+- [02-01]: HKDF over PBKDF2 for key derivation (master secret is already high-entropy Worker Secret)
+- [02-01]: Static HKDF salt hardcoded in code (not secret, provides domain separation)
+- [02-01]: Purpose-based domain separation via HKDF info parameter
+- [02-01]: Packed IV+ciphertext in single base64 string (no separate IV storage)
+- [02-01]: SQLite-backed DO migration (new_sqlite_classes, not new_classes)
+- [02-01]: Placeholder KV namespace ID (user creates real one with wrangler CLI)
 
 ### Pending Todos
 
@@ -68,6 +75,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-05
-Stopped at: Completed 01-03-PLAN.md (Phase 1 complete)
+Last session: 2026-02-06
+Stopped at: Completed 02-01-PLAN.md (Crypto Foundation, Auth Types, Wrangler KV/DO Config)
 Resume file: None
