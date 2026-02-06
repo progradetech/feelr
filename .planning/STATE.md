@@ -5,33 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 2 (Auth Vault) -- crypto foundation, key management, and DO coordinator complete; credential storage and integration tests next
+**Current focus:** Phase 2 (Auth Vault) -- crypto foundation, key management, DO coordinator, and credential storage complete; integration tests next
 
 ## Current Position
 
 Phase: 2 of 10 (Auth Vault)
-Plan: 3 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-06 -- Completed 02-03-PLAN.md (DO Token Coordinator with Alarm-Based Refresh)
+Last activity: 2026-02-06 -- Completed 02-04-PLAN.md (Admin Auth, Encrypted Credentials, Dispatch Wiring)
 
-Progress: [██████░░░░] ~20%
+Progress: [███████░░░] ~25%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 4 min
-- Total execution time: 21 min
+- Total plans completed: 7
+- Average duration: 3 min
+- Total execution time: 23 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-edge-gateway-foundation | 3/3 | 14 min | 5 min |
-| 02-auth-vault | 3/5 | 7 min | 2 min |
+| 02-auth-vault | 4/5 | 9 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-03 (4 min), 02-01 (2 min), 02-02 (2 min), 02-03 (3 min)
+- Last 5 plans: 02-01 (2 min), 02-02 (2 min), 02-03 (3 min), 02-04 (2 min)
 - Trend: stable, fast
 
 *Updated after each plan completion*
@@ -70,6 +70,11 @@ Recent decisions affecting current work:
 - [02-03]: Refresh stub logs intent and resets to active (real OAuth refresh in Phase 3/5)
 - [02-03]: deleteAlarm() on empty token set for clean alarm state
 - [02-03]: 100ms delay scheduleRefresh for near-immediate proactive refresh on getCredential
+- [02-04]: Reusable adminAuthMiddleware replaces local validateAdmin from Plan 02
+- [02-04]: Non-fatal credential retrieval in dispatch (graceful degradation on error)
+- [02-04]: KV-direct reads for dispatch latency (no DO round-trip in request path)
+- [02-04]: Separate Hono instances for key routes and credential routes, both at /admin
+- [02-04]: Local TokenCoordinatorRpc interface for structural typing without DO import
 
 ### Pending Todos
 
@@ -84,5 +89,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 02-03-PLAN.md (DO Token Coordinator with Alarm-Based Refresh)
+Stopped at: Completed 02-04-PLAN.md (Admin Auth, Encrypted Credentials, Dispatch Wiring)
 Resume file: None
