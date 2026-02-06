@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 4 in progress (CLI Core). Gateway discovery endpoint complete.
+**Current focus:** Phase 4 in progress (CLI Core). Go module scaffold + config + client + formatters complete.
 
 ## Current Position
 
 Phase: 4 of 10 (CLI Core)
-Plan: 1 of 5 in current phase
+Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-06 -- Completed 04-01-PLAN.md
+Last activity: 2026-02-06 -- Completed 04-02-PLAN.md
 
-Progress: [█████████████░░░░░░░] ~49%
+Progress: [█████████████░░░░░░░] ~53%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
+- Total plans completed: 14
 - Average duration: 3 min
-- Total execution time: 42 min
+- Total execution time: 47 min
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: [█████████████░░░░░░░] ~49%
 | 01-edge-gateway-foundation | 3/3 | 14 min | 5 min |
 | 02-auth-vault | 5/5 | 16 min | 3 min |
 | 03-github-connector | 4/4 | 10 min | 3 min |
-| 04-cli-core | 1/5 | 2 min | 2 min |
+| 04-cli-core | 2/5 | 7 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (3 min), 03-02 (3 min), 03-03 (2 min), 03-04 (5 min), 04-01 (2 min)
+- Last 5 plans: 03-02 (3 min), 03-03 (2 min), 03-04 (5 min), 04-01 (2 min), 04-02 (5 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -81,6 +81,11 @@ Recent decisions affecting current work:
 - [02-05]: miniflare bindings for Worker Secrets in test (vitest.config.ts, not wrangler.toml)
 - [02-05]: ProvidedEnv type augmentation via env.d.ts for cloudflare:test type safety
 - [03-01]: cursor passed via dedicated ActionContext field (not left in actionParams)
+- [04-02]: viper.New() instances (not global singleton) for test isolation
+- [04-02]: X-Feelr-Key header for gateway auth (matches middleware)
+- [04-02]: cursor as URL query param (not body field) matching gateway convention
+- [04-02]: JSON unwrapped data default, full envelope with --verbose
+- [04-02]: All data to stdout, all errors to stderr (stream separation)
 
 ### Pending Todos
 
@@ -91,9 +96,10 @@ None yet.
 - [Research]: Cloudflare Workers Paid plan ($5/mo) required -- free tier 10ms CPU limit insufficient for gateway
 - [Research]: @cloudflare/vitest-pool-workers only supports Vitest 3.2.x (NOT 4.x) -- pin dependency (DONE in 01-01)
 - [Research]: workerd self-hosting patterns are emerging, may need fallback plan for Phase 9
+- [04-02]: Go 1.25.7 installed to ~/go-sdk/go/ (user-local) -- future agents need PATH=$HOME/go-sdk/go/bin:$PATH
 
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 04-01-PLAN.md (Gateway Discovery Endpoint)
+Stopped at: Completed 04-02-PLAN.md (Go module scaffold + config + client + formatters)
 Resume file: None
