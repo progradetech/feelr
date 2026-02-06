@@ -3,6 +3,7 @@ import type { AppEnv } from '../lib/types'
 import { wrapResponse } from '../lib/envelope'
 import { apiKeyMiddleware } from '../middleware/api-key'
 import { listCredentials, getCredential } from '../auth/credentials'
+import { listConnectors } from '../connectors/registry'
 
 /**
  * /status health check endpoint.
@@ -31,6 +32,7 @@ interface RateLimitInfo {
 /** Per-connector health status */
 interface ConnectorStatus {
   status: 'healthy' | 'degraded' | 'unhealthy'
+  auth_state: 'connected' | 'expired' | 'not_configured'
   rate_limit?: RateLimitInfo
   authenticated_as?: string
   error?: string
@@ -67,11 +69,48 @@ statusRoutes.get('/status', async (c) => {
     connectors: {},
   }
 
-  // Discover connectors with stored credentials
-  const connectorNames = await listCredentials(c.env.AUTH_KV)
+  // Get all registered connectors and stored credentials
+  const registeredConnectors = listConnectors()
+  const storedCredentialNames = new Set(await listCredentials(c.env.AUTH_KV))
 
-  // Check each connector's health
-  for (const connectorName of connectorNames) {
+  // Query DO for token statuses (to detect expired/failed tokens)
+  let doStatuses = new Map<string, string>()
+  try {
+    const doId = c.env.TOKEN_COORDINATOR.idFromName('default')
+    const doStub = c.env.TOKEN_COORDINATOR.get(doId) as unknown as {
+      listCredentials(): Promise<Array<{ connector: string; status: string; expiresAt: number }>>
+    }
+    const doList = await doStub.listCredentials()
+    for (const entry of doList) {
+      doStatuses.set(entry.connector, entry.status)
+    }
+  } catch {
+    // DO query failed -- proceed with KV-only info
+  }
+
+  // Check each registered connector's health and auth state
+  for (const connector of registeredConnectors) {
+    const connectorName = connector.name
+
+    // Skip internal connectors (mock)
+    if (connectorName === 'mock') continue
+
+    // Determine auth state
+    const hasCredential = storedCredentialNames.has(connectorName)
+    const doStatus = doStatuses.get(connectorName)
+
+    if (!hasCredential) {
+      response.connectors[connectorName] = {
+        status: 'unhealthy',
+        auth_state: 'not_configured',
+      }
+      continue
+    }
+
+    // Credential exists -- check if DO reports it as failed (expired)
+    const authState: ConnectorStatus['auth_state'] =
+      doStatus === 'failed' ? 'expired' : 'connected'
+
     try {
       const credential = await getCredential(
         connectorName,
@@ -82,26 +121,32 @@ statusRoutes.get('/status', async (c) => {
       if (!credential) {
         response.connectors[connectorName] = {
           status: 'unhealthy',
+          auth_state: 'not_configured',
           error: 'Credential not found',
         }
         continue
       }
 
-      // Currently only GitHub has health check logic
+      // GitHub has specific health check logic
       if (connectorName === 'github') {
-        response.connectors[connectorName] = await checkGitHub(
-          credential.accessToken,
-          deep
-        )
+        const githubStatus = await checkGitHub(credential.accessToken, deep)
+        response.connectors[connectorName] = {
+          ...githubStatus,
+          auth_state: authState,
+        }
       } else {
-        // For unknown connectors, just report that credentials exist
-        response.connectors[connectorName] = { status: 'healthy' }
+        // Other connectors: report healthy if credential exists and not expired
+        response.connectors[connectorName] = {
+          status: authState === 'expired' ? 'unhealthy' : 'healthy',
+          auth_state: authState,
+        }
       }
     } catch (err) {
       // Per-connector try/catch for resilience -- one failing connector
       // doesn't crash the entire status response
       response.connectors[connectorName] = {
         status: 'unhealthy',
+        auth_state: authState,
         error: err instanceof Error ? err.message : 'Unknown error',
       }
     }
@@ -145,6 +190,7 @@ async function checkGitHub(
   if (!rateLimitResponse.ok) {
     return {
       status: 'unhealthy',
+      auth_state: 'connected' as const,
       error: `GitHub /rate_limit returned ${rateLimitResponse.status}`,
     }
   }
@@ -167,7 +213,7 @@ async function checkGitHub(
   const status: ConnectorStatus['status'] =
     core.remaining === 0 ? 'degraded' : 'healthy'
 
-  const result: ConnectorStatus = { status, rate_limit: rateLimit }
+  const result: ConnectorStatus = { status, auth_state: 'connected', rate_limit: rateLimit }
 
   // Deep check: /user to validate PAT
   if (deep) {

@@ -18,10 +18,56 @@ import { FeelrError } from '../lib/errors'
 const tools = new OpenAPIHono<AppEnv>()
 
 /**
- * List all registered connectors.
- * Returns name, display_name, version, auth_type, and action_count for each.
+ * List all registered connectors, or search actions across all connectors.
+ *
+ * Without ?search: Returns name, display_name, version, auth_type, and action_count for each.
+ * With ?search=<term>: Returns flat array of matching actions across all connectors.
+ * Search matches action name or description (case-insensitive).
  */
 tools.get('/', (c) => {
+  const search = c.req.query('search')
+  const requestId = c.get('requestId')
+
+  // Cross-connector action search
+  if (search && search.trim().length > 0) {
+    const term = search.trim().toLowerCase()
+    const connectors = listConnectors()
+    const matches: Array<{
+      connector: string
+      action: string
+      description: string
+      returns: string
+    }> = []
+
+    for (const connector of connectors) {
+      for (const action of Object.values(connector.actions)) {
+        const nameMatch = action.name.toLowerCase().includes(term)
+        const descMatch = action.description.toLowerCase().includes(term)
+        if (nameMatch || descMatch) {
+          matches.push({
+            connector: connector.name,
+            action: action.name,
+            description: action.description,
+            returns: action.returns,
+          })
+        }
+      }
+    }
+
+    return c.json(
+      wrapResponse({
+        data: matches,
+        meta: {
+          request_id: requestId,
+          connector: 'gateway',
+          action: 'tools.search',
+          duration_ms: 0,
+        },
+      })
+    )
+  }
+
+  // Default: list all connectors
   const connectors = listConnectors()
 
   const items = connectors.map((connector) => ({
@@ -32,7 +78,6 @@ tools.get('/', (c) => {
     action_count: Object.keys(connector.actions).length,
   }))
 
-  const requestId = c.get('requestId')
   const response = wrapResponse({
     data: items,
     meta: {
