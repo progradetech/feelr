@@ -141,10 +141,14 @@ Plans:
   1. Requests exceeding per-key rate limits receive 429 responses with a Retry-After header
   2. Usage data is stored in D1 and queryable per key, per connector, and per time window
   3. Rate limiting and metering do not add perceptible latency to normal requests
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 07-01: TBD
+- [ ] 07-01-PLAN.md -- Rate limit types, tier field, wrangler config, Worker export restructure
+- [ ] 07-02-PLAN.md -- CLI 429 retry with Retry-After header
+- [ ] 07-03-PLAN.md -- Rate-limiter middleware + headers middleware + app wiring
+- [ ] 07-04-PLAN.md -- Error metering, rate_limit_events table, cron retention, internal endpoints
+- [ ] 07-05-PLAN.md -- Dashboard rate limit info display
 
 ### Phase 8: Composable Actions
 **Goal**: Users can execute multi-step workflows as a single command, with pre-built chains for common patterns and custom chains for their own needs
