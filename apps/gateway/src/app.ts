@@ -9,6 +9,7 @@ import { v1Routes } from './routes/v1'
 import { toolsRoutes } from './routes/tools'
 import { keyRoutes } from './routes/keys'
 import { adminRoutes } from './routes/admin'
+import { internalRoutes } from './routes/internal'
 import { statusRoutes } from './routes/status'
 
 /**
@@ -24,6 +25,7 @@ import { statusRoutes } from './routes/status'
  * - /v1/tools/* - Connector discovery (requires API key)
  * - /v1/*       - Connector dispatch (requires API key)
  * - /admin/*    - Key + credential management (requires admin token, own auth)
+ * - /internal/* - Dashboard data aggregation (requires admin token)
  * - /status     - Service health + connector health (requires API key)
  * - /health     - Health check (no auth)
  */
@@ -44,6 +46,9 @@ app.route('/admin', keyRoutes)
 
 // Mount admin credential management routes (/admin/credentials)
 app.route('/admin', adminRoutes)
+
+// Mount internal dashboard data routes (/internal/overview, /internal/usage)
+app.route('/internal', internalRoutes)
 
 // Mount v1 tools discovery routes (before dispatch so /v1/tools is matched first)
 app.route('/v1/tools', toolsRoutes)
