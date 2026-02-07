@@ -78,7 +78,7 @@ Each task was committed atomically:
    - Note: Task 1 files (use-connectors.ts, connector-card.tsx, connectors/page.tsx) were incidentally committed by the parallel 06-03 plan agent which staged all untracked files. The code is authored by this plan execution.
 2. **Task 2: Overview landing page with summary cards and sparkline** - `30236e4` (feat)
 
-**Plan metadata:** [pending]
+**Plan metadata:** `aa09479` (docs: complete plan)
 
 ## Files Created/Modified
 - `apps/dashboard/src/lib/hooks/use-connectors.ts` - SWR hook fetching /admin/credentials, maps to ConnectorStatus[]

@@ -73,7 +73,7 @@ Each task was committed atomically:
 1. **Task 1: SWR usage hook with filter parameters + usage chart component** - `461bf84` (feat)
 2. **Task 2: Usage page with time window presets and filter dropdowns** - `1fa285e` (feat)
 
-**Plan metadata:** TBD (docs: complete plan)
+**Plan metadata:** `7f23621` (docs: complete plan)
 
 ## Files Created/Modified
 - `apps/dashboard/src/lib/hooks/use-usage.ts` - SWR hook for /internal/usage with filter params, useAvailableKeys, useAvailableConnectors
