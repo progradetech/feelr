@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 7 of 10 (Production Hardening)
-Plan: 3 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-07 -- Completed 07-03-PLAN.md (rate limit middleware + headers)
+Last activity: 2026-02-07 -- Completed 07-04-PLAN.md (usage metering extensions)
 
-Progress: [██████████████████████████████] ~94% (31/33 plans through Phase 7-03)
+Progress: [██████████████████████████████] ~97% (32/33 plans through Phase 7-04)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 31
+- Total plans completed: 32
 - Average duration: 3 min
-- Total execution time: 100 min
+- Total execution time: 103 min
 
 **By Phase:**
 
@@ -146,6 +146,9 @@ Recent decisions affecting current work:
 - [07-03]: Conservative 60s Retry-After for per-key 429 (full window period, not remaining time)
 - [07-03]: RateLimit-Remaining is approximate (limit-1) since Cloudflare binding only returns success boolean
 - [07-03]: IP rate limiter omits Retry-After (pre-auth defense, less guidance for abusers)
+- [07-04]: Error status code from FeelrError.status, fallback 500 for unknown errors
+- [07-04]: 90-day retention cutoff via JS Date arithmetic (not SQLite datetime) for testability
+- [07-04]: Rate limits endpoint returns per-key data (not aggregated) for dashboard granularity
 
 ### Pending Todos
 
@@ -161,5 +164,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 07-03-PLAN.md (rate limit middleware and response headers)
+Stopped at: Completed 07-04-PLAN.md (usage metering extensions)
 Resume file: None

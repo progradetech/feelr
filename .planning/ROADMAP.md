@@ -145,9 +145,9 @@ Plans:
 
 Plans:
 - [x] 07-01-PLAN.md -- Rate limit types, tier field, wrangler config, Worker export restructure
-- [ ] 07-02-PLAN.md -- CLI 429 retry with Retry-After header
-- [ ] 07-03-PLAN.md -- Rate-limiter middleware + headers middleware + app wiring
-- [ ] 07-04-PLAN.md -- Error metering, rate_limit_events table, cron retention, internal endpoints
+- [x] 07-02-PLAN.md -- CLI 429 retry with Retry-After header
+- [x] 07-03-PLAN.md -- Rate-limiter middleware + headers middleware + app wiring
+- [x] 07-04-PLAN.md -- Error metering, rate_limit_events table, cron retention, internal endpoints
 - [ ] 07-05-PLAN.md -- Dashboard rate limit info display
 
 ### Phase 8: Composable Actions
