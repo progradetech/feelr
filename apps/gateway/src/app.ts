@@ -13,6 +13,7 @@ import { keyRoutes } from './routes/keys'
 import { adminRoutes } from './routes/admin'
 import { internalRoutes } from './routes/internal'
 import { statusRoutes } from './routes/status'
+import { chainsRoutes } from './routes/chains'
 
 /**
  * Feelr Gateway -- OpenAPIHono application.
@@ -27,8 +28,9 @@ import { statusRoutes } from './routes/status'
  * 7. Error handler (global, registered via onError)
  *
  * Route structure:
- * - /v1/tools/* - Connector discovery (requires API key)
- * - /v1/*       - Connector dispatch (requires API key)
+ * - /v1/tools/*  - Connector discovery (requires API key)
+ * - /v1/chains/* - Chain execution (requires API key)
+ * - /v1/*        - Connector dispatch (requires API key)
  * - /admin/*    - Key + credential management (requires admin token, own auth)
  * - /internal/* - Dashboard data aggregation (requires admin token)
  * - /status     - Service health + connector health (requires API key)
@@ -64,6 +66,9 @@ app.route('/internal', internalRoutes)
 
 // Mount v1 tools discovery routes (before dispatch so /v1/tools is matched first)
 app.route('/v1/tools', toolsRoutes)
+
+// Mount v1 chain execution routes (before dispatch so /v1/chains is matched first)
+app.route('/v1/chains', chainsRoutes)
 
 // Mount v1 dispatch routes
 app.route('/v1', v1Routes)
