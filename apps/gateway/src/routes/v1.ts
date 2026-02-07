@@ -119,14 +119,38 @@ v1.all('/:connector/:action', async (c) => {
     // and connectors should handle missing credentials gracefully.
   }
 
-  // Execute action handler
+  // Execute action handler with timing and error metering
+  const apiKeyShort = c.get('apiKeyRecord')?.shortToken ?? 'unknown'
   const startTime = performance.now()
-  const result = await action.handler({
-    params: actionParams,
-    fetch: fetch,
-    credential,
-    cursor,
-  })
+
+  let result: Awaited<ReturnType<typeof action.handler>>
+  try {
+    result = await action.handler({
+      params: actionParams,
+      fetch: fetch,
+      credential,
+      cursor,
+    })
+  } catch (err) {
+    const durationMs = Math.round(performance.now() - startTime)
+
+    // Record failed request usage (best-effort, non-blocking)
+    const statusCode = err instanceof FeelrError ? err.status : 500
+    c.executionCtx.waitUntil(
+      recordUsage(c.env.USAGE_DB, {
+        api_key_short: apiKeyShort,
+        connector: connectorName,
+        action: actionName,
+        status_code: statusCode,
+        duration_ms: durationMs,
+        timestamp: new Date().toISOString(),
+      })
+    )
+
+    // Re-throw to let the global error handler format the response
+    throw err
+  }
+
   const durationMs = Math.round(performance.now() - startTime)
 
   // Check for ?raw=true -- return raw upstream data without envelope
@@ -151,7 +175,7 @@ v1.all('/:connector/:action', async (c) => {
   // Non-blocking usage recording via waitUntil (never fails the parent request)
   c.executionCtx.waitUntil(
     recordUsage(c.env.USAGE_DB, {
-      api_key_short: c.get('apiKeyRecord')?.shortToken ?? 'unknown',
+      api_key_short: apiKeyShort,
       connector: connectorName,
       action: actionName,
       status_code: 200,
