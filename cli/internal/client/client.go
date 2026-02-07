@@ -8,6 +8,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -273,6 +275,42 @@ func (c *GatewayClient) doRequestInner(req *http.Request, isRetry bool) (*gatewa
 	if err != nil {
 		return nil, fmt.Errorf("gateway request failed: %w", err)
 	}
+
+	// Handle rate limiting with automatic retry (max 1 retry).
+	// This check runs before defer resp.Body.Close() so the body is
+	// closed explicitly before sleeping and retrying.
+	if resp.StatusCode == 429 && !isRetry {
+		resp.Body.Close()
+		retryAfter := resp.Header.Get("Retry-After")
+		if retryAfter == "" {
+			return nil, &CLIError{
+				ExitCode: 1,
+				Message:  "Rate limited (429). No Retry-After header provided.",
+			}
+		}
+		waitSeconds, parseErr := strconv.Atoi(retryAfter)
+		if parseErr != nil || waitSeconds <= 0 {
+			return nil, &CLIError{
+				ExitCode: 1,
+				Message:  fmt.Sprintf("Rate limited (429). Invalid Retry-After: %s", retryAfter),
+			}
+		}
+		// Cap wait at 120 seconds.
+		if waitSeconds > 120 {
+			waitSeconds = 120
+		}
+		fmt.Fprintf(os.Stderr, "Rate limited. Waiting %ds...\n", waitSeconds)
+		time.Sleep(time.Duration(waitSeconds) * time.Second)
+		// Clone and retry once.
+		retryReq, cloneErr := cloneRequest(req)
+		if cloneErr != nil {
+			return nil, fmt.Errorf("preparing rate-limit retry: %w", cloneErr)
+		}
+		c.setHeaders(retryReq)
+		return c.doRequestInner(retryReq, true)
+	}
+
+	// Normal path: defer body close and read.
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
