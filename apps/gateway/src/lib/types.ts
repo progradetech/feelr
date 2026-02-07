@@ -20,6 +20,8 @@ export interface AppEnv extends Env {
     SLACK_CLIENT_ID: string
     /** Worker Secret: Slack OAuth client secret (for token exchange + refresh) */
     SLACK_CLIENT_SECRET: string
+    /** D1 database for usage analytics (dashboard data) */
+    USAGE_DB: D1Database
   }
   Variables: {
     requestId: string

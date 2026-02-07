@@ -9,6 +9,7 @@ import { githubConnector } from '@feelr/connector-github'
 import { slackConnector } from '@feelr/connector-slack'
 import { stripeConnector } from '@feelr/connector-stripe'
 import { discordConnector } from '@feelr/connector-discord'
+import { recordUsage } from '../middleware/usage-recorder'
 
 /**
  * V1 API routes -- main dispatch layer.
@@ -146,6 +147,18 @@ v1.all('/:connector/:action', async (c) => {
       ...(result.meta?.has_more !== undefined && { has_more: result.meta.has_more }),
     },
   })
+
+  // Non-blocking usage recording via waitUntil (never fails the parent request)
+  c.executionCtx.waitUntil(
+    recordUsage(c.env.USAGE_DB, {
+      api_key_short: c.get('apiKeyRecord')?.shortToken ?? 'unknown',
+      connector: connectorName,
+      action: actionName,
+      status_code: 200,
+      duration_ms: durationMs,
+      timestamp: new Date().toISOString(),
+    })
+  )
 
   return c.json(response)
 })
