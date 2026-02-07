@@ -4,6 +4,8 @@ import { logger } from 'hono/logger'
 import type { AppEnv } from './lib/types'
 import { wrapError } from './lib/envelope'
 import { errorHandler } from './middleware/error-handler'
+import { ipRateLimiter, keyRateLimiter } from './middleware/rate-limiter'
+import { rateLimitHeaders } from './middleware/rate-limit-headers'
 import { apiKeyMiddleware } from './middleware/api-key'
 import { v1Routes } from './routes/v1'
 import { toolsRoutes } from './routes/tools'
@@ -15,11 +17,14 @@ import { statusRoutes } from './routes/status'
 /**
  * Feelr Gateway -- OpenAPIHono application.
  *
- * Middleware chain:
+ * Middleware chain on /v1/*:
  * 1. CORS (global)
  * 2. Logger (global)
- * 3. API key validation (v1/* only -- KV-backed with timing-safe hash comparison)
- * 4. Error handler (global, registered via onError)
+ * 3. IP rate limiter (pre-auth defense -- 100 req/10s per IP)
+ * 4. API key validation (KV-backed with timing-safe hash comparison)
+ * 5. Per-key tier-based rate limiter (free: 30, pro: 300, enterprise: 3000 req/min)
+ * 6. Rate limit response headers (RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset)
+ * 7. Error handler (global, registered via onError)
  *
  * Route structure:
  * - /v1/tools/* - Connector discovery (requires API key)
@@ -38,8 +43,15 @@ app.use('*', logger())
 // Global error handler
 app.onError(errorHandler)
 
-// API key middleware on v1 routes only (admin routes use their own auth)
+// v1/* middleware chain (order matters):
+// 1. IP rate limiter   -- pre-auth defense against brute-force
+// 2. API key auth      -- validates key, populates apiKeyRecord
+// 3. Per-key limiter   -- tier-based rate limiting (requires apiKeyRecord)
+// 4. Response headers  -- injects RateLimit-* headers on successful responses
+app.use('/v1/*', ipRateLimiter)
 app.use('/v1/*', apiKeyMiddleware)
+app.use('/v1/*', keyRateLimiter)
+app.use('/v1/*', rateLimitHeaders)
 
 // Mount admin key management routes (/admin/keys)
 app.route('/admin', keyRoutes)
