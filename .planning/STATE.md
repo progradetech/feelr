@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 8 (Composable Actions) -- chain types, loader, selector, condition evaluator, executor, CLI chain commands, gateway chain executor, and 6 pre-built chains complete.
+**Current focus:** Phase 8 (Composable Actions) COMPLETE -- all 7 plans executed: chain types, loader, selector, condition evaluator, executor, CLI chain commands, gateway chain executor, pre-built chains, dry-run, and built-in chain discovery.
 
 ## Current Position
 
 Phase: 8 of 10 (Composable Actions)
-Plan: 6 of 7 in current phase
-Status: In progress
-Last activity: 2026-02-07 -- Completed 08-06-PLAN.md
+Plan: 7 of 7 in current phase
+Status: Phase complete
+Last activity: 2026-02-07 -- Completed 08-07-PLAN.md
 
-Progress: [████████████████████████████████████░░░░] ~97% (39/40 plans through Phase 8-06)
+Progress: [████████████████████████████████████████] 100% (40/40 plans through Phase 8-07)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 39
+- Total plans completed: 40
 - Average duration: 3 min
-- Total execution time: 123 min
+- Total execution time: 127 min
 
 **By Phase:**
 
@@ -35,10 +35,10 @@ Progress: [███████████████████████
 | 05-oauth-connectors | 6/6 | 20 min | 3 min |
 | 06-dashboard | 5/5 | 18 min | 4 min |
 | 07-production-hardening | 5/5 | 8 min | 2 min |
-| 08-composable-actions | 6/7 | 18 min | 3 min |
+| 08-composable-actions | 7/7 | 22 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 08-02 (3 min), 08-03 (4 min), 08-04 (3 min), 08-05 (3 min), 08-06 (2 min)
+- Last 5 plans: 08-03 (4 min), 08-04 (3 min), 08-05 (3 min), 08-06 (2 min), 08-07 (4 min)
 - Trend: stable/fast
 
 *Updated after each plan completion*
@@ -176,6 +176,11 @@ Recent decisions affecting current work:
 - [08-06]: Pre-built chains have 2 steps each (action + notification) for simplicity as templates
 - [08-06]: Conditional logic uses steps.X.status == 'success' and steps.X.number > 0 patterns
 - [08-06]: All chains use retry policy (max_attempts: 2, delay_seconds: 3-5)
+- [08-07]: Dry-run output to stderr, consistent with CLI data-to-stdout philosophy
+- [08-07]: MockStepOutput returns connector-specific plausible data for template resolution in dry-run
+- [08-07]: ResolveChain expanded: cwd -> chains/ subdir -> exe/chains/ -> parent/chains/
+- [08-07]: Dry-run path resolves chain before loading config (no gateway needed for validation)
+- [08-07]: chain_list.go refactored to use ListAvailableChains with directory scanning and deduplication
 
 ### Pending Todos
 
@@ -191,5 +196,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 08-06-PLAN.md
+Stopped at: Completed 08-07-PLAN.md (Phase 8 complete)
 Resume file: None
