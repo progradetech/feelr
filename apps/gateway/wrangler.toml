@@ -22,6 +22,14 @@ bindings = [
   { name = "TOKEN_COORDINATOR", class_name = "TokenCoordinator" }
 ]
 
+# D1 Databases
+# Create with: npx wrangler d1 create feelr-usage
+# Then replace the placeholder ID below with the real one.
+[[d1_databases]]
+binding = "USAGE_DB"
+database_name = "feelr-usage"
+database_id = "placeholder-create-with-wrangler"
+
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["TokenCoordinator"]

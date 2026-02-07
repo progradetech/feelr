@@ -11,6 +11,7 @@ export default defineWorkersConfig({
             ADMIN_TOKEN: 'test-admin-token-for-development',
             ENVIRONMENT: 'development',
           },
+          d1Databases: ['USAGE_DB'],
         },
       },
     },
