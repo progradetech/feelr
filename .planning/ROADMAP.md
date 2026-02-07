@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: CLI Core** - Go binary providing run, tools, status, output modes, and shell completion for agent consumption
 - [x] **Phase 5: OAuth Connectors** - Slack, Discord, and Stripe connectors with OAuth flows and agent-optimized discovery
 - [x] **Phase 6: Dashboard** - Next.js web UI for API key management, connector status, and usage visualization
-- [ ] **Phase 7: Production Hardening** - Rate limiting per API key and usage metering with persistent storage
+- [x] **Phase 7: Production Hardening** - Rate limiting per API key and usage metering with persistent storage
 - [ ] **Phase 8: Composable Actions** - Chain engine with pre-built workflows, custom chains, data passing, and conditionals
 - [ ] **Phase 9: Self-Hosting** - Docker Compose deployment with workerd, feature parity via runtime abstraction
 - [ ] **Phase 10: Launch Prep** - Stripe billing, documentation site, CLI distribution, and open-source packaging
@@ -210,7 +210,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 4. CLI Core | 5/5 | Complete | 2026-02-06 |
 | 5. OAuth Connectors | 6/6 | Complete | 2026-02-06 |
 | 6. Dashboard | 5/5 | Complete | 2026-02-07 |
-| 7. Production Hardening | 0/TBD | Not started | - |
+| 7. Production Hardening | 5/5 | Complete | 2026-02-07 |
 | 8. Composable Actions | 0/TBD | Not started | - |
 | 9. Self-Hosting | 0/TBD | Not started | - |
 | 10. Launch Prep | 0/TBD | Not started | - |

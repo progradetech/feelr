@@ -62,8 +62,8 @@ Requirements for initial launchable release. Each maps to roadmap phases.
 ### Billing & Platform
 
 - [ ] **PLAT-01**: Stripe billing integration with metered subscriptions and plan enforcement, toggleable via config for self-hosted
-- [ ] **PLAT-02**: Rate limiting per API key with 429 responses including Retry-After header
-- [ ] **PLAT-03**: Usage metering tracks requests per key, per connector, per time window stored in D1
+- [x] **PLAT-02**: Rate limiting per API key with 429 responses including Retry-After header
+- [x] **PLAT-03**: Usage metering tracks requests per key, per connector, per time window stored in D1
 - [ ] **PLAT-04**: Documentation site at feelr.dev/docs with quick-start guide, auth setup, and per-connector action reference
 
 ### Self-Hosting
@@ -163,8 +163,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COMP-04 | Phase 8: Composable Actions | Pending |
 | COMP-05 | Phase 8: Composable Actions | Pending |
 | PLAT-01 | Phase 10: Launch Prep | Pending |
-| PLAT-02 | Phase 7: Production Hardening | Pending |
-| PLAT-03 | Phase 7: Production Hardening | Pending |
+| PLAT-02 | Phase 7: Production Hardening | Complete |
+| PLAT-03 | Phase 7: Production Hardening | Complete |
 | PLAT-04 | Phase 10: Launch Prep | Pending |
 | SELF-01 | Phase 9: Self-Hosting | Pending |
 | SELF-02 | Phase 9: Self-Hosting | Pending |
