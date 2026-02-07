@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 8 (Composable Actions) -- chain definition types and loader complete.
+**Current focus:** Phase 8 (Composable Actions) -- chain types, loader, and template selector engine complete.
 
 ## Current Position
 
 Phase: 8 of 10 (Composable Actions)
-Plan: 1 of 7 in current phase
+Plan: 2 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-07 -- Completed 08-01-PLAN.md
+Last activity: 2026-02-07 -- Completed 08-02-PLAN.md
 
-Progress: [██████████████████████████████░░░░░░░░░░] ~85% (34/40 plans through Phase 8-01)
+Progress: [████████████████████████████████░░░░░░░░] ~88% (35/40 plans through Phase 8-02)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 34
+- Total plans completed: 35
 - Average duration: 3 min
-- Total execution time: 108 min
+- Total execution time: 111 min
 
 **By Phase:**
 
@@ -35,10 +35,10 @@ Progress: [███████████████████████
 | 05-oauth-connectors | 6/6 | 20 min | 3 min |
 | 06-dashboard | 5/5 | 18 min | 4 min |
 | 07-production-hardening | 5/5 | 8 min | 2 min |
-| 08-composable-actions | 1/7 | 3 min | 3 min |
+| 08-composable-actions | 2/7 | 6 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-02 (1 min), 07-03 (1 min), 07-04 (3 min), 07-05 (2 min), 08-01 (3 min)
+- Last 5 plans: 07-03 (1 min), 07-04 (3 min), 07-05 (2 min), 08-01 (3 min), 08-02 (3 min)
 - Trend: stable/fast
 
 *Updated after each plan completion*
@@ -156,6 +156,11 @@ Recent decisions affecting current work:
 - [08-01]: Param.Default is string type (coerced at runtime based on Type field)
 - [08-01]: With values are strings supporting ${{ }} interpolation templates
 - [08-01]: Forward reference detection parses steps.X tokens from if expressions
+- [08-02]: Pure Go template engine with stdlib only (regexp, strings, strconv, fmt)
+- [08-02]: Lenient missing data: resolves to empty string, never errors
+- [08-02]: Null coalescing splits on ' ?? ' (space-padded) to avoid field name ambiguity
+- [08-02]: float64 integers stringified without decimal (42 not 42.000000)
+- [08-02]: ResolveContext defined in selector.go (own type, not shared with types.go)
 
 ### Pending Todos
 
@@ -171,5 +176,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 08-01-PLAN.md
+Stopped at: Completed 08-02-PLAN.md
 Resume file: None
