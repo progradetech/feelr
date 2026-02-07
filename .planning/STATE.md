@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 8 (Composable Actions) -- chain types, loader, and template selector engine complete.
+**Current focus:** Phase 8 (Composable Actions) -- chain types, loader, selector, condition evaluator, and executor complete.
 
 ## Current Position
 
 Phase: 8 of 10 (Composable Actions)
-Plan: 2 of 7 in current phase
+Plan: 3 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-07 -- Completed 08-02-PLAN.md
+Last activity: 2026-02-07 -- Completed 08-03-PLAN.md
 
-Progress: [████████████████████████████████░░░░░░░░] ~88% (35/40 plans through Phase 8-02)
+Progress: [█████████████████████████████████░░░░░░░] ~90% (36/40 plans through Phase 8-03)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 35
+- Total plans completed: 36
 - Average duration: 3 min
-- Total execution time: 111 min
+- Total execution time: 115 min
 
 **By Phase:**
 
@@ -35,10 +35,10 @@ Progress: [███████████████████████
 | 05-oauth-connectors | 6/6 | 20 min | 3 min |
 | 06-dashboard | 5/5 | 18 min | 4 min |
 | 07-production-hardening | 5/5 | 8 min | 2 min |
-| 08-composable-actions | 2/7 | 6 min | 3 min |
+| 08-composable-actions | 3/7 | 10 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-03 (1 min), 07-04 (3 min), 07-05 (2 min), 08-01 (3 min), 08-02 (3 min)
+- Last 5 plans: 07-04 (3 min), 07-05 (2 min), 08-01 (3 min), 08-02 (3 min), 08-03 (4 min)
 - Trend: stable/fast
 
 *Updated after each plan completion*
@@ -161,6 +161,10 @@ Recent decisions affecting current work:
 - [08-02]: Null coalescing splits on ' ?? ' (space-padded) to avoid field name ambiguity
 - [08-02]: float64 integers stringified without decimal (42 not 42.000000)
 - [08-02]: ResolveContext defined in selector.go (own type, not shared with types.go)
+- [08-03]: validateChainParams name to avoid collision with selector.go resolveParams
+- [08-03]: Pure Go expression evaluator: split on ' || ' then ' && ' for precedence (no expr-lang/expr dependency)
+- [08-03]: Numeric comparison fallback to string when either side fails ParseFloat
+- [08-03]: Truthy values: empty string, '0', and 'false' are falsy; everything else truthy
 
 ### Pending Todos
 
@@ -176,5 +180,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 08-02-PLAN.md
+Stopped at: Completed 08-03-PLAN.md
 Resume file: None
