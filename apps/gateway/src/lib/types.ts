@@ -2,7 +2,7 @@ import type { Env } from 'hono'
 import type { ApiKeyRecord } from '../auth/types'
 
 /** Cloudflare Rate Limiting binding (GA Sep 2025). Returns { success: boolean } */
-interface RateLimitBinding {
+export interface RateLimitBinding {
   limit(options: { key: string }): Promise<{ success: boolean }>
 }
 

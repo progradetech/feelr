@@ -1,8 +1,17 @@
 /**
  * Feelr Gateway -- Cloudflare Worker entry point.
  *
- * Re-exports the Hono app as the default Worker handler and the
- * TokenCoordinator DO class for wrangler class_name binding.
+ * Exports the Worker as a module with:
+ * - fetch: Hono app handler for HTTP requests
+ * - scheduled: Cron trigger handler for data retention
+ * - TokenCoordinator: Durable Object class for token refresh coordination
  */
-export { default } from './app'
+import app from './app'
+import { handleScheduled } from './scheduled'
+
 export { TokenCoordinator } from './durable-objects/token-coordinator'
+
+export default {
+  fetch: app.fetch,
+  scheduled: handleScheduled,
+}
