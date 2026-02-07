@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 6 in progress (Dashboard). Scaffold, auth, navigation, keys, connectors, and usage pages complete.
+**Current focus:** Phase 6 complete (Dashboard). All pages implemented: overview, keys, connectors, usage.
 
 ## Current Position
 
 Phase: 6 of 10 (Dashboard)
 Plan: 5 of 5 in current phase
-Status: In progress
-Last activity: 2026-02-07 -- Completed 06-05-PLAN.md
+Status: Phase complete
+Last activity: 2026-02-07 -- Completed 06-04-PLAN.md
 
-Progress: [███████████████████████████] ~96% (27/28 plans)
+Progress: [████████████████████████████] 100% (28/28 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 27
+- Total plans completed: 28
 - Average duration: 3 min
-- Total execution time: 90 min
+- Total execution time: 95 min
 
 **By Phase:**
 
@@ -33,10 +33,10 @@ Progress: [███████████████████████
 | 04-cli-core | 5/5 | 17 min | 3 min |
 
 | 05-oauth-connectors | 6/6 | 20 min | 3 min |
-| 06-dashboard | 4/5 | 13 min | 3 min |
+| 06-dashboard | 5/5 | 18 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-06 (2 min), 06-01 (2 min), 06-02 (4 min), 06-03 (4 min), 06-05 (3 min)
+- Last 5 plans: 06-01 (2 min), 06-02 (4 min), 06-03 (4 min), 06-05 (3 min), 06-04 (5 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -134,6 +134,9 @@ Recent decisions affecting current work:
 - [06-05]: HTML select elements for filter dropdowns (no shadcn dependency needed)
 - [06-05]: Static connector list in useAvailableConnectors (no fetch, connectors are known)
 - [06-05]: Separate SWR key admin-keys-for-filter to avoid collision with keys page hook
+- [06-04]: Dynamic import for Recharts SparklineChart (ssr:false) required for static export compatibility
+- [06-04]: 2-state connector status (connected/not_connected) in Phase 6; needs_reauth requires gateway auth_state
+- [06-04]: Hardcoded connector list of 4 known connectors (not discovered from gateway)
 
 ### Pending Todos
 
@@ -149,5 +152,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 06-05-PLAN.md
+Stopped at: Completed 06-04-PLAN.md (Phase 6 complete)
 Resume file: None
