@@ -4,6 +4,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func init() {
+	chainCmd.AddCommand(chainRunCmd)
+	chainCmd.AddCommand(chainListCmd)
+	chainCmd.AddCommand(chainValidateCmd)
+	chainCmd.AddCommand(chainShowCmd)
+}
+
 var chainCmd = &cobra.Command{
 	Use:   "chain <command>",
 	Short: "Manage and execute composable action chains",
