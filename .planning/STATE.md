@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 6 in progress (Dashboard). Usage recording and internal API complete.
+**Current focus:** Phase 6 in progress (Dashboard). Scaffold, auth, and navigation complete.
 
 ## Current Position
 
 Phase: 6 of 10 (Dashboard)
-Plan: 1 of 5 in current phase
+Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-07 -- Completed 06-01-PLAN.md
+Last activity: 2026-02-07 -- Completed 06-02-PLAN.md
 
-Progress: [████████████████████████] ~86% (24/28 plans)
+Progress: [█████████████████████████] ~89% (25/28 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 24
+- Total plans completed: 25
 - Average duration: 3 min
-- Total execution time: 79 min
+- Total execution time: 83 min
 
 **By Phase:**
 
@@ -33,10 +33,10 @@ Progress: [███████████████████████
 | 04-cli-core | 5/5 | 17 min | 3 min |
 
 | 05-oauth-connectors | 6/6 | 20 min | 3 min |
-| 06-dashboard | 1/5 | 2 min | 2 min |
+| 06-dashboard | 2/5 | 6 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-03 (3 min), 05-04 (4 min), 05-05 (5 min), 05-06 (2 min), 06-01 (2 min)
+- Last 5 plans: 05-04 (4 min), 05-05 (5 min), 05-06 (2 min), 06-01 (2 min), 06-02 (4 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -123,6 +123,11 @@ Recent decisions affecting current work:
 - [06-01]: D1 table-not-found errors return empty arrays (graceful pre-migration state)
 - [06-01]: strftime-based time bucketing in D1 SQL for hour/day/month windows
 - [06-01]: Error responses (action handler throws) are NOT metered -- Phase 7 extends this
+- [06-02]: Next.js 15.5 used (plan said 16 but 15.5 is latest stable)
+- [06-02]: Manual project scaffold (not create-next-app) for CI reliability
+- [06-02]: All pages use 'use client' directive for static export SPA compatibility
+- [06-02]: Login validates token via /admin/keys before storing to localStorage
+- [06-02]: localStorage key 'feelr_admin_token' with typeof window guards for SSG
 
 ### Pending Todos
 
@@ -138,5 +143,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 06-01-PLAN.md
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
