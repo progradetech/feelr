@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 6 complete and verified (15/15 must-haves). Ready for Phase 7 (Production Hardening).
+**Current focus:** Phase 7 in progress (Production Hardening).
 
 ## Current Position
 
-Phase: 6 of 10 (Dashboard)
-Plan: 5 of 5 in current phase
-Status: Phase complete, verified
-Last activity: 2026-02-07 -- Phase 6 verified (15/15 must-haves passed)
+Phase: 7 of 10 (Production Hardening)
+Plan: 2 of 5 in current phase
+Status: In progress
+Last activity: 2026-02-07 -- Completed 07-02-PLAN.md
 
-Progress: [████████████████████████████] ~90% (28/28 plans through Phase 6)
+Progress: [██████████████████████████████] ~91% (30/33 plans through Phase 7-02)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 28
+- Total plans completed: 30
 - Average duration: 3 min
-- Total execution time: 95 min
+- Total execution time: 97 min
 
 **By Phase:**
 
@@ -137,6 +137,9 @@ Recent decisions affecting current work:
 - [06-04]: Dynamic import for Recharts SparklineChart (ssr:false) required for static export compatibility
 - [06-04]: 2-state connector status (connected/not_connected) in Phase 6; needs_reauth requires gateway auth_state
 - [06-04]: Hardcoded connector list of 4 known connectors (not discovered from gateway)
+- [07-02]: 429 check before defer resp.Body.Close() with explicit close in retry path
+- [07-02]: Missing Retry-After returns immediate error (no default wait)
+- [07-02]: isRetry flag shared between 429 retry and auth-expired retry paths
 
 ### Pending Todos
 
@@ -152,5 +155,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Phase 6 complete and verified -- ready for Phase 7
+Stopped at: Completed 07-02-PLAN.md (CLI 429 rate limit retry)
 Resume file: None
