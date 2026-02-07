@@ -53,11 +53,11 @@ Requirements for initial launchable release. Each maps to roadmap phases.
 
 ### Composable Actions
 
-- [ ] **COMP-01**: Pre-built action chains ship with Feelr for common workflows (e.g., GitHub issue → Slack notification)
-- [ ] **COMP-02**: User can create custom action chains via YAML/JSON configuration defining sequential steps
-- [ ] **COMP-03**: Chain steps can pass data from step N output to step N+1 input via JSONPath-style selectors
-- [ ] **COMP-04**: Chains support one level of conditional logic (if/else based on step output)
-- [ ] **COMP-05**: Complexity ceiling enforced: max 10 steps, sequential only, no loops, global retry policy
+- [x] **COMP-01**: Pre-built action chains ship with Feelr for common workflows (e.g., GitHub issue → Slack notification)
+- [x] **COMP-02**: User can create custom action chains via YAML/JSON configuration defining sequential steps
+- [x] **COMP-03**: Chain steps can pass data from step N output to step N+1 input via JSONPath-style selectors
+- [x] **COMP-04**: Chains support one level of conditional logic (if/else based on step output)
+- [x] **COMP-05**: Complexity ceiling enforced: max 10 steps, sequential only, no loops, global retry policy
 
 ### Billing & Platform
 
@@ -157,11 +157,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-02 | Phase 6: Dashboard | Complete |
 | DASH-03 | Phase 6: Dashboard | Complete |
 | DASH-04 | Phase 6: Dashboard | Complete |
-| COMP-01 | Phase 8: Composable Actions | Pending |
-| COMP-02 | Phase 8: Composable Actions | Pending |
-| COMP-03 | Phase 8: Composable Actions | Pending |
-| COMP-04 | Phase 8: Composable Actions | Pending |
-| COMP-05 | Phase 8: Composable Actions | Pending |
+| COMP-01 | Phase 8: Composable Actions | Complete |
+| COMP-02 | Phase 8: Composable Actions | Complete |
+| COMP-03 | Phase 8: Composable Actions | Complete |
+| COMP-04 | Phase 8: Composable Actions | Complete |
+| COMP-05 | Phase 8: Composable Actions | Complete |
 | PLAT-01 | Phase 10: Launch Prep | Pending |
 | PLAT-02 | Phase 7: Production Hardening | Complete |
 | PLAT-03 | Phase 7: Production Hardening | Complete |

@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: OAuth Connectors** - Slack, Discord, and Stripe connectors with OAuth flows and agent-optimized discovery
 - [x] **Phase 6: Dashboard** - Next.js web UI for API key management, connector status, and usage visualization
 - [x] **Phase 7: Production Hardening** - Rate limiting per API key and usage metering with persistent storage
-- [ ] **Phase 8: Composable Actions** - Chain engine with pre-built workflows, custom chains, data passing, and conditionals
+- [x] **Phase 8: Composable Actions** - Chain engine with pre-built workflows, custom chains, data passing, and conditionals
 - [ ] **Phase 9: Self-Hosting** - Docker Compose deployment with workerd, feature parity via runtime abstraction
 - [ ] **Phase 10: Launch Prep** - Stripe billing, documentation site, CLI distribution, and open-source packaging
 
@@ -163,13 +163,13 @@ Plans:
 **Plans**: 7 plans
 
 Plans:
-- [ ] 08-01-PLAN.md -- Chain types, YAML/JSON loader, validation
-- [ ] 08-02-PLAN.md -- Selector/template interpolation engine (TDD)
-- [ ] 08-03-PLAN.md -- Condition evaluator + sequential chain executor
-- [ ] 08-04-PLAN.md -- CLI `chain` subcommand group (run, list, validate, show)
-- [ ] 08-05-PLAN.md -- Gateway server-side chain execution endpoint
-- [ ] 08-06-PLAN.md -- Pre-built chains (6 YAML files covering all connectors)
-- [ ] 08-07-PLAN.md -- Dry-run mode + built-in chain discovery
+- [x] 08-01-PLAN.md -- Chain types, YAML/JSON loader, validation
+- [x] 08-02-PLAN.md -- Selector/template interpolation engine (TDD)
+- [x] 08-03-PLAN.md -- Condition evaluator + sequential chain executor
+- [x] 08-04-PLAN.md -- CLI `chain` subcommand group (run, list, validate, show)
+- [x] 08-05-PLAN.md -- Gateway server-side chain execution endpoint
+- [x] 08-06-PLAN.md -- Pre-built chains (6 YAML files covering all connectors)
+- [x] 08-07-PLAN.md -- Dry-run mode + built-in chain discovery
 
 ### Phase 9: Self-Hosting
 **Goal**: Anyone can run the full Feelr stack locally or on their own infrastructure with a single command
@@ -216,6 +216,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 5. OAuth Connectors | 6/6 | Complete | 2026-02-06 |
 | 6. Dashboard | 5/5 | Complete | 2026-02-07 |
 | 7. Production Hardening | 5/5 | Complete | 2026-02-07 |
-| 8. Composable Actions | 0/TBD | Not started | - |
+| 8. Composable Actions | 7/7 | Complete | 2026-02-07 |
 | 9. Self-Hosting | 0/TBD | Not started | - |
 | 10. Launch Prep | 0/TBD | Not started | - |
