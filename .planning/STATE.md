@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 8 (Composable Actions) -- chain types, loader, selector, condition evaluator, executor, CLI chain commands, and gateway chain executor complete.
+**Current focus:** Phase 8 (Composable Actions) -- chain types, loader, selector, condition evaluator, executor, CLI chain commands, gateway chain executor, and 6 pre-built chains complete.
 
 ## Current Position
 
 Phase: 8 of 10 (Composable Actions)
-Plan: 5 of 7 in current phase
+Plan: 6 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-07 -- Completed 08-05-PLAN.md
+Last activity: 2026-02-07 -- Completed 08-06-PLAN.md
 
-Progress: [███████████████████████████████████░░░░░] ~95% (38/40 plans through Phase 8-05)
+Progress: [████████████████████████████████████░░░░] ~97% (39/40 plans through Phase 8-06)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 38
+- Total plans completed: 39
 - Average duration: 3 min
-- Total execution time: 121 min
+- Total execution time: 123 min
 
 **By Phase:**
 
@@ -35,10 +35,10 @@ Progress: [███████████████████████
 | 05-oauth-connectors | 6/6 | 20 min | 3 min |
 | 06-dashboard | 5/5 | 18 min | 4 min |
 | 07-production-hardening | 5/5 | 8 min | 2 min |
-| 08-composable-actions | 5/7 | 16 min | 3 min |
+| 08-composable-actions | 6/7 | 18 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 08-01 (3 min), 08-02 (3 min), 08-03 (4 min), 08-04 (3 min), 08-05 (3 min)
+- Last 5 plans: 08-02 (3 min), 08-03 (4 min), 08-04 (3 min), 08-05 (3 min), 08-06 (2 min)
 - Trend: stable/fast
 
 *Updated after each plan completion*
@@ -173,6 +173,9 @@ Recent decisions affecting current work:
 - [08-05]: List action results wrapped as {data: [], meta: {}} for consistent template path access
 - [08-05]: Param validation error returned as step_id '_params' with 400 status
 - [08-05]: Chain failure returns 200 with success:false in body (chain-level not HTTP-level error)
+- [08-06]: Pre-built chains have 2 steps each (action + notification) for simplicity as templates
+- [08-06]: Conditional logic uses steps.X.status == 'success' and steps.X.number > 0 patterns
+- [08-06]: All chains use retry policy (max_attempts: 2, delay_seconds: 3-5)
 
 ### Pending Todos
 
@@ -188,5 +191,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 08-05-PLAN.md
+Stopped at: Completed 08-06-PLAN.md
 Resume file: None
