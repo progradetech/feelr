@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 7 complete and verified. Ready for Phase 8 (Composable Actions).
+**Current focus:** Phase 8 (Composable Actions) -- chain definition types and loader complete.
 
 ## Current Position
 
-Phase: 7 of 10 (Production Hardening)
-Plan: 5 of 5 in current phase
-Status: Phase complete, verified
-Last activity: 2026-02-07 -- Phase 7 verified (gap fixed: wired recordRateLimitEvent)
+Phase: 8 of 10 (Composable Actions)
+Plan: 1 of 7 in current phase
+Status: In progress
+Last activity: 2026-02-07 -- Completed 08-01-PLAN.md
 
-Progress: [██████████████████████████████] ~100% (33/33 plans through Phase 7-05)
+Progress: [██████████████████████████████░░░░░░░░░░] ~85% (34/40 plans through Phase 8-01)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 33
+- Total plans completed: 34
 - Average duration: 3 min
-- Total execution time: 105 min
+- Total execution time: 108 min
 
 **By Phase:**
 
@@ -35,9 +35,10 @@ Progress: [███████████████████████
 | 05-oauth-connectors | 6/6 | 20 min | 3 min |
 | 06-dashboard | 5/5 | 18 min | 4 min |
 | 07-production-hardening | 5/5 | 8 min | 2 min |
+| 08-composable-actions | 1/7 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-01 (2 min), 07-02 (1 min), 07-03 (1 min), 07-04 (3 min), 07-05 (2 min)
+- Last 5 plans: 07-02 (1 min), 07-03 (1 min), 07-04 (3 min), 07-05 (2 min), 08-01 (3 min)
 - Trend: stable/fast
 
 *Updated after each plan completion*
@@ -151,6 +152,10 @@ Recent decisions affecting current work:
 - [07-04]: 90-day retention cutoff via JS Date arithmetic (not SQLite datetime) for testability
 - [07-04]: Rate limits endpoint returns per-key data (not aggregated) for dashboard granularity
 - [07-05]: RateLimitInfo uses api_key_short, usage_1m, throttle_24h matching gateway /internal/rate-limits response
+- [08-01]: go.yaml.in/yaml/v3 promoted from indirect to direct dependency for chain loader
+- [08-01]: Param.Default is string type (coerced at runtime based on Type field)
+- [08-01]: With values are strings supporting ${{ }} interpolation templates
+- [08-01]: Forward reference detection parses steps.X tokens from if expressions
 
 ### Pending Todos
 
@@ -166,5 +171,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Phase 7 complete and verified -- ready for Phase 8
+Stopped at: Completed 08-01-PLAN.md
 Resume file: None
