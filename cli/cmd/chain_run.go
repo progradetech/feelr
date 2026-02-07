@@ -14,6 +14,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func init() {
+	chainRunCmd.Flags().Bool("dry-run", false, "Validate and show execution plan without running actions")
+}
+
 var chainRunCmd = &cobra.Command{
 	Use:   "run <name-or-file> [key=value...]",
 	Short: "Execute a composable action chain",
@@ -24,11 +28,13 @@ current directory. Parameters are passed as key=value trailing arguments.
 
 By default, only the final step's output is printed to stdout.
 Use --verbose to show all step outputs to stderr as steps complete.
+Use --dry-run to validate and preview the execution plan without calling APIs.
 
 Examples:
   feelr chain run github-slack-issue-notify repo=owner/repo channel=general
   feelr chain run ./my-chain.yaml repo=owner/repo
-  feelr chain run my-chain repo=owner/repo --verbose`,
+  feelr chain run my-chain repo=owner/repo --verbose
+  feelr chain run my-chain repo=owner/repo --dry-run`,
 	Args: cobra.MinimumNArgs(1),
 	RunE: runChain,
 }
@@ -49,12 +55,36 @@ func runChain(cmd *cobra.Command, args []string) error {
 		params[key] = value
 	}
 
-	// Read global flags.
+	// Read flags.
+	dryRunFlag, _ := cmd.Flags().GetBool("dry-run")
 	profileFlag, _ := cmd.Flags().GetString("profile")
 	formatFlag, _ := cmd.Flags().GetString("format")
 	verboseFlag, _ := cmd.Flags().GetBool("verbose")
 	colorFlag, _ := cmd.Flags().GetBool("color")
 	gatewayFlag, _ := cmd.Flags().GetString("gateway")
+
+	// Resolve the chain definition (needed for both dry-run and real execution).
+	chainDef, err := chain.ResolveChain(chainNameOrFile)
+	if err != nil {
+		return &client.CLIError{
+			ExitCode: 1,
+			Message:  fmt.Sprintf("resolving chain: %s", err),
+		}
+	}
+
+	// Dry-run mode: validate and show execution plan without calling APIs.
+	if dryRunFlag {
+		result := chain.DryRun(chainDef, params)
+		// Output execution plan to stderr (data to stdout philosophy).
+		fmt.Fprint(os.Stderr, chain.FormatDryRun(chainDef, result))
+		if !result.Valid {
+			return &client.CLIError{
+				ExitCode: 1,
+				Message:  "dry-run validation failed",
+			}
+		}
+		return nil
+	}
 
 	// Load config for gateway URL and API key.
 	cfg, err := config.Load(profileFlag)
@@ -106,15 +136,6 @@ func runChain(cmd *cobra.Command, args []string) error {
 			}
 		}
 		return true, nil
-	}
-
-	// Resolve the chain definition.
-	chainDef, err := chain.ResolveChain(chainNameOrFile)
-	if err != nil {
-		return &client.CLIError{
-			ExitCode: 1,
-			Message:  fmt.Sprintf("resolving chain: %s", err),
-		}
 	}
 
 	// Create an ActionRunner that wraps gwClient.Run.
