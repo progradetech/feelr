@@ -6,7 +6,9 @@ import {
   useUsage,
   useAvailableKeys,
   useAvailableConnectors,
+  useRateLimits,
 } from '@/lib/hooks/use-usage';
+import type { RateLimitInfo } from '@/lib/hooks/use-usage';
 import { UsageChart } from '@/components/usage-chart';
 import { UsageBreakdown } from '@/components/usage-breakdown';
 
@@ -41,6 +43,7 @@ export default function UsagePage() {
 
   const { data: availableKeys } = useAvailableKeys();
   const availableConnectors = useAvailableConnectors();
+  const { data: rateLimits } = useRateLimits();
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -104,6 +107,18 @@ export default function UsagePage() {
         </select>
       </div>
 
+      {/* Rate Limit Status */}
+      {rateLimits && rateLimits.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-medium text-zinc-300">Rate Limit Status</h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {rateLimits.map((rl) => (
+              <RateLimitCard key={rl.api_key_short} info={rl} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Loading state */}
       {isLoading && (
         <div className="space-y-4">
@@ -148,6 +163,68 @@ export default function UsagePage() {
             </>
           )}
         </>
+      )}
+    </div>
+  );
+}
+
+// --- Rate Limit Components ---
+
+const TIER_COLORS: Record<string, string> = {
+  free: 'bg-zinc-700 text-zinc-300',
+  pro: 'bg-blue-900/60 text-blue-300',
+  enterprise: 'bg-purple-900/60 text-purple-300',
+};
+
+function getTierBadgeClass(tier: string): string {
+  return TIER_COLORS[tier] ?? TIER_COLORS.free;
+}
+
+function getUsageBarColor(pct: number): string {
+  if (pct >= 100) return 'bg-red-500';
+  if (pct >= 80) return 'bg-amber-500';
+  return 'bg-emerald-500';
+}
+
+function RateLimitCard({ info }: { info: RateLimitInfo }) {
+  const pct = info.limit > 0 ? Math.min((info.usage_1m / info.limit) * 100, 100) : 0;
+  const displayLabel = info.label || `fk_...${info.api_key_short}`;
+
+  return (
+    <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 space-y-3">
+      {/* Key label + tier badge */}
+      <div className="flex items-center justify-between gap-2">
+        <span className="truncate text-sm font-medium text-zinc-200">
+          {displayLabel}
+        </span>
+        <span
+          className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${getTierBadgeClass(info.tier)}`}
+        >
+          {info.tier}
+        </span>
+      </div>
+
+      {/* Usage bar */}
+      <div className="space-y-1">
+        <div className="flex items-center justify-between text-xs text-zinc-400">
+          <span>
+            {info.usage_1m} / {info.limit} req/min
+          </span>
+          <span>{Math.round(pct)}%</span>
+        </div>
+        <div className="h-1.5 w-full rounded-full bg-zinc-800">
+          <div
+            className={`h-1.5 rounded-full transition-all ${getUsageBarColor(pct)}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Throttle count */}
+      {info.throttle_24h > 0 && (
+        <p className="text-xs text-amber-400">
+          Throttled {info.throttle_24h} time{info.throttle_24h !== 1 ? 's' : ''} in last 24h
+        </p>
       )}
     </div>
   );

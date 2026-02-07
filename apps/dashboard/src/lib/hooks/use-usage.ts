@@ -10,6 +10,15 @@ export interface UsageFilters {
   window: 'hour' | 'day' | 'month';
 }
 
+export interface RateLimitInfo {
+  api_key_short: string;
+  label: string | null;
+  tier: string;
+  limit: number;
+  usage_1m: number;
+  throttle_24h: number;
+}
+
 export function useUsage(filters: UsageFilters) {
   const swrKey = `usage-${filters.window}-${filters.key || 'all'}-${filters.connector || 'all'}`;
 
@@ -20,6 +29,14 @@ export function useUsage(filters: UsageFilters) {
     if (filters.connector) params.set('connector', filters.connector);
     return gatewayFetch<UsageResponse>('/internal/usage?' + params.toString());
   });
+}
+
+export function useRateLimits() {
+  return useSWR<RateLimitInfo[]>(
+    'admin-rate-limits',
+    () => gatewayFetch<RateLimitInfo[]>('/internal/rate-limits'),
+    { refreshInterval: 30000 },
+  );
 }
 
 export function useAvailableKeys() {
