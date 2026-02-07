@@ -93,7 +93,7 @@ keys.post('/keys', async (c) => {
     })
   }
 
-  // Generate key
+  // Generate key (tier defaults to 'free' in generateApiKey)
   const { fullKey, record } = await generateApiKey(c.env.ENVIRONMENT || 'development', label)
 
   // Store in KV (only the hash, never the full key)
@@ -105,6 +105,7 @@ keys.post('/keys', async (c) => {
       key: fullKey,
       short_token: record.shortToken,
       label: record.label ?? null,
+      tier: record.tier,
       created_at: record.createdAt,
     },
   }, 201)
@@ -122,6 +123,7 @@ keys.get('/keys', async (c) => {
   const records: Array<{
     short_token: string
     label: string | null
+    tier: string
     created_at: string
     last_used_at: string | null
   }> = []
@@ -132,6 +134,7 @@ keys.get('/keys', async (c) => {
       records.push({
         short_token: value.shortToken,
         label: value.label ?? null,
+        tier: value.tier ?? 'free',  // Backward compat: existing keys default to free
         created_at: value.createdAt,
         last_used_at: value.lastUsedAt ?? null,
       })
