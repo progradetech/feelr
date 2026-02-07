@@ -5,6 +5,7 @@
  * These endpoints power the dashboard UI with:
  * - /overview: Key counts, connected services, recent usage sparkline
  * - /usage: Time-bucketed usage data with filtering
+ * - /rate-limits: Per-key rate limit status (tier, limit, usage, throttle count)
  *
  * Data sources: AUTH_KV (keys/credentials), USAGE_DB D1 (usage analytics).
  */
@@ -13,6 +14,8 @@ import { Hono } from 'hono'
 import type { AppEnv } from '../lib/types'
 import { adminAuthMiddleware } from '../middleware/admin-auth'
 import { listCredentials } from '../auth/credentials'
+import type { ApiKeyRecord } from '../auth/types'
+import { TIER_LIMITS } from '../auth/types'
 
 const internal = new Hono<AppEnv>()
 
@@ -100,6 +103,77 @@ internal.get('/usage', async (c) => {
         connector: connector ?? null,
       },
     },
+  })
+})
+
+/**
+ * GET /rate-limits
+ *
+ * Returns per-key rate limit status for the dashboard:
+ * - tier: The key's rate limit tier (free/pro/enterprise)
+ * - limit: Requests-per-minute for that tier
+ * - usage_1m: Number of requests in the last 60 seconds
+ * - throttle_24h: Number of rate limit events in the last 24 hours
+ *
+ * Optional ?key= filter to get data for a single API key.
+ */
+internal.get('/rate-limits', async (c) => {
+  const keyFilter = c.req.query('key')
+
+  // List all API keys from KV
+  const keysList = await c.env.AUTH_KV.list<ApiKeyRecord>({ prefix: 'apikey:' })
+
+  // Build rate limit data for each key
+  const data: Array<{
+    api_key_short: string
+    label: string | null
+    tier: string
+    limit: number
+    usage_1m: number
+    throttle_24h: number
+  }> = []
+
+  for (const kvKey of keysList.keys) {
+    const shortToken = kvKey.name.replace('apikey:', '')
+
+    // Apply optional filter
+    if (keyFilter && shortToken !== keyFilter) {
+      continue
+    }
+
+    // Read key record to get tier
+    const raw = await c.env.AUTH_KV.get(kvKey.name)
+    if (!raw) continue
+
+    let record: ApiKeyRecord
+    try {
+      record = JSON.parse(raw) as ApiKeyRecord
+    } catch {
+      continue
+    }
+
+    const tier = record.tier ?? 'free'
+    const limit = TIER_LIMITS[tier] ?? TIER_LIMITS.free
+
+    // Query usage in last 60 seconds from D1
+    const usage1m = await getUsageCount(c.env.USAGE_DB, shortToken, '-60 seconds')
+
+    // Query throttle events in last 24 hours from D1
+    const throttle24h = await getThrottleCount(c.env.USAGE_DB, shortToken, '-24 hours')
+
+    data.push({
+      api_key_short: shortToken,
+      label: record.label ?? null,
+      tier,
+      limit,
+      usage_1m: usage1m,
+      throttle_24h: throttle24h,
+    })
+  }
+
+  return c.json({
+    ok: true,
+    data,
   })
 })
 
@@ -222,6 +296,52 @@ async function getUsageBuckets(
   } catch {
     // Table may not exist yet (first deploy before migration)
     return []
+  }
+}
+
+/**
+ * Count usage records for a specific API key within a time window.
+ * Returns 0 if table doesn't exist yet.
+ */
+async function getUsageCount(
+  db: D1Database,
+  apiKeyShort: string,
+  windowOffset: string
+): Promise<number> {
+  try {
+    const result = await db
+      .prepare(
+        `SELECT COUNT(*) as count FROM usage
+         WHERE api_key_short = ? AND timestamp >= datetime('now', ?)`
+      )
+      .bind(apiKeyShort, windowOffset)
+      .first<{ count: number }>()
+    return result?.count ?? 0
+  } catch {
+    return 0
+  }
+}
+
+/**
+ * Count rate limit (throttle) events for a specific API key within a time window.
+ * Returns 0 if table doesn't exist yet.
+ */
+async function getThrottleCount(
+  db: D1Database,
+  apiKeyShort: string,
+  windowOffset: string
+): Promise<number> {
+  try {
+    const result = await db
+      .prepare(
+        `SELECT COUNT(*) as count FROM rate_limit_events
+         WHERE api_key_short = ? AND timestamp >= datetime('now', ?)`
+      )
+      .bind(apiKeyShort, windowOffset)
+      .first<{ count: number }>()
+    return result?.count ?? 0
+  } catch {
+    return 0
   }
 }
 
