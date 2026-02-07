@@ -7,11 +7,23 @@
  *   cred:<connector>     -> CredentialRecord (encrypted JSON)
  */
 
+/** Rate limit tier determining requests-per-minute allowance */
+export type RateLimitTier = 'free' | 'pro' | 'enterprise'
+
+/** Requests-per-minute limits for each tier */
+export const TIER_LIMITS: Record<RateLimitTier, number> = {
+  free: 30,
+  pro: 300,
+  enterprise: 3000,
+}
+
 /** Stored API key record (value in KV at apikey:<shortToken>) */
 export interface ApiKeyRecord {
   shortToken: string
   longTokenHash: string       // SHA-256 hex hash of long token
   label?: string              // Optional user-provided label
+  /** Rate limit tier determining requests-per-minute allowance */
+  tier: RateLimitTier
   createdAt: string           // ISO 8601 timestamp
   lastUsedAt?: string         // ISO 8601, updated on successful validation
   // Future: scopes?: string[]  // Per-connector scoping (deferred)
