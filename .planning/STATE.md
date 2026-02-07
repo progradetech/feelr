@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 7 of 10 (Production Hardening)
-Plan: 2 of 5 in current phase
+Plan: 3 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-07 -- Completed 07-01-PLAN.md (rate limit foundation)
+Last activity: 2026-02-07 -- Completed 07-03-PLAN.md (rate limit middleware + headers)
 
-Progress: [██████████████████████████████] ~91% (30/33 plans through Phase 7-02)
+Progress: [██████████████████████████████] ~94% (31/33 plans through Phase 7-03)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 30
+- Total plans completed: 31
 - Average duration: 3 min
-- Total execution time: 97 min
+- Total execution time: 100 min
 
 **By Phase:**
 
@@ -143,6 +143,9 @@ Recent decisions affecting current work:
 - [07-02]: 429 check before defer resp.Body.Close() with explicit close in retry path
 - [07-02]: Missing Retry-After returns immediate error (no default wait)
 - [07-02]: isRetry flag shared between 429 retry and auth-expired retry paths
+- [07-03]: Conservative 60s Retry-After for per-key 429 (full window period, not remaining time)
+- [07-03]: RateLimit-Remaining is approximate (limit-1) since Cloudflare binding only returns success boolean
+- [07-03]: IP rate limiter omits Retry-After (pre-auth defense, less guidance for abusers)
 
 ### Pending Todos
 
@@ -158,5 +161,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 07-01-PLAN.md (rate limit foundation types, bindings, config)
+Stopped at: Completed 07-03-PLAN.md (rate limit middleware and response headers)
 Resume file: None
