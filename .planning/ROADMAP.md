@@ -179,11 +179,16 @@ Plans:
   1. `docker compose up` brings up the complete Feelr stack (workerd gateway + SQLite + Next.js dashboard)
   2. Self-hosted version has feature parity with cloud except billing (billing disabled by default)
   3. Self-hosted and cloud use the same codebase with runtime differences abstracted behind interfaces
-**Plans**: TBD
+**Plans**: 7 plans
 
 Plans:
-- [ ] 09-01: TBD
-- [ ] 09-02: TBD
+- [ ] 09-01-PLAN.md -- Runtime abstraction interfaces + Cloudflare cloud adapters
+- [ ] 09-02-PLAN.md -- Config system (feelr.yaml template, .env template, config loader)
+- [ ] 09-03-PLAN.md -- Self-hosted adapters (KvStoreDO, UsageDbDO, InMemoryRateLimiter)
+- [ ] 09-04-PLAN.md -- Gateway refactoring (AppEnv + all files to abstract interfaces)
+- [ ] 09-05-PLAN.md -- Adapter factory, self-hosted entry point, workerd capnp config
+- [ ] 09-06-PLAN.md -- Dockerfile, s6-overlay, docker-compose.yml, Caddy profile
+- [ ] 09-07-PLAN.md -- Init script, README, end-to-end verification
 
 ### Phase 10: Launch Prep
 **Goal**: Feelr is publicly launchable with documentation, distribution, billing, and open-source packaging
@@ -217,5 +222,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 6. Dashboard | 5/5 | Complete | 2026-02-07 |
 | 7. Production Hardening | 5/5 | Complete | 2026-02-07 |
 | 8. Composable Actions | 7/7 | Complete | 2026-02-07 |
-| 9. Self-Hosting | 0/TBD | Not started | - |
+| 9. Self-Hosting | 0/7 | Not started | - |
 | 10. Launch Prep | 0/TBD | Not started | - |
