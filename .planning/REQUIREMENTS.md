@@ -46,10 +46,10 @@ Requirements for initial launchable release. Each maps to roadmap phases.
 
 ### Dashboard
 
-- [ ] **DASH-01**: Web dashboard at feelr.dev provides API key creation, listing, and revocation
-- [ ] **DASH-02**: Connected services view shows which connectors are authenticated with status (connected / needs re-auth / expired)
-- [ ] **DASH-03**: Usage stats display requests per key, per connector, and per time window (hour/day/month)
-- [ ] **DASH-04**: Dashboard communicates only through gateway `/internal/*` API routes — never direct KV/D1 access
+- [x] **DASH-01**: Web dashboard at feelr.dev provides API key creation, listing, and revocation
+- [x] **DASH-02**: Connected services view shows which connectors are authenticated with status (connected / needs re-auth / expired)
+- [x] **DASH-03**: Usage stats display requests per key, per connector, and per time window (hour/day/month)
+- [x] **DASH-04**: Dashboard communicates only through gateway `/internal/*` API routes — never direct KV/D1 access
 
 ### Composable Actions
 
@@ -133,30 +133,30 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GATE-03 | Phase 1: Edge Gateway Foundation | Complete |
 | GATE-04 | Phase 1: Edge Gateway Foundation | Complete |
 | GATE-05 | Phase 3: GitHub Connector | Complete |
-| GATE-06 | Phase 5: OAuth Connectors | Pending |
+| GATE-06 | Phase 5: OAuth Connectors | Complete |
 | CONN-01 | Phase 3: GitHub Connector | Complete |
-| CONN-02 | Phase 5: OAuth Connectors | Pending |
-| CONN-03 | Phase 5: OAuth Connectors | Pending |
-| CONN-04 | Phase 5: OAuth Connectors | Pending |
+| CONN-02 | Phase 5: OAuth Connectors | Complete |
+| CONN-03 | Phase 5: OAuth Connectors | Complete |
+| CONN-04 | Phase 5: OAuth Connectors | Complete |
 | CONN-05 | Phase 1: Edge Gateway Foundation | Complete |
 | CONN-06 | Phase 1: Edge Gateway Foundation | Complete |
 | AUTH-01 | Phase 2: Auth Vault | Complete |
 | AUTH-02 | Phase 2: Auth Vault | Complete |
-| AUTH-03 | Phase 5: OAuth Connectors | Pending |
+| AUTH-03 | Phase 5: OAuth Connectors | Complete |
 | AUTH-04 | Phase 2: Auth Vault | Complete |
-| AUTH-05 | Phase 5: OAuth Connectors | Pending |
+| AUTH-05 | Phase 5: OAuth Connectors | Complete |
 | AUTH-06 | Phase 2: Auth Vault | Complete |
 | CLI-01 | Phase 4: CLI Core | Complete |
 | CLI-02 | Phase 4: CLI Core | Complete |
-| CLI-03 | Phase 5: OAuth Connectors | Pending |
+| CLI-03 | Phase 5: OAuth Connectors | Complete |
 | CLI-04 | Phase 4: CLI Core | Complete |
 | CLI-05 | Phase 4: CLI Core | Complete |
 | CLI-06 | Phase 4: CLI Core | Complete |
 | CLI-07 | Phase 4: CLI Core | Complete |
-| DASH-01 | Phase 6: Dashboard | Pending |
-| DASH-02 | Phase 6: Dashboard | Pending |
-| DASH-03 | Phase 6: Dashboard | Pending |
-| DASH-04 | Phase 6: Dashboard | Pending |
+| DASH-01 | Phase 6: Dashboard | Complete |
+| DASH-02 | Phase 6: Dashboard | Complete |
+| DASH-03 | Phase 6: Dashboard | Complete |
+| DASH-04 | Phase 6: Dashboard | Complete |
 | COMP-01 | Phase 8: Composable Actions | Pending |
 | COMP-02 | Phase 8: Composable Actions | Pending |
 | COMP-03 | Phase 8: Composable Actions | Pending |
