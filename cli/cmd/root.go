@@ -42,6 +42,7 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(completionCmd)
 	rootCmd.AddCommand(authCmd)
+	rootCmd.AddCommand(chainCmd)
 }
 
 // getProfile reads the --profile flag value from the command, returning
