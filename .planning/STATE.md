@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 7 in progress (Production Hardening).
+**Current focus:** Phase 7 complete (Production Hardening). Ready for Phase 8 (Composable Actions).
 
 ## Current Position
 
 Phase: 7 of 10 (Production Hardening)
-Plan: 4 of 5 in current phase
-Status: In progress
-Last activity: 2026-02-07 -- Completed 07-04-PLAN.md (usage metering extensions)
+Plan: 5 of 5 in current phase
+Status: Phase complete
+Last activity: 2026-02-07 -- Completed 07-05-PLAN.md (dashboard rate limit display)
 
-Progress: [██████████████████████████████] ~97% (32/33 plans through Phase 7-04)
+Progress: [██████████████████████████████] ~100% (33/33 plans through Phase 7-05)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 32
+- Total plans completed: 33
 - Average duration: 3 min
-- Total execution time: 103 min
+- Total execution time: 105 min
 
 **By Phase:**
 
@@ -34,10 +34,11 @@ Progress: [███████████████████████
 
 | 05-oauth-connectors | 6/6 | 20 min | 3 min |
 | 06-dashboard | 5/5 | 18 min | 4 min |
+| 07-production-hardening | 5/5 | 8 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 06-01 (2 min), 06-02 (4 min), 06-03 (4 min), 06-05 (3 min), 06-04 (5 min)
-- Trend: stable
+- Last 5 plans: 07-01 (2 min), 07-02 (1 min), 07-03 (1 min), 07-04 (3 min), 07-05 (2 min)
+- Trend: stable/fast
 
 *Updated after each plan completion*
 
@@ -149,6 +150,7 @@ Recent decisions affecting current work:
 - [07-04]: Error status code from FeelrError.status, fallback 500 for unknown errors
 - [07-04]: 90-day retention cutoff via JS Date arithmetic (not SQLite datetime) for testability
 - [07-04]: Rate limits endpoint returns per-key data (not aggregated) for dashboard granularity
+- [07-05]: RateLimitInfo uses api_key_short, usage_1m, throttle_24h matching gateway /internal/rate-limits response
 
 ### Pending Todos
 
@@ -164,5 +166,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 07-04-PLAN.md (usage metering extensions)
+Stopped at: Completed 07-05-PLAN.md (dashboard rate limit display) -- Phase 7 complete
 Resume file: None

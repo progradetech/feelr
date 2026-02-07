@@ -148,7 +148,7 @@ Plans:
 - [x] 07-02-PLAN.md -- CLI 429 retry with Retry-After header
 - [x] 07-03-PLAN.md -- Rate-limiter middleware + headers middleware + app wiring
 - [x] 07-04-PLAN.md -- Error metering, rate_limit_events table, cron retention, internal endpoints
-- [ ] 07-05-PLAN.md -- Dashboard rate limit info display
+- [x] 07-05-PLAN.md -- Dashboard rate limit info display
 
 ### Phase 8: Composable Actions
 **Goal**: Users can execute multi-step workflows as a single command, with pre-built chains for common patterns and custom chains for their own needs
