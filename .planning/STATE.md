@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 6 in progress (Dashboard). Scaffold, auth, and navigation complete.
+**Current focus:** Phase 6 in progress (Dashboard). Scaffold, auth, navigation, and keys page complete.
 
 ## Current Position
 
 Phase: 6 of 10 (Dashboard)
-Plan: 2 of 5 in current phase
+Plan: 3 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-07 -- Completed 06-02-PLAN.md
+Last activity: 2026-02-07 -- Completed 06-03-PLAN.md
 
-Progress: [█████████████████████████] ~89% (25/28 plans)
+Progress: [██████████████████████████] ~93% (26/28 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 25
+- Total plans completed: 26
 - Average duration: 3 min
-- Total execution time: 83 min
+- Total execution time: 87 min
 
 **By Phase:**
 
@@ -33,10 +33,10 @@ Progress: [███████████████████████
 | 04-cli-core | 5/5 | 17 min | 3 min |
 
 | 05-oauth-connectors | 6/6 | 20 min | 3 min |
-| 06-dashboard | 2/5 | 6 min | 3 min |
+| 06-dashboard | 3/5 | 10 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-04 (4 min), 05-05 (5 min), 05-06 (2 min), 06-01 (2 min), 06-02 (4 min)
+- Last 5 plans: 05-05 (5 min), 05-06 (2 min), 06-01 (2 min), 06-02 (4 min), 06-03 (4 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -128,6 +128,9 @@ Recent decisions affecting current work:
 - [06-02]: All pages use 'use client' directive for static export SPA compatibility
 - [06-02]: Login validates token via /admin/keys before storing to localStorage
 - [06-02]: localStorage key 'feelr_admin_token' with typeof window guards for SSG
+- [06-03]: Custom modal dialogs (div-based) instead of shadcn Dialog -- dashboard has no shadcn dependency
+- [06-03]: Type-to-confirm uses label if available, falls back to shortToken for unnamed keys
+- [06-03]: Key reveal appears inline at top of page (not in dialog) for maximum visibility
 
 ### Pending Todos
 
@@ -143,5 +146,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 06-02-PLAN.md
+Stopped at: Completed 06-03-PLAN.md
 Resume file: None
