@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 5 complete and verified (5/5 must-haves). Ready for Phase 6 (Dashboard).
+**Current focus:** Phase 6 in progress (Dashboard). Usage recording and internal API complete.
 
 ## Current Position
 
-Phase: 5 of 10 (OAuth Connectors)
-Plan: 6 of 6 in current phase
-Status: Phase complete, verified
-Last activity: 2026-02-06 -- Phase 5 verified (5/5 must-haves passed)
+Phase: 6 of 10 (Dashboard)
+Plan: 1 of 5 in current phase
+Status: In progress
+Last activity: 2026-02-07 -- Completed 06-01-PLAN.md
 
-Progress: [███████████████████████] ~85%
+Progress: [████████████████████████] ~86% (24/28 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 23
+- Total plans completed: 24
 - Average duration: 3 min
-- Total execution time: 77 min
+- Total execution time: 79 min
 
 **By Phase:**
 
@@ -33,9 +33,10 @@ Progress: [███████████████████████
 | 04-cli-core | 5/5 | 17 min | 3 min |
 
 | 05-oauth-connectors | 6/6 | 20 min | 3 min |
+| 06-dashboard | 1/5 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-02 (3 min), 05-03 (3 min), 05-04 (4 min), 05-05 (5 min), 05-06 (2 min)
+- Last 5 plans: 05-03 (3 min), 05-04 (4 min), 05-05 (5 min), 05-06 (2 min), 06-01 (2 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -118,6 +119,10 @@ Recent decisions affecting current work:
 - [05-05]: LoadAdminToken reads admin_token from config file profile section
 - [05-06]: Search flag takes precedence over positional args (--search wins if both provided)
 - [05-06]: GetToolsSearch as separate method from GetTools for backward compat
+- [06-01]: Usage recording is best-effort via waitUntil -- silently catches all D1 errors
+- [06-01]: D1 table-not-found errors return empty arrays (graceful pre-migration state)
+- [06-01]: strftime-based time bucketing in D1 SQL for hour/day/month windows
+- [06-01]: Error responses (action handler throws) are NOT metered -- Phase 7 extends this
 
 ### Pending Todos
 
@@ -132,6 +137,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-06
-Stopped at: Phase 5 complete and verified -- ready for Phase 6
+Last session: 2026-02-07
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
