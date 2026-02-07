@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 8 (Composable Actions) -- chain types, loader, selector, condition evaluator, executor, and CLI chain commands complete.
+**Current focus:** Phase 8 (Composable Actions) -- chain types, loader, selector, condition evaluator, executor, CLI chain commands, and gateway chain executor complete.
 
 ## Current Position
 
 Phase: 8 of 10 (Composable Actions)
-Plan: 4 of 7 in current phase
+Plan: 5 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-07 -- Completed 08-04-PLAN.md
+Last activity: 2026-02-07 -- Completed 08-05-PLAN.md
 
-Progress: [██████████████████████████████████░░░░░░] ~93% (37/40 plans through Phase 8-04)
+Progress: [███████████████████████████████████░░░░░] ~95% (38/40 plans through Phase 8-05)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 37
+- Total plans completed: 38
 - Average duration: 3 min
-- Total execution time: 118 min
+- Total execution time: 121 min
 
 **By Phase:**
 
@@ -35,10 +35,10 @@ Progress: [███████████████████████
 | 05-oauth-connectors | 6/6 | 20 min | 3 min |
 | 06-dashboard | 5/5 | 18 min | 4 min |
 | 07-production-hardening | 5/5 | 8 min | 2 min |
-| 08-composable-actions | 4/7 | 13 min | 3 min |
+| 08-composable-actions | 5/7 | 16 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-05 (2 min), 08-01 (3 min), 08-02 (3 min), 08-03 (4 min), 08-04 (3 min)
+- Last 5 plans: 08-01 (3 min), 08-02 (3 min), 08-03 (4 min), 08-04 (3 min), 08-05 (3 min)
 - Trend: stable/fast
 
 *Updated after each plan completion*
@@ -169,6 +169,10 @@ Recent decisions affecting current work:
 - [08-04]: Array JSON responses from gateway wrapped in {items: arr} for consistent step output map access
 - [08-04]: Local chain discovery heuristic: name: + steps: presence filters non-chain YAML/JSON
 - [08-04]: chain run --verbose sends step progress to stderr, final output to stdout
+- [08-05]: Hint type only allows retry/auth/abort -- validation errors use 'abort' (not 'fix')
+- [08-05]: List action results wrapped as {data: [], meta: {}} for consistent template path access
+- [08-05]: Param validation error returned as step_id '_params' with 400 status
+- [08-05]: Chain failure returns 200 with success:false in body (chain-level not HTTP-level error)
 
 ### Pending Todos
 
@@ -184,5 +188,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 08-04-PLAN.md
+Stopped at: Completed 08-05-PLAN.md
 Resume file: None
