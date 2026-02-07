@@ -61,6 +61,7 @@ export async function generateApiKey(
     shortToken,
     longTokenHash,
     label,
+    tier: 'free',
     createdAt: new Date().toISOString(),
   }
 
