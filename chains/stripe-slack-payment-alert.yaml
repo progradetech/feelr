@@ -1,0 +1,36 @@
+name: stripe-slack-payment-alert
+description: >-
+  Lists recent Stripe payment intents and posts an alert to Slack for any
+  that succeeded. Filters payments by status and only sends the notification
+  when successful payments are found. Useful for payment monitoring dashboards.
+version: "1.0"
+params:
+  - name: channel
+    type: string
+    required: true
+    description: Slack channel ID or name to post payment alerts to
+  - name: limit
+    type: number
+    required: false
+    description: Number of recent payments to check (max 100)
+    default: "5"
+  - name: customer
+    type: string
+    required: false
+    description: Filter payments by Stripe customer ID (cus_*)
+retry:
+  max_attempts: 2
+  delay_seconds: 5
+steps:
+  - id: list_payments
+    uses: stripe/payments.list
+    with:
+      limit: "${{ params.limit }}"
+      status: succeeded
+      customer: "${{ params.customer }}"
+  - id: alert_slack
+    uses: slack/messages.send
+    if: "steps.list_payments.status == 'success'"
+    with:
+      channel: "${{ params.channel }}"
+      text: "Payment Alert: ${{ steps.list_payments }} recent succeeded payments found.\nCustomer filter: ${{ params.customer ?? 'all customers' }}"
