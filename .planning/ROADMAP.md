@@ -160,11 +160,16 @@ Plans:
   3. Chain steps can pass output from step N to step N+1 input via JSONPath-style selectors
   4. Chains support one level of conditional logic (if/else based on step output)
   5. Complexity ceiling is enforced: max 10 steps, sequential only, no loops, global retry policy
-**Plans**: TBD
+**Plans**: 7 plans
 
 Plans:
-- [ ] 08-01: TBD
-- [ ] 08-02: TBD
+- [ ] 08-01-PLAN.md -- Chain types, YAML/JSON loader, validation
+- [ ] 08-02-PLAN.md -- Selector/template interpolation engine (TDD)
+- [ ] 08-03-PLAN.md -- Condition evaluator + sequential chain executor
+- [ ] 08-04-PLAN.md -- CLI `chain` subcommand group (run, list, validate, show)
+- [ ] 08-05-PLAN.md -- Gateway server-side chain execution endpoint
+- [ ] 08-06-PLAN.md -- Pre-built chains (6 YAML files covering all connectors)
+- [ ] 08-07-PLAN.md -- Dry-run mode + built-in chain discovery
 
 ### Phase 9: Self-Hosting
 **Goal**: Anyone can run the full Feelr stack locally or on their own infrastructure with a single command
