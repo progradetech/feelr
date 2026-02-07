@@ -71,3 +71,59 @@ export async function recordUsage(
     // Common failure: table not yet created (first deploy before migration).
   }
 }
+
+// ---------------------------------------------------------------------------
+// Rate limit event tracking
+// ---------------------------------------------------------------------------
+
+/**
+ * D1 table schema for rate limit events.
+ * Tracks every 429 throttle event for per-key analytics and dashboard display.
+ */
+export const RATE_LIMIT_EVENTS_TABLE_SCHEMA = `
+CREATE TABLE IF NOT EXISTS rate_limit_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  api_key_short TEXT NOT NULL,
+  tier TEXT NOT NULL,
+  ip TEXT NOT NULL,
+  timestamp TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_rle_api_key_short ON rate_limit_events(api_key_short);
+CREATE INDEX IF NOT EXISTS idx_rle_timestamp ON rate_limit_events(timestamp);
+`.trim()
+
+/**
+ * Shape of a single rate limit event row inserted into D1.
+ */
+export interface RateLimitEvent {
+  api_key_short: string
+  tier: string
+  ip: string
+  timestamp: string
+}
+
+/**
+ * Insert a rate limit event into D1. Best-effort -- all errors are silently caught.
+ *
+ * Called when a request is throttled (429) to track throttle frequency per key.
+ * Designed to be called via `c.executionCtx.waitUntil(recordRateLimitEvent(...))`
+ * so it never blocks the response to the caller.
+ *
+ * @param db - D1Database binding (USAGE_DB)
+ * @param event - Rate limit event data to record
+ */
+export async function recordRateLimitEvent(
+  db: D1Database,
+  event: RateLimitEvent
+): Promise<void> {
+  try {
+    await db
+      .prepare(
+        'INSERT INTO rate_limit_events (api_key_short, tier, ip, timestamp) VALUES (?, ?, ?, ?)'
+      )
+      .bind(event.api_key_short, event.tier, event.ip, event.timestamp)
+      .run()
+  } catch {
+    // Best-effort: silently swallow -- rate limit event recording must never fail the request.
+  }
+}
