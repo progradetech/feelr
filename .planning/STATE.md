@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 Phase: 7 of 10 (Production Hardening)
 Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-07 -- Completed 07-02-PLAN.md
+Last activity: 2026-02-07 -- Completed 07-01-PLAN.md (rate limit foundation)
 
 Progress: [██████████████████████████████] ~91% (30/33 plans through Phase 7-02)
 
@@ -137,6 +137,9 @@ Recent decisions affecting current work:
 - [06-04]: Dynamic import for Recharts SparklineChart (ssr:false) required for static export compatibility
 - [06-04]: 2-state connector status (connected/not_connected) in Phase 6; needs_reauth requires gateway auth_state
 - [06-04]: Hardcoded connector list of 4 known connectors (not discovered from gateway)
+- [07-01]: New API keys default to 'free' tier; existing keys without tier backward-compat to 'free'
+- [07-01]: RateLimitBinding interface declared locally in lib/types.ts (not from @cloudflare/workers-types)
+- [07-01]: Worker restructured from re-export to explicit module object with fetch + scheduled
 - [07-02]: 429 check before defer resp.Body.Close() with explicit close in retry path
 - [07-02]: Missing Retry-After returns immediate error (no default wait)
 - [07-02]: isRetry flag shared between 429 retry and auth-expired retry paths
@@ -155,5 +158,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 07-02-PLAN.md (CLI 429 rate limit retry)
+Stopped at: Completed 07-01-PLAN.md (rate limit foundation types, bindings, config)
 Resume file: None
