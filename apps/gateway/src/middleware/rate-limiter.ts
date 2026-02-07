@@ -1,6 +1,7 @@
 import { createMiddleware } from 'hono/factory'
 import type { AppEnv } from '../lib/types'
 import { FeelrError } from '../lib/errors'
+import { recordRateLimitEvent } from './usage-recorder'
 
 /**
  * IP-based rate limiter -- runs BEFORE API key auth.
@@ -61,6 +62,19 @@ export const keyRateLimiter = createMiddleware<AppEnv>(async (c, next) => {
   if (!result.success) {
     const retryAfter = 60 // Conservative: full window period
     c.header('Retry-After', String(retryAfter))
+    // Record throttle event for dashboard visibility (best-effort)
+    const ip =
+      c.req.header('cf-connecting-ip') ??
+      c.req.header('x-forwarded-for') ??
+      'unknown'
+    c.executionCtx.waitUntil(
+      recordRateLimitEvent(c.env.USAGE_DB, {
+        api_key_short: record.shortToken,
+        tier,
+        ip,
+        timestamp: new Date().toISOString(),
+      })
+    )
     throw new FeelrError('RATE_LIMITED', {
       message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
       hint: 'retry',
