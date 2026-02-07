@@ -1,0 +1,35 @@
+name: github-slack-pr-review
+description: >-
+  Lists open pull requests for a GitHub repository and posts a summary
+  to a Slack channel. Useful for daily PR review reminders.
+version: "1.0"
+params:
+  - name: repo
+    type: string
+    required: true
+    description: GitHub repository in "owner/repo" format
+  - name: channel
+    type: string
+    required: true
+    description: Slack channel ID or name to post the summary to
+  - name: sort
+    type: string
+    required: false
+    description: "Sort order for PRs: created, updated, popularity, or long-running"
+    default: updated
+retry:
+  max_attempts: 2
+  delay_seconds: 3
+steps:
+  - id: list_prs
+    uses: github/pulls.list
+    with:
+      repo: "${{ params.repo }}"
+      state: open
+      sort: "${{ params.sort }}"
+      per_page: "10"
+  - id: post_summary
+    uses: slack/messages.send
+    with:
+      channel: "${{ params.channel }}"
+      text: "Open PRs in ${{ params.repo }} (sorted by ${{ params.sort ?? 'updated' }}):\n${{ steps.list_prs }}"
