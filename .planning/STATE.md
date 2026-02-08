@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 8 complete and verified. Ready for Phase 9 (Self-Hosting).
+**Current focus:** Phase 9 in progress (Self-Hosting). Plan 01 complete.
 
 ## Current Position
 
-Phase: 8 of 10 (Composable Actions)
-Plan: 7 of 7 in current phase
-Status: Phase complete, verified
-Last activity: 2026-02-07 -- Phase 8 verified (5/5 must-haves passed)
+Phase: 9 of 10 (Self-Hosting)
+Plan: 1 of 7 in current phase
+Status: In progress
+Last activity: 2026-02-08 -- Completed 09-01-PLAN.md
 
-Progress: [████████████████████████████████████████] 100% (40/40 plans through Phase 8-07)
+Progress: [█████████████████████████████████████████] 100% (41/47 plans through Phase 9-01)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 40
+- Total plans completed: 41
 - Average duration: 3 min
-- Total execution time: 127 min
+- Total execution time: 129 min
 
 **By Phase:**
 
@@ -36,9 +36,10 @@ Progress: [███████████████████████
 | 06-dashboard | 5/5 | 18 min | 4 min |
 | 07-production-hardening | 5/5 | 8 min | 2 min |
 | 08-composable-actions | 7/7 | 22 min | 3 min |
+| 09-self-hosting | 1/7 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 08-03 (4 min), 08-04 (3 min), 08-05 (3 min), 08-06 (2 min), 08-07 (4 min)
+- Last 5 plans: 08-05 (3 min), 08-06 (2 min), 08-07 (4 min), 09-01 (2 min)
 - Trend: stable/fast
 
 *Updated after each plan completion*
@@ -181,6 +182,9 @@ Recent decisions affecting current work:
 - [08-07]: ResolveChain expanded: cwd -> chains/ subdir -> exe/chains/ -> parent/chains/
 - [08-07]: Dry-run path resolves chain before loading config (no gateway needed for validation)
 - [08-07]: chain_list.go refactored to use ListAvailableChains with directory scanning and deduplication
+- [09-01]: KeyValueStore get() uses method overloading for string vs json return types
+- [09-01]: TokenCoordinatorClient.getStub() abstracts idFromName+get pattern into single call
+- [09-01]: CloudflareBoundStatement is a separate class wrapping D1PreparedStatement.bind() result
 
 ### Pending Todos
 
@@ -195,6 +199,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07
-Stopped at: Phase 8 complete and verified -- ready for Phase 9
+Last session: 2026-02-08
+Stopped at: Completed 09-01-PLAN.md (runtime abstraction interfaces + Cloudflare adapters)
 Resume file: None
