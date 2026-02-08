@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 9 in progress (Self-Hosting). Plan 04 complete.
+**Current focus:** Phase 9 in progress (Self-Hosting). Plan 05 complete.
 
 ## Current Position
 
 Phase: 9 of 10 (Self-Hosting)
-Plan: 4 of 7 in current phase
+Plan: 5 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-08 -- Completed 09-04-PLAN.md
+Last activity: 2026-02-08 -- Completed 09-05-PLAN.md
 
-Progress: [███████████████████████████████████████████████] 100% (44/47 plans through Phase 9-04)
+Progress: [████████████████████████████████████████████████] 100% (45/47 plans through Phase 9-05)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 44
+- Total plans completed: 45
 - Average duration: 3 min
-- Total execution time: 138 min
+- Total execution time: 142 min
 
 **By Phase:**
 
@@ -36,10 +36,10 @@ Progress: [███████████████████████
 | 06-dashboard | 5/5 | 18 min | 4 min |
 | 07-production-hardening | 5/5 | 8 min | 2 min |
 | 08-composable-actions | 7/7 | 22 min | 3 min |
-| 09-self-hosting | 4/7 | 11 min | 3 min |
+| 09-self-hosting | 5/7 | 15 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 09-01 (2 min), 09-02 (3 min), 09-03 (2 min), 09-04 (4 min)
+- Last 5 plans: 09-01 (2 min), 09-02 (3 min), 09-03 (2 min), 09-04 (4 min), 09-05 (4 min)
 - Trend: stable/fast
 
 *Updated after each plan completion*
@@ -196,6 +196,10 @@ Recent decisions affecting current work:
 - [09-04]: RateLimitBinding moved from lib/types.ts to local type in cloudflare adapter (Cloudflare-specific)
 - [09-04]: list() type parameter removed from KeyValueStore usage (interface doesn't support it, only key.name used)
 - [09-04]: chain-executor.ts and status.ts updated alongside planned files (also had direct Cloudflare type refs)
+- [09-05]: DO stubs cast via 'as never' for structural interface bridging (runtime RPC methods match, TS sees DurableObjectStub)
+- [09-05]: buildAdaptedEnv extracted as shared function for fetch and scheduled handlers (DRY)
+- [09-05]: Cloud index.ts now wraps raw bindings via createCloudBindings (required after 09-04 refactor)
+- [09-05]: fromEnvironment bindings for secrets in capnp config (container environment, not hardcoded)
 
 ### Pending Todos
 
@@ -211,5 +215,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 09-04-PLAN.md (gateway refactored to abstract runtime interfaces)
+Stopped at: Completed 09-05-PLAN.md (adapter factory, entry points, workerd config)
 Resume file: None
