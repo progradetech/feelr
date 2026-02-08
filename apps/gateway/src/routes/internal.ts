@@ -16,6 +16,7 @@ import { adminAuthMiddleware } from '../middleware/admin-auth'
 import { listCredentials } from '../auth/credentials'
 import type { ApiKeyRecord } from '../auth/types'
 import { TIER_LIMITS } from '../auth/types'
+import type { UsageDatabase } from '../runtime/interfaces'
 
 const internal = new Hono<AppEnv>()
 
@@ -121,7 +122,7 @@ internal.get('/rate-limits', async (c) => {
   const keyFilter = c.req.query('key')
 
   // List all API keys from KV
-  const keysList = await c.env.AUTH_KV.list<ApiKeyRecord>({ prefix: 'apikey:' })
+  const keysList = await c.env.AUTH_KV.list({ prefix: 'apikey:' })
 
   // Build rate limit data for each key
   const data: Array<{
@@ -184,7 +185,7 @@ internal.get('/rate-limits', async (c) => {
  * Returns empty data if table doesn't exist yet.
  */
 async function getRecentUsage(
-  db: D1Database
+  db: UsageDatabase
 ): Promise<{ total_24h: number; hourly: Array<{ hour: string; count: number }> }> {
   try {
     const result = await db
@@ -227,7 +228,7 @@ interface UsageBucket {
  * Returns empty array if table doesn't exist yet.
  */
 async function getUsageBuckets(
-  db: D1Database,
+  db: UsageDatabase,
   options: UsageQueryOptions
 ): Promise<UsageBucket[]> {
   try {
@@ -304,7 +305,7 @@ async function getUsageBuckets(
  * Returns 0 if table doesn't exist yet.
  */
 async function getUsageCount(
-  db: D1Database,
+  db: UsageDatabase,
   apiKeyShort: string,
   windowOffset: string
 ): Promise<number> {
@@ -327,7 +328,7 @@ async function getUsageCount(
  * Returns 0 if table doesn't exist yet.
  */
 async function getThrottleCount(
-  db: D1Database,
+  db: UsageDatabase,
   apiKeyShort: string,
   windowOffset: string
 ): Promise<number> {

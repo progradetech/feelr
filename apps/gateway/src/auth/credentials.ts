@@ -15,6 +15,7 @@
 
 import { encrypt, decrypt } from './crypto'
 import type { CredentialRecord } from './types'
+import type { KeyValueStore } from '../runtime/interfaces'
 
 /** KV key prefix for credential records */
 const CRED_PREFIX = 'cred:'
@@ -46,14 +47,14 @@ interface TokenCoordinatorRpc {
  *
  * @param connector - Connector identifier (e.g., "github", "slack")
  * @param credential - The credential record to store
- * @param kv - KVNamespace binding
+ * @param kv - KeyValueStore binding
  * @param encryptionKey - Master encryption key (Worker Secret)
  * @param tokenCoordinator - Optional DO stub for refresh registration
  */
 export async function storeCredential(
   connector: string,
   credential: CredentialRecord,
-  kv: KVNamespace,
+  kv: KeyValueStore,
   encryptionKey: string,
   tokenCoordinator?: TokenCoordinatorRpc
 ): Promise<void> {
@@ -82,13 +83,13 @@ export async function storeCredential(
  * deserializes back to a CredentialRecord.
  *
  * @param connector - Connector identifier
- * @param kv - KVNamespace binding
+ * @param kv - KeyValueStore binding
  * @param encryptionKey - Master encryption key (Worker Secret)
  * @returns Decrypted CredentialRecord or null if not found
  */
 export async function getCredential(
   connector: string,
-  kv: KVNamespace,
+  kv: KeyValueStore,
   encryptionKey: string
 ): Promise<CredentialRecord | null> {
   const encrypted = await kv.get(`${CRED_PREFIX}${connector}`)
@@ -105,12 +106,12 @@ export async function getCredential(
  * also removes the credential from the Token Coordinator (stops refresh alarms).
  *
  * @param connector - Connector identifier
- * @param kv - KVNamespace binding
+ * @param kv - KeyValueStore binding
  * @param tokenCoordinator - Optional DO stub for refresh deregistration
  */
 export async function removeCredential(
   connector: string,
-  kv: KVNamespace,
+  kv: KeyValueStore,
   tokenCoordinator?: TokenCoordinatorRpc
 ): Promise<void> {
   // Delete from KV
@@ -128,11 +129,11 @@ export async function removeCredential(
  * Returns only connector names -- no tokens, no encrypted data.
  * Uses KV list with prefix scan. Safe to expose to admin dashboards.
  *
- * @param kv - KVNamespace binding
+ * @param kv - KeyValueStore binding
  * @returns Array of connector names that have stored credentials
  */
 export async function listCredentials(
-  kv: KVNamespace
+  kv: KeyValueStore
 ): Promise<string[]> {
   const listResult = await kv.list({ prefix: CRED_PREFIX })
 

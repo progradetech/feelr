@@ -73,14 +73,11 @@ statusRoutes.get('/status', async (c) => {
   const registeredConnectors = listConnectors()
   const storedCredentialNames = new Set(await listCredentials(c.env.AUTH_KV))
 
-  // Query DO for token statuses (to detect expired/failed tokens)
+  // Query token coordinator for statuses (to detect expired/failed tokens)
   let doStatuses = new Map<string, string>()
   try {
-    const doId = c.env.TOKEN_COORDINATOR.idFromName('default')
-    const doStub = c.env.TOKEN_COORDINATOR.get(doId) as unknown as {
-      listCredentials(): Promise<Array<{ connector: string; status: string; expiresAt: number }>>
-    }
-    const doList = await doStub.listCredentials()
+    const stub = c.env.TOKEN_COORDINATOR.getStub()
+    const doList = await stub.listCredentials()
     for (const entry of doList) {
       doStatuses.set(entry.connector, entry.status)
     }
