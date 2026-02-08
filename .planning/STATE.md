@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 9 in progress (Self-Hosting). Plan 05 complete.
+**Current focus:** Phase 9 in progress (Self-Hosting). Plan 06 complete.
 
 ## Current Position
 
 Phase: 9 of 10 (Self-Hosting)
-Plan: 5 of 7 in current phase
+Plan: 6 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-08 -- Completed 09-05-PLAN.md
+Last activity: 2026-02-08 -- Completed 09-06-PLAN.md
 
-Progress: [████████████████████████████████████████████████] 100% (45/47 plans through Phase 9-05)
+Progress: [█████████████████████████████████████████████████] 100% (46/47 plans through Phase 9-06)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 45
+- Total plans completed: 46
 - Average duration: 3 min
-- Total execution time: 142 min
+- Total execution time: 144 min
 
 **By Phase:**
 
@@ -36,10 +36,10 @@ Progress: [███████████████████████
 | 06-dashboard | 5/5 | 18 min | 4 min |
 | 07-production-hardening | 5/5 | 8 min | 2 min |
 | 08-composable-actions | 7/7 | 22 min | 3 min |
-| 09-self-hosting | 5/7 | 15 min | 3 min |
+| 09-self-hosting | 6/7 | 17 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 09-01 (2 min), 09-02 (3 min), 09-03 (2 min), 09-04 (4 min), 09-05 (4 min)
+- Last 5 plans: 09-02 (3 min), 09-03 (2 min), 09-04 (4 min), 09-05 (4 min), 09-06 (2 min)
 - Trend: stable/fast
 
 *Updated after each plan completion*
@@ -200,6 +200,9 @@ Recent decisions affecting current work:
 - [09-05]: buildAdaptedEnv extracted as shared function for fetch and scheduled handlers (DRY)
 - [09-05]: Cloud index.ts now wraps raw bindings via createCloudBindings (required after 09-04 refactor)
 - [09-05]: fromEnvironment bindings for secrets in capnp config (container environment, not hardcoded)
+- [09-06]: workerd installed via npm in Dockerfile with nodejs/npm install-then-purge pattern
+- [09-06]: YAML-to-JSON conversion in cont-init.d startup script using Node.js one-liner
+- [09-06]: Caddy sidecar activated via Docker Compose profiles (not separate compose file)
 
 ### Pending Todos
 
@@ -215,5 +218,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 09-05-PLAN.md (adapter factory, entry points, workerd config)
+Stopped at: Completed 09-06-PLAN.md (Dockerfile, docker-compose, s6, Caddy)
 Resume file: None
