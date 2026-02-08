@@ -1,10 +1,12 @@
 /**
- * Non-blocking D1 usage recording middleware.
+ * Non-blocking usage recording middleware.
  *
- * Records API usage data to D1 for dashboard analytics.
+ * Records API usage data to the usage database for dashboard analytics.
  * All errors are silently caught -- usage recording is best-effort
  * and must never fail the parent request.
  */
+
+import type { UsageDatabase } from '../runtime/interfaces'
 
 /**
  * Shape of a single usage row inserted into D1.
@@ -45,11 +47,11 @@ CREATE INDEX IF NOT EXISTS idx_usage_key_connector ON usage(api_key_short, conne
  * Designed to be called via `c.executionCtx.waitUntil(recordUsage(...))` so it
  * never blocks the response to the caller.
  *
- * @param db - D1Database binding (USAGE_DB)
+ * @param db - UsageDatabase binding (USAGE_DB)
  * @param record - Usage data to record
  */
 export async function recordUsage(
-  db: D1Database,
+  db: UsageDatabase,
   record: UsageRecord
 ): Promise<void> {
   try {
@@ -109,11 +111,11 @@ export interface RateLimitEvent {
  * Designed to be called via `c.executionCtx.waitUntil(recordRateLimitEvent(...))`
  * so it never blocks the response to the caller.
  *
- * @param db - D1Database binding (USAGE_DB)
+ * @param db - UsageDatabase binding (USAGE_DB)
  * @param event - Rate limit event data to record
  */
 export async function recordRateLimitEvent(
-  db: D1Database,
+  db: UsageDatabase,
   event: RateLimitEvent
 ): Promise<void> {
   try {

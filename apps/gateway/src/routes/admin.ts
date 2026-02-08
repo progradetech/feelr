@@ -76,15 +76,14 @@ admin.post('/credentials/:connector', async (c) => {
     expiresAt,
   }
 
-  // Get DO stub for refresh registration (if refreshable)
+  // Get token coordinator stub for refresh registration (if refreshable)
   let tokenCoordinatorStub: {
     storeCredential(connector: string, accessToken: string, refreshToken: string, expiresAt: number): Promise<void>
     removeCredential(connector: string): Promise<void>
   } | undefined
 
   if (refreshToken && expiresAt) {
-    const id = c.env.TOKEN_COORDINATOR.idFromName('default')
-    tokenCoordinatorStub = c.env.TOKEN_COORDINATOR.get(id) as unknown as typeof tokenCoordinatorStub
+    tokenCoordinatorStub = c.env.TOKEN_COORDINATOR.getStub()
   }
 
   await storeCredential(
@@ -128,12 +127,8 @@ admin.get('/credentials', async (c) => {
 admin.delete('/credentials/:connector', async (c) => {
   const connector = c.req.param('connector')
 
-  // Get DO stub for refresh deregistration
-  const id = c.env.TOKEN_COORDINATOR.idFromName('default')
-  const tokenCoordinatorStub = c.env.TOKEN_COORDINATOR.get(id) as unknown as {
-    storeCredential(connector: string, accessToken: string, refreshToken: string, expiresAt: number): Promise<void>
-    removeCredential(connector: string): Promise<void>
-  }
+  // Get token coordinator stub for refresh deregistration
+  const tokenCoordinatorStub = c.env.TOKEN_COORDINATOR.getStub()
 
   await removeCredential(connector, c.env.AUTH_KV, tokenCoordinatorStub)
 
@@ -302,15 +297,14 @@ admin.post('/oauth/exchange/:provider', async (c) => {
     expiresAt: hasRotation ? Date.now() + slackData.expires_in! * 1000 : null,
   }
 
-  // Get DO stub for refresh registration (if token has rotation)
+  // Get token coordinator stub for refresh registration (if token has rotation)
   let tokenCoordinatorStub: {
     storeCredential(connector: string, accessToken: string, refreshToken: string, expiresAt: number): Promise<void>
     removeCredential(connector: string): Promise<void>
   } | undefined
 
   if (credential.refreshToken && credential.expiresAt) {
-    const id = c.env.TOKEN_COORDINATOR.idFromName('default')
-    tokenCoordinatorStub = c.env.TOKEN_COORDINATOR.get(id) as unknown as typeof tokenCoordinatorStub
+    tokenCoordinatorStub = c.env.TOKEN_COORDINATOR.getStub()
   }
 
   // Store encrypted credential via existing function

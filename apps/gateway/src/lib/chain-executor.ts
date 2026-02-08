@@ -22,12 +22,13 @@ import type {
 import { validateChain, resolveTemplate, resolveStepWith, evalCondition } from './chain-types'
 import { getConnector } from '../connectors/registry'
 import { getCredential } from '../auth/credentials'
+import type { KeyValueStore } from '../runtime/interfaces'
 
 /** Options for chain execution. */
 export interface ExecuteChainOptions {
   chain: ChainDefinition
   params: Record<string, string>
-  kv: KVNamespace
+  kv: KeyValueStore
   encryptionKey: string
 }
 
@@ -155,7 +156,7 @@ async function executeStep(
   ctx: ResolveContext,
   maxAttempts: number,
   delaySeconds: number,
-  kv: KVNamespace,
+  kv: KeyValueStore,
   encryptionKey: string
 ): Promise<ChainStepResult> {
   const start = performance.now()
