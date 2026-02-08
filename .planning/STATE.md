@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 9 in progress (Self-Hosting). Plan 02 complete.
+**Current focus:** Phase 9 in progress (Self-Hosting). Plan 03 complete.
 
 ## Current Position
 
 Phase: 9 of 10 (Self-Hosting)
-Plan: 2 of 7 in current phase
+Plan: 3 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-08 -- Completed 09-02-PLAN.md
+Last activity: 2026-02-08 -- Completed 09-03-PLAN.md
 
-Progress: [█████████████████████████████████████████████] 100% (42/47 plans through Phase 9-02)
+Progress: [██████████████████████████████████████████████] 100% (43/47 plans through Phase 9-03)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 42
+- Total plans completed: 43
 - Average duration: 3 min
-- Total execution time: 132 min
+- Total execution time: 134 min
 
 **By Phase:**
 
@@ -36,10 +36,10 @@ Progress: [███████████████████████
 | 06-dashboard | 5/5 | 18 min | 4 min |
 | 07-production-hardening | 5/5 | 8 min | 2 min |
 | 08-composable-actions | 7/7 | 22 min | 3 min |
-| 09-self-hosting | 2/7 | 5 min | 3 min |
+| 09-self-hosting | 3/7 | 7 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 08-06 (2 min), 08-07 (4 min), 09-01 (2 min), 09-02 (3 min)
+- Last 5 plans: 08-07 (4 min), 09-01 (2 min), 09-02 (3 min), 09-03 (2 min)
 - Trend: stable/fast
 
 *Updated after each plan completion*
@@ -189,6 +189,10 @@ Recent decisions affecting current work:
 - [09-02]: loadConfigFromObject() as alternative for pre-parsed JSON configs (Docker entrypoint converts YAML to JSON)
 - [09-02]: FeelrYamlConfig is full YAML config surface; FeelrConfig in interfaces.ts is minimal runtime toggle
 - [09-02]: Env var overrides (FEELR_PORT, FEELR_AUTO_MIGRATE) applied last via workerd bindings
+- [09-03]: KvStoreDO uses kv-prefixed RPC methods (kvGet, kvPut, etc.) to avoid DO base class conflicts
+- [09-03]: UsageDbDO splits index creation into separate exec calls (SQLite exec runs one statement at a time)
+- [09-03]: InMemoryRateLimiter cleanup at 60s interval with 2x window cutoff for conservative memory management
+- [09-03]: Record<string,never> for DO env types since self-hosted DOs need no external bindings
 
 ### Pending Todos
 
@@ -204,5 +208,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 09-02-PLAN.md (self-hosting config templates + TypeScript config loader)
+Stopped at: Completed 09-03-PLAN.md (self-hosted storage adapters: KvStoreDO, UsageDbDO, InMemoryRateLimiter)
 Resume file: None
