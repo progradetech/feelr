@@ -29,11 +29,14 @@ archives:
         format: zip
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
+# NOTE: `brews` is deprecated since GoReleaser v2.10 in favor of `homebrew_casks`.
+# Still functional; migrate when v3 deprecation is announced.
 brews:
   - name: feelr
     repository:
       owner: andrewprograde
       name: homebrew-feelr
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     homepage: "https://feelr.dev"
     description: "Agent-friendly API simplification layer CLI"
     commit_author:
