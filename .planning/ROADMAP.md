@@ -31,7 +31,7 @@
 - Integer phases (11, 12, ...): Planned milestone work
 - Decimal phases (12.1, 12.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 11: DNS & Cloudflare Zone Setup + CI/CD Audit** - Establish Cloudflare as DNS authority for feelr.dev and fix existing pipelines
+- [x] **Phase 11: DNS & Cloudflare Zone Setup + CI/CD Audit** - Establish Cloudflare as DNS authority for feelr.dev and fix existing pipelines (completed 2026-02-09)
 - [ ] **Phase 12: Gateway Infrastructure & Environments** - Configure wrangler staging/production environments with full resource isolation
 - [ ] **Phase 13: Gateway CI/CD Pipeline** - Automate gateway deployment with quality gates, rollouts, and environment protection
 - [ ] **Phase 14: Azure Static Web Apps Provisioning** - Deploy dashboard and docs to Azure SWA with custom domains and managed SSL
@@ -52,8 +52,8 @@
 **Plans**: 2 plans
 
 Plans:
-- [ ] 11-01-PLAN.md -- Transfer DNS authority from Namecheap to Cloudflare
-- [ ] 11-02-PLAN.md -- Audit and fix GoReleaser release pipeline
+- [x] 11-01-PLAN.md -- Transfer DNS authority from Namecheap to Cloudflare
+- [x] 11-02-PLAN.md -- Audit and fix GoReleaser release pipeline
 
 ### Phase 12: Gateway Infrastructure & Environments
 **Goal**: Developer can manually deploy the gateway to isolated staging and production environments where each has its own data stores, secrets, and custom domain
@@ -141,7 +141,7 @@ Note: Phase 14 depends on Phase 11 (not 13), so phases 12/13 and 14 could theore
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1-10 | v1.0 | 51/51 | Complete | 2026-02-09 |
-| 11. DNS & Cloudflare Zone Setup + CI/CD Audit | v1.1 | 0/2 | Not started | - |
+| 11. DNS & Cloudflare Zone Setup + CI/CD Audit | v1.1 | 2/2 | Complete | 2026-02-09 |
 | 12. Gateway Infrastructure & Environments | v1.1 | 0/TBD | Not started | - |
 | 13. Gateway CI/CD Pipeline | v1.1 | 0/TBD | Not started | - |
 | 14. Azure Static Web Apps Provisioning | v1.1 | 0/TBD | Not started | - |
