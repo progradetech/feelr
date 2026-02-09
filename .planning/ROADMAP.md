@@ -49,11 +49,11 @@
   2. `dig feelr.dev NS` returns Cloudflare nameservers (not Namecheap defaults)
   3. Namecheap domain settings show custom nameservers pointing to Cloudflare
   4. Existing release.yml workflow (GoReleaser CLI release) is audited, tested, and any issues are fixed
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 11-01: TBD
-- [ ] 11-02: TBD
+- [ ] 11-01-PLAN.md -- Transfer DNS authority from Namecheap to Cloudflare
+- [ ] 11-02-PLAN.md -- Audit and fix GoReleaser release pipeline
 
 ### Phase 12: Gateway Infrastructure & Environments
 **Goal**: Developer can manually deploy the gateway to isolated staging and production environments where each has its own data stores, secrets, and custom domain
@@ -141,7 +141,7 @@ Note: Phase 14 depends on Phase 11 (not 13), so phases 12/13 and 14 could theore
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1-10 | v1.0 | 51/51 | Complete | 2026-02-09 |
-| 11. DNS & Cloudflare Zone Setup + CI/CD Audit | v1.1 | 0/TBD | Not started | - |
+| 11. DNS & Cloudflare Zone Setup + CI/CD Audit | v1.1 | 0/2 | Not started | - |
 | 12. Gateway Infrastructure & Environments | v1.1 | 0/TBD | Not started | - |
 | 13. Gateway CI/CD Pipeline | v1.1 | 0/TBD | Not started | - |
 | 14. Azure Static Web Apps Provisioning | v1.1 | 0/TBD | Not started | - |
