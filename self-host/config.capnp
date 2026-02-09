@@ -56,6 +56,7 @@ const gatewayWorker :Workerd.Worker = (
   ],
 
   compatibilityDate = "2026-02-05",
+  compatibilityFlags = ["nodejs_compat"],
 
   # ---------- Durable Object namespaces ----------
   durableObjectNamespaces = [
