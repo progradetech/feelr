@@ -49,7 +49,8 @@ COPY packages/ ./packages/
 COPY connectors/ ./connectors/
 
 # Build dashboard static export (output: apps/dashboard/out/)
-RUN cd apps/dashboard && npx next build
+# Empty GATEWAY_URL makes dashboard use relative URLs (same origin as gateway)
+RUN cd apps/dashboard && NEXT_PUBLIC_GATEWAY_URL="" npx next build
 
 # Install esbuild for gateway bundling and workerd for runtime extraction
 RUN pnpm add -w -D esbuild workerd
@@ -78,13 +79,15 @@ FROM debian:bookworm-slim AS runtime
 # s6-overlay version
 ARG S6_OVERLAY_VERSION=3.2.0.2
 
-# Install s6-overlay v3
-ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz /tmp/
-ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz /tmp/
+# Install s6-overlay v3 (wget with retries instead of ADD for reliability)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     xz-utils \
     ca-certificates \
     wget \
+    && wget --tries=5 --retry-connrefused -q -O /tmp/s6-overlay-noarch.tar.xz \
+       "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz" \
+    && wget --tries=5 --retry-connrefused -q -O /tmp/s6-overlay-x86_64.tar.xz \
+       "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz" \
     && tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
     && tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz \
     && rm -f /tmp/s6-overlay-*.tar.xz \

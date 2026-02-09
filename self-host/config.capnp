@@ -62,14 +62,17 @@ const gatewayWorker :Workerd.Worker = (
     (
       className = "TokenCoordinator",
       uniqueKey = "feelr-token-coordinator",
+      enableSql = true,
     ),
     (
       className = "KvStoreDO",
       uniqueKey = "feelr-kv-store",
+      enableSql = true,
     ),
     (
       className = "UsageDbDO",
       uniqueKey = "feelr-usage-db",
+      enableSql = true,
     ),
   ],
 

@@ -145,6 +145,71 @@ function buildAdaptedEnv(rawEnv: SelfHostedRawEnv, config: FeelrYamlConfig): App
   }
 }
 
+/** Content-type map for static assets */
+const MIME_TYPES: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'application/javascript',
+  '.css': 'text/css',
+  '.json': 'application/json',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.txt': 'text/plain',
+}
+
+function getContentType(path: string): string {
+  const ext = path.substring(path.lastIndexOf('.'))
+  return MIME_TYPES[ext] ?? 'application/octet-stream'
+}
+
+/**
+ * Serve dashboard static files with proper content types.
+ * Strategy:
+ * 1. Try exact path match (for /_next/*, static assets with extensions)
+ * 2. Try path + .html (Next.js static export: /keys -> keys.html)
+ * 3. Fall back to /index.html (SPA client-side routing)
+ */
+async function serveDashboard(
+  dashboard: { fetch(request: Request): Promise<Response> },
+  request: Request,
+  url: URL,
+): Promise<Response> {
+  const hasExtension = url.pathname.includes('.') && !url.pathname.endsWith('/')
+
+  if (hasExtension) {
+    // Static asset request (/_next/static/..., /favicon.ico, etc.)
+    const res = await dashboard.fetch(request)
+    if (res.status !== 404) {
+      return new Response(res.body, {
+        status: res.status,
+        headers: { 'Content-Type': getContentType(url.pathname) },
+      })
+    }
+  } else {
+    // Page route: try appending .html (Next.js static export pattern)
+    const htmlPath = url.pathname === '/' ? '/index.html' : `${url.pathname.replace(/\/$/, '')}.html`
+    const htmlRequest = new Request(new URL(htmlPath, request.url).toString())
+    const res = await dashboard.fetch(htmlRequest)
+    if (res.status !== 404) {
+      return new Response(res.body, {
+        status: 200,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      })
+    }
+  }
+
+  // Final fallback: serve index.html for SPA routing
+  const indexRequest = new Request(new URL('/index.html', request.url).toString())
+  const res = await dashboard.fetch(indexRequest)
+  return new Response(res.body, {
+    status: 200,
+    headers: { 'Content-Type': 'text/html; charset=utf-8' },
+  })
+}
+
 export default {
   async fetch(request: Request, rawEnv: SelfHostedRawEnv, ctx: ExecutionContext): Promise<Response> {
     // Load config from FEELR_CONFIG JSON binding (converted from YAML by Docker entrypoint)
@@ -168,13 +233,7 @@ export default {
         !url.pathname.startsWith('/admin/') &&
         !url.pathname.startsWith('/internal/')
       ) {
-        const dashboardResponse = await rawEnv.DASHBOARD.fetch(request)
-        if (dashboardResponse.status !== 404) {
-          return dashboardResponse
-        }
-        // If dashboard also 404s, fall back to index.html for SPA routing
-        const indexRequest = new Request(new URL('/', request.url).toString(), request)
-        return rawEnv.DASHBOARD.fetch(indexRequest)
+        return serveDashboard(rawEnv.DASHBOARD, request, url)
       }
     }
 
