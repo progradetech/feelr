@@ -1,0 +1,100 @@
+# Stripe Connector
+
+**Auth type:** `api_key` (Stripe secret key, `sk_live_*` or `sk_test_*`)
+
+The Stripe connector provides 8 actions covering payments, customers, and invoices.
+
+## Setup
+
+1. Get your API key at [dashboard.stripe.com/apikeys](https://dashboard.stripe.com/apikeys)
+2. Use `sk_test_*` for development, `sk_live_*` for production
+3. Store the key:
+
+```bash
+# Via CLI
+feelr auth stripe
+
+# Via API
+curl -X PUT https://api.feelr.dev/admin/credentials/stripe \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"token": "sk_test_your_stripe_key"}'
+```
+
+Stripe uses direct API keys (no OAuth, no token refresh needed).
+
+## Action Reference
+
+### Payments
+
+| Action | Description | Required Params | Returns |
+|--------|-------------|-----------------|---------|
+| `payments.list` | List payment intents | -- | `[{id, amount, currency, status, description, customer, created, payment_method_types, latest_charge}]` |
+| `payments.get` | Get a payment intent | `id` | `{id, amount, currency, status, description, customer, created, payment_method_types, latest_charge}` |
+
+**payments.list optional params:** `limit` (max 100, default: 10), `customer` (filter by cus_*), `status` (requires_payment_method/requires_confirmation/succeeded/canceled)
+
+### Customers
+
+| Action | Description | Required Params | Returns |
+|--------|-------------|-----------------|---------|
+| `customers.list` | List customers | -- | `[{id, email, name, phone, description, created, currency, default_source, balance}]` |
+| `customers.get` | Get a customer | `id` | `{id, email, name, phone, description, created, currency, default_source, balance}` |
+| `customers.create` | Create a customer | -- | `{id, email, name, phone, description, created, currency, default_source, balance}` |
+
+**customers.list optional params:** `limit` (max 100, default: 10), `email` (filter by exact email)
+
+**customers.create optional params:** `email`, `name`, `phone`, `description` (all optional -- Stripe allows empty customers)
+
+### Invoices
+
+| Action | Description | Required Params | Returns |
+|--------|-------------|-----------------|---------|
+| `invoices.list` | List invoices | -- | `[{id, customer, status, total, currency, due_date, created, paid, hosted_invoice_url, number}]` |
+| `invoices.get` | Get an invoice | `id` | `{id, customer, status, total, currency, due_date, created, paid, hosted_invoice_url, number}` |
+| `invoices.create` | Create an invoice | `customer` | `{id, customer, status, total, currency, due_date, created, paid, hosted_invoice_url, number}` |
+
+**invoices.list optional params:** `limit` (max 100, default: 10), `customer` (filter by cus_*), `status` (draft/open/paid/void/uncollectible)
+
+**invoices.create optional params:** `description`, `auto_advance` (boolean, default: true -- auto-finalize)
+
+Stripe IDs follow specific prefixes: `pi_*` (payment intents), `cus_*` (customers), `in_*` (invoices).
+
+## Examples
+
+### List recent payments
+
+```bash
+curl "https://api.feelr.dev/v1/stripe/payments.list?limit=5&status=succeeded" \
+  -H "X-Feelr-Key: fk_live_..."
+```
+
+```bash
+feelr run stripe payments.list limit=5 status=succeeded
+```
+
+### Create a customer
+
+```bash
+curl -X POST https://api.feelr.dev/v1/stripe/customers.create \
+  -H "X-Feelr-Key: fk_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "name": "Jane Doe"}'
+```
+
+```bash
+feelr run stripe customers.create email=user@example.com name="Jane Doe"
+```
+
+### Create an invoice
+
+```bash
+curl -X POST https://api.feelr.dev/v1/stripe/invoices.create \
+  -H "X-Feelr-Key: fk_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{"customer": "cus_abc123", "description": "January consulting"}'
+```
+
+```bash
+feelr run stripe invoices.create customer=cus_abc123 description="January consulting"
+```
