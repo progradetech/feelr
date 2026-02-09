@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 9 complete (Self-Hosting). Ready for Phase 10.
+**Current focus:** Phase 10 in progress (Launch Prep). CLI distribution pipeline complete.
 
 ## Current Position
 
-Phase: 9 of 10 (Self-Hosting)
-Plan: 7 of 7 in current phase
-Status: Complete
-Last activity: 2026-02-09 -- Completed 09-07-PLAN.md (init script, README, Docker verification)
+Phase: 10 of 10 (Launch Prep)
+Plan: 3 of 4 in current phase
+Status: In Progress
+Last activity: 2026-02-09 -- Completed 10-03-PLAN.md (CLI distribution: GoReleaser, Homebrew tap, update checker)
 
-Progress: [██████████████████████████████████████████████████] 100% (47/47 plans through Phase 9)
+Progress: [██████████████████████████████████████████████████] 98% (50/51 plans through Phase 10)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 47
+- Total plans completed: 50
 - Average duration: 3 min
-- Total execution time: 148 min
+- Total execution time: 150 min
 
 **By Phase:**
 
@@ -37,9 +37,10 @@ Progress: [███████████████████████
 | 07-production-hardening | 5/5 | 8 min | 2 min |
 | 08-composable-actions | 7/7 | 22 min | 3 min |
 | 09-self-hosting | 7/7 | 21 min | 3 min |
+| 10-launch-prep | 3/4 | 2 min | 1 min |
 
 **Recent Trend:**
-- Last 5 plans: 09-03 (2 min), 09-04 (4 min), 09-05 (4 min), 09-06 (2 min), 09-07 (4 min)
+- Last 5 plans: 09-06 (2 min), 09-07 (4 min), 10-01 (0 min), 10-02 (0 min), 10-03 (2 min)
 - Trend: stable/fast
 
 *Updated after each plan completion*
@@ -207,6 +208,9 @@ Recent decisions affecting current work:
 - [09-07]: workerd installed in builder stage via pnpm, native binary copied to runtime (avoids Debian npm issues)
 - [09-07]: Gateway JS bundle placed at /etc/feelr/dist/ next to config.capnp for relative embed resolution
 - [09-07]: DO storage uses named disk service with writable=true (workerd localDisk requires service name, not path)
+- [10-03]: GoReleaser v2 `brews` key (not `homebrew_casks` -- homebrew_casks is not a valid GoReleaser key)
+- [10-03]: Synchronous update check in PersistentPreRun (cache hit <1ms file read, only stale cache triggers 5s HTTP)
+- [10-03]: JSON-encoded cache file at ~/.config/feelr/update-check with Unix timestamp for TTL checking
 
 ### Pending Todos
 
@@ -222,5 +226,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed Phase 9 (Self-Hosting) -- all 7 plans done, Docker verified end-to-end
+Stopped at: Completed 10-03-PLAN.md (CLI distribution: GoReleaser, Homebrew tap, update checker)
 Resume file: None
