@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/andrewprograde/feelr/cli/internal/client"
+	"github.com/andrewprograde/feelr/cli/internal/update"
 	"github.com/spf13/cobra"
 )
 
@@ -21,6 +22,12 @@ var rootCmd = &cobra.Command{
 	Version:       version,
 	SilenceUsage:  true,
 	SilenceErrors: true,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		// Silent update check on every invocation. With a 24h cache, the
+		// common case (cache hit) is a single file read (<1ms). Only on
+		// stale cache does it make a GitHub API call (max 5s timeout).
+		update.CheckForUpdate(version)
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return cmd.Help()
 	},
