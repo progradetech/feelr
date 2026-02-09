@@ -21,12 +21,14 @@ builds:
 
 archives:
   - id: feelr-archive
-    builds:
+    ids:
       - feelr-cli
-    format: tar.gz
+    formats:
+      - tar.gz
     format_overrides:
       - goos: windows
-        format: zip
+        formats:
+          - zip
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
 # NOTE: `brews` is deprecated since GoReleaser v2.10 in favor of `homebrew_casks`.
