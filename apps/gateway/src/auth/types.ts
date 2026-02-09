@@ -24,6 +24,8 @@ export interface ApiKeyRecord {
   label?: string              // Optional user-provided label
   /** Rate limit tier determining requests-per-minute allowance */
   tier: RateLimitTier
+  /** Stripe customer ID for billing lookups (cloud deployments only) */
+  stripeCustomerId?: string
   createdAt: string           // ISO 8601 timestamp
   lastUsedAt?: string         // ISO 8601, updated on successful validation
   // Future: scopes?: string[]  // Per-connector scoping (deferred)

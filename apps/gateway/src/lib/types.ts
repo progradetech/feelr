@@ -40,6 +40,10 @@ export interface AppEnv extends Env {
     RATE_LIMIT_ENTERPRISE: RateLimiter
     /** Rate limiter: IP-based pre-auth (100 req/10s) */
     RATE_LIMIT_IP: RateLimiter
+    /** Worker Secret: Stripe secret key for billing API calls (cloud only) */
+    STRIPE_SECRET_KEY?: string
+    /** Worker Secret: Stripe webhook signing secret for signature verification (cloud only) */
+    STRIPE_WEBHOOK_SECRET?: string
     /** Optional runtime configuration for cloud vs self-hosted feature toggles */
     FEELR_CONFIG?: import('../runtime/interfaces').FeelrConfig
   }
