@@ -65,11 +65,11 @@ Plans:
   3. Writing data in staging (KV entries, D1 rows, DO state) does not appear in production and vice versa
   4. `curl https://api.feelr.dev/health` returns a successful response with a valid SSL certificate
   5. Redeploying the gateway preserves previously set secrets (ENCRYPTION_KEY, OAuth credentials) without re-entry
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 12-01: TBD
-- [ ] 12-02: TBD
+- [ ] 12-01-PLAN.md -- Prepare configuration files (D1 migration, wrangler.toml restructure, .gitignore)
+- [ ] 12-02-PLAN.md -- Provision Cloudflare resources, deploy environments, verify isolation and custom domain
 
 ### Phase 13: Gateway CI/CD Pipeline
 **Goal**: Gateway deployment is fully automated with quality checks on every PR, staging deploys on merge, production deploys on tag, and safety controls preventing bad deploys
