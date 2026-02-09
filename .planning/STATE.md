@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 10 in progress (Launch Prep). Billing integration and CLI distribution complete.
+**Current focus:** Phase 10 in progress (Launch Prep). Billing, docs site, and CLI distribution complete.
 
 ## Current Position
 
 Phase: 10 of 10 (Launch Prep)
 Plan: 3 of 4 in current phase
 Status: In Progress
-Last activity: 2026-02-09 -- Completed 10-01-PLAN.md (Stripe billing: plan enforcer, meter events, gateway wiring)
+Last activity: 2026-02-09 -- Completed 10-02-PLAN.md (Nextra v4 docs site with quick-starts, auth, connector refs)
 
 Progress: [██████████████████████████████████████████████████] 98% (50/51 plans through Phase 10)
 
@@ -215,6 +215,10 @@ Recent decisions affecting current work:
 - [10-03]: GoReleaser v2 `brews` key (not `homebrew_casks` -- homebrew_casks is not a valid GoReleaser key)
 - [10-03]: Synchronous update check in PersistentPreRun (cache hit <1ms file read, only stale cache triggers 5s HTTP)
 - [10-03]: JSON-encoded cache file at ~/.config/feelr/update-check with Unix timestamp for TTL checking
+- [10-02]: Nextra v4.6.1 with App Router (not Pages Router) for Next.js 15 compatibility
+- [10-02]: Developer casual tone matching Stripe docs style (code-heavy, clear, friendly)
+- [10-02]: Action reference tables derived from actual connector source code for accuracy
+- [10-02]: Self-hosting linked to GitHub repo (not duplicated on docs site)
 
 ### Pending Todos
 
@@ -230,5 +234,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 10-01-PLAN.md (Stripe billing: plan enforcer, meter events, gateway wiring)
+Stopped at: Completed 10-02-PLAN.md (Nextra v4 docs site with quick-starts, auth, connector refs)
 Resume file: None
