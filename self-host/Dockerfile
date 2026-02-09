@@ -56,7 +56,8 @@ RUN cd apps/dashboard && NEXT_PUBLIC_GATEWAY_URL="" npx next build
 RUN pnpm add -w -D esbuild workerd
 
 # Bundle gateway for self-hosted workerd
-# --external:cloudflare:workers leaves the import for workerd runtime resolution
+# --conditions=workerd resolves Stripe SDK to its worker entry (stripe.esm.worker.js)
+# which uses fetch + WebCrypto natively, avoiding Node built-in imports entirely
 RUN pnpm exec esbuild apps/gateway/src/self-hosted-entry.ts \
     --bundle \
     --outfile=apps/gateway/dist/self-hosted-entry.js \
@@ -64,6 +65,7 @@ RUN pnpm exec esbuild apps/gateway/src/self-hosted-entry.ts \
     --platform=neutral \
     --target=esnext \
     --main-fields=module,main \
+    --conditions=workerd \
     --external:cloudflare:workers \
     --minify
 
