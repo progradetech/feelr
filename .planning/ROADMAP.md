@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 7: Production Hardening** - Rate limiting per API key and usage metering with persistent storage
 - [x] **Phase 8: Composable Actions** - Chain engine with pre-built workflows, custom chains, data passing, and conditionals
 - [x] **Phase 9: Self-Hosting** - Docker Compose deployment with workerd, feature parity via runtime abstraction
-- [ ] **Phase 10: Launch Prep** - Stripe billing, documentation site, CLI distribution, and open-source packaging
+- [x] **Phase 10: Launch Prep** - Stripe billing, documentation site, CLI distribution, and open-source packaging
 
 ## Phase Details
 
@@ -203,10 +203,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 10-01-PLAN.md -- Stripe billing integration (client, types, plan enforcer, meter events)
-- [ ] 10-02-PLAN.md -- Documentation site (Nextra v4 scaffold + content pages)
-- [ ] 10-03-PLAN.md -- CLI distribution (GoReleaser + GitHub Actions + Homebrew tap)
-- [ ] 10-04-PLAN.md -- Open-source packaging (LICENSE, CONTRIBUTING.md, README)
+- [x] 10-01-PLAN.md -- Stripe billing integration (client, types, plan enforcer, meter events)
+- [x] 10-02-PLAN.md -- Documentation site (Nextra v4 scaffold + content pages)
+- [x] 10-03-PLAN.md -- CLI distribution (GoReleaser + GitHub Actions + Homebrew tap)
+- [x] 10-04-PLAN.md -- Open-source packaging (LICENSE, CONTRIBUTING.md, README)
 
 ## Progress
 
@@ -224,4 +224,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 7. Production Hardening | 5/5 | Complete | 2026-02-07 |
 | 8. Composable Actions | 7/7 | Complete | 2026-02-07 |
 | 9. Self-Hosting | 7/7 | Complete | 2026-02-09 |
-| 10. Launch Prep | 0/4 | Not started | - |
+| 10. Launch Prep | 4/4 | Complete | 2026-02-09 |
