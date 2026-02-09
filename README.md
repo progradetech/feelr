@@ -4,8 +4,6 @@
 
 **One line. Any API. Zero context overhead.**
 
-<!-- TODO: Add GIF demo -->
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GoReleaser](https://img.shields.io/github/v/release/andrewprograde/feelr?label=CLI&logo=go)](https://github.com/andrewprograde/feelr/releases)
 [![GitHub Actions](https://img.shields.io/github/actions/workflow/status/andrewprograde/feelr/release.yml?label=Build&logo=github)](https://github.com/andrewprograde/feelr/actions)
