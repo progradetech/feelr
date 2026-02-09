@@ -200,12 +200,13 @@ Plans:
   3. CLI is downloadable via GoReleaser binaries (linux/darwin/windows, amd64/arm64) on GitHub Releases
   4. Homebrew tap installs the CLI on macOS and Linux
   5. Repository includes LICENSE, CONTRIBUTING.md, README, and a connector template for contributors
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 10-01: TBD
-- [ ] 10-02: TBD
-- [ ] 10-03: TBD
+- [ ] 10-01-PLAN.md -- Stripe billing integration (client, types, plan enforcer, meter events)
+- [ ] 10-02-PLAN.md -- Documentation site (Nextra v4 scaffold + content pages)
+- [ ] 10-03-PLAN.md -- CLI distribution (GoReleaser + GitHub Actions + Homebrew tap)
+- [ ] 10-04-PLAN.md -- Open-source packaging (LICENSE, CONTRIBUTING.md, README)
 
 ## Progress
 
@@ -223,4 +224,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 7. Production Hardening | 5/5 | Complete | 2026-02-07 |
 | 8. Composable Actions | 7/7 | Complete | 2026-02-07 |
 | 9. Self-Hosting | 7/7 | Complete | 2026-02-09 |
-| 10. Launch Prep | 0/TBD | Not started | - |
+| 10. Launch Prep | 0/4 | Not started | - |
