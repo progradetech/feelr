@@ -33,6 +33,7 @@ Requirements for deployment & CI/CD milestone. Each maps to roadmap phases.
 
 ### CI/CD Pipeline
 
+- [ ] **CI-00**: Existing release.yml workflow is audited, tested, and any issues are fixed (GoReleaser CLI release pipeline)
 - [ ] **CI-01**: Every PR runs lint, typecheck, and tests for affected packages via Turborepo
 - [ ] **CI-02**: Push to main triggers staging deployment for changed services (path-filtered)
 - [ ] **CI-03**: Version tag push triggers production deployment for all services
@@ -82,41 +83,42 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DNS-01 | — | Pending |
-| DNS-02 | — | Pending |
-| DNS-03 | — | Pending |
-| DNS-04 | — | Pending |
-| DNS-05 | — | Pending |
-| GW-01 | — | Pending |
-| GW-02 | — | Pending |
-| GW-03 | — | Pending |
-| GW-04 | — | Pending |
-| GW-05 | — | Pending |
-| GW-06 | — | Pending |
-| FE-01 | — | Pending |
-| FE-02 | — | Pending |
-| FE-03 | — | Pending |
-| FE-04 | — | Pending |
-| CI-01 | — | Pending |
-| CI-02 | — | Pending |
-| CI-03 | — | Pending |
-| CI-04 | — | Pending |
-| CI-05 | — | Pending |
-| CI-06 | — | Pending |
-| CI-07 | — | Pending |
-| CI-08 | — | Pending |
-| DOC-01 | — | Pending |
-| DOC-02 | — | Pending |
-| DOC-03 | — | Pending |
-| DOC-04 | — | Pending |
-| DOC-05 | — | Pending |
-| DOC-06 | — | Pending |
+| CI-00 | Phase 11 | Pending |
+| DNS-01 | Phase 11 | Pending |
+| DNS-02 | Phase 11 | Pending |
+| DNS-03 | Phase 12 | Pending |
+| DNS-04 | Phase 14 | Pending |
+| DNS-05 | Phase 14 | Pending |
+| GW-01 | Phase 12 | Pending |
+| GW-02 | Phase 12 | Pending |
+| GW-03 | Phase 12 | Pending |
+| GW-04 | Phase 12 | Pending |
+| GW-05 | Phase 13 | Pending |
+| GW-06 | Phase 13 | Pending |
+| FE-01 | Phase 14 | Pending |
+| FE-02 | Phase 14 | Pending |
+| FE-03 | Phase 14 | Pending |
+| FE-04 | Phase 15 | Pending |
+| CI-01 | Phase 13 | Pending |
+| CI-02 | Phase 13 | Pending |
+| CI-03 | Phase 13 | Pending |
+| CI-04 | Phase 15 | Pending |
+| CI-05 | Phase 13 | Pending |
+| CI-06 | Phase 13 | Pending |
+| CI-07 | Phase 13 | Pending |
+| CI-08 | Phase 16 | Pending |
+| DOC-01 | Phase 16 | Pending |
+| DOC-02 | Phase 16 | Pending |
+| DOC-03 | Phase 16 | Pending |
+| DOC-04 | Phase 16 | Pending |
+| DOC-05 | Phase 16 | Pending |
+| DOC-06 | Phase 16 | Pending |
 
 **Coverage:**
-- v1.1 requirements: 29 total
-- Mapped to phases: 0
-- Unmapped: 29 (pending roadmap creation)
+- v1.1 requirements: 30 total
+- Mapped to phases: 30
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-09*
-*Last updated: 2026-02-09 after initial definition*
+*Last updated: 2026-02-09 after roadmap creation*
