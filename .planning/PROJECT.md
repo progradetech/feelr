@@ -8,6 +8,17 @@ Feelr is an agent-friendly API simplification layer — a hosted service + Go CL
 
 An AI agent can call any supported external API in one line with near-zero context overhead — no schema parsing, no auth gymnastics, no pagination wrangling.
 
+## Current Milestone: v1.1 Deployment & CI/CD
+
+**Goal:** Take Feelr from local development to production — deploy all services, configure DNS, set up CI/CD pipelines, and create internal deployment guides.
+
+**Target features:**
+- Cloudflare Workers deployment (api.feelr.dev)
+- Azure App Service deployment for dashboard (app.feelr.dev) and marketing/docs (feelr.dev)
+- Namecheap DNS wiring for all subdomains
+- GitHub Actions CI/CD: main → staging, tags → production
+- Internal deployment runbooks (markdown + scripts)
+
 ## Current State
 
 **Version:** v1.0 MVP (shipped 2026-02-09)
@@ -51,7 +62,20 @@ Shipped capabilities:
 
 ### Active
 
-(None yet — define for next milestone)
+#### Deployment & Infrastructure
+- [ ] Cloudflare Workers deployment for edge gateway (api.feelr.dev)
+- [ ] Azure App Service deployment for dashboard (app.feelr.dev)
+- [ ] Azure App Service deployment for marketing/docs site (feelr.dev)
+- [ ] Namecheap DNS configuration for feelr.dev domain routing
+
+#### CI/CD Pipeline
+- [ ] GitHub Actions workflow: push to main → staging/preview deploy
+- [ ] GitHub Actions workflow: version tag → production deploy
+- [ ] Automated deployment for Workers, dashboard, and docs site
+
+#### Internal Deployment Guides
+- [ ] Step-by-step markdown deployment guides in repo
+- [ ] Automated deployment scripts with inline comments
 
 ### Out of Scope
 
@@ -80,7 +104,7 @@ Shipped capabilities:
 - **Tech stack (backend)**: Cloudflare Workers + Hono — zero cold starts, global edge, low cost
 - **Tech stack (connectors)**: TypeScript — type-safe, self-contained modules using Web Standard APIs only
 - **Tech stack (CLI)**: Go + Cobra — single binary, no runtime deps, fast shell-out for agents
-- **Tech stack (dashboard)**: Next.js 15.5 on Vercel (static export SPA)
+- **Tech stack (dashboard)**: Next.js 15.5 on Azure App Service (container)
 - **Tech stack (billing)**: Stripe Billing with metered subscriptions
 - **Tech stack (self-hosting)**: workerd + s6-overlay + SQLite in Docker
 - **Infrastructure budget**: Cloud target $10-30/month (Workers Paid plan required at $5/mo)
@@ -101,5 +125,9 @@ Shipped capabilities:
 | HKDF for key derivation (not PBKDF2) | Master secret is already high-entropy Worker Secret | Good — simpler, purpose-based domain separation via info param |
 | workerd for self-hosting runtime | Same V8 isolate model as Cloudflare Workers | Acceptable — npm install pattern works, some complexity in config |
 
+| Azure App Service for web properties | Container-based, supports SSR, user already has Azure subscription | — Pending |
+| Domain layout: api/app/root split | api.feelr.dev → Workers, app.feelr.dev → dashboard, feelr.dev → marketing/docs | — Pending |
+| GitHub Actions for CI/CD | Tags → production, main → staging/preview, covers all services | — Pending |
+
 ---
-*Last updated: 2026-02-09 after v1.0 milestone*
+*Last updated: 2026-02-09 after v1.1 milestone started*

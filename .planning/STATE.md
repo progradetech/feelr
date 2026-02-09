@@ -5,13 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** v1.0 MVP shipped. Planning next milestone.
+**Current focus:** v1.1 Deployment & CI/CD
 
 ## Current Position
 
-Milestone: v1.0 MVP — SHIPPED 2026-02-09
-Status: Complete
-Last activity: 2026-02-09 - Completed v1.0 milestone (10 phases, 51 plans)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-09 — Milestone v1.1 started
 
 ## Milestone History
 
