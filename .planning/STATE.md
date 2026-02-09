@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 ## Current Position
 
 Phase: 11 of 16 (DNS & Cloudflare Zone Setup)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-02-09 -- Roadmap created for v1.1 Deployment & CI/CD (6 phases, 29 requirements)
+Plan: 1 of 2 in current phase
+Status: Executing
+Last activity: 2026-02-09 -- Completed 11-01 DNS & Cloudflare zone setup (feelr.dev delegated to Cloudflare)
 
-Progress: [##########..........] 50% (51/~61 plans across v1.0 + v1.1)
+Progress: [##########..........] 52% (52/~61 plans across v1.0 + v1.1)
 
 ## Milestone History
 
@@ -32,9 +32,9 @@ Progress: [##########..........] 50% (51/~61 plans across v1.0 + v1.1)
 - Timeline: 5 days (2026-02-05 to 2026-02-09)
 
 **v1.1 Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 min
+- Total plans completed: 1
+- Average duration: 1 min
+- Total execution time: 1 min
 
 ## Accumulated Context
 
@@ -45,6 +45,11 @@ v1.1 pending decisions (from research):
 - Azure Static Web Apps over App Service (static exports, lower cost)
 - Cloudflare DNS as sole authority (required for Workers Custom Domains)
 - Pre-build strategy for SWA (skip Oryx builder, use pnpm/turbo in CI)
+
+v1.1 confirmed decisions:
+- Cloudflare Free plan for DNS zone hosting (braden.ns + ruth.ns assigned)
+- SSL/TLS Full mode for .dev HSTS compliance
+- DNSSEC left disabled during initial delegation
 
 ### Pending Todos
 
@@ -58,12 +63,12 @@ None.
 
 ### Blockers/Concerns
 
-- DNS propagation after nameserver change can take up to 24 hours (Phase 11 may gate Phase 12)
+- ~~DNS propagation after nameserver change can take up to 24 hours (Phase 11 may gate Phase 12)~~ RESOLVED: Propagation confirmed 2026-02-09
 - Cloudflare orange-cloud proxy must be disabled during Azure domain verification (Phase 14 sequencing)
 - Workers gradual rollouts may have limitations with Durable Objects (Phase 13 research needed)
 
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Created v1.1 roadmap (6 phases, 29 requirements mapped). Ready to plan Phase 11.
+Stopped at: Completed 11-01-PLAN.md (DNS & Cloudflare zone setup). Ready for 11-02.
 Resume file: None
