@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 10 in progress (Launch Prep). Billing, docs site, and CLI distribution complete.
+**Current focus:** All 10 phases complete. Repository fully packaged for open-source release.
 
 ## Current Position
 
 Phase: 10 of 10 (Launch Prep)
-Plan: 3 of 4 in current phase
-Status: In Progress
-Last activity: 2026-02-09 -- Completed 10-02-PLAN.md (Nextra v4 docs site with quick-starts, auth, connector refs)
+Plan: 4 of 4 in current phase
+Status: Complete
+Last activity: 2026-02-09 -- Completed 10-04-PLAN.md (Open-source packaging: LICENSE, README, CONTRIBUTING, connector template)
 
-Progress: [██████████████████████████████████████████████████] 98% (50/51 plans through Phase 10)
+Progress: [██████████████████████████████████████████████████] 100% (51/51 plans through Phase 10)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 50
+- Total plans completed: 51
 - Average duration: 3 min
-- Total execution time: 150 min
+- Total execution time: 154 min
 
 **By Phase:**
 
@@ -37,10 +37,10 @@ Progress: [███████████████████████
 | 07-production-hardening | 5/5 | 8 min | 2 min |
 | 08-composable-actions | 7/7 | 22 min | 3 min |
 | 09-self-hosting | 7/7 | 21 min | 3 min |
-| 10-launch-prep | 3/4 | 2 min | 1 min |
+| 10-launch-prep | 4/4 | 6 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 09-07 (4 min), 10-01 (4 min), 10-02 (0 min), 10-03 (2 min)
+- Last 5 plans: 10-01 (4 min), 10-02 (0 min), 10-03 (2 min), 10-04 (4 min)
 - Trend: stable/fast
 
 *Updated after each plan completion*
@@ -219,6 +219,9 @@ Recent decisions affecting current work:
 - [10-02]: Developer casual tone matching Stripe docs style (code-heavy, clear, friendly)
 - [10-02]: Action reference tables derived from actual connector source code for accuracy
 - [10-02]: Self-hosting linked to GitHub repo (not duplicated on docs site)
+- [10-04]: Mock data in template actions for zero-dependency demonstration (no upstream API needed)
+- [10-04]: Three action patterns (list/get/create) cover the vast majority of real connector use cases
+- [10-04]: Tests use createMockContext helper pattern for consistent test setup across all connectors
 
 ### Pending Todos
 
@@ -234,5 +237,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 10-02-PLAN.md (Nextra v4 docs site with quick-starts, auth, connector refs)
+Stopped at: Completed 10-04-PLAN.md (Open-source packaging). All 51 plans across 10 phases complete.
 Resume file: None
