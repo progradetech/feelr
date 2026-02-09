@@ -1,0 +1,51 @@
+# Feelr Documentation
+
+One API call. Any service. Built for AI agents.
+
+Feelr is an agent-friendly API simplification layer. Instead of wrangling OAuth flows, pagination quirks, and vendor-specific response shapes, your agent calls Feelr and gets a clean, consistent response every time.
+
+---
+
+## Get Started
+
+<Cards>
+  <Cards.Card title="Quick Start: API" href="/docs/getting-started-api" />
+  <Cards.Card title="Quick Start: CLI" href="/docs/getting-started-cli" />
+  <Cards.Card title="Connector Reference" href="/docs/connectors/github" />
+  <Cards.Card title="Self-Hosting" href="https://github.com/andrewprograde/feelr/tree/main/self-host" />
+</Cards>
+
+## Connectors
+
+Feelr ships with four connectors out of the box:
+
+| Connector | Actions | Auth Type |
+|-----------|---------|-----------|
+| [GitHub](/docs/connectors/github) | 10 actions (issues, PRs, repos) | Personal Access Token |
+| [Slack](/docs/connectors/slack) | 6 actions (messages, channels, users) | OAuth2 (bot token) |
+| [Stripe](/docs/connectors/stripe) | 8 actions (payments, customers, invoices) | API Key |
+| [Discord](/docs/connectors/discord) | 7 actions (messages, channels, members, roles) | Bot Token |
+
+## How It Works
+
+```
+Agent -> Feelr Gateway -> Connector -> Upstream API
+                |
+                v
+         Normalized Response
+```
+
+Every response follows the same envelope:
+
+```json
+{
+  "success": true,
+  "data": { ... },
+  "meta": {
+    "has_more": false,
+    "request_id": "req_abc123"
+  }
+}
+```
+
+No more parsing different error shapes per vendor. No more handling pagination differently for every API. Just data.
