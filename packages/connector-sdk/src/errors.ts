@@ -17,6 +17,7 @@ export type ErrorCode =
   | 'CREDENTIAL_EXPIRED'     // Credential refresh failed, user needs to re-authenticate
   | 'ADMIN_AUTH_REQUIRED'     // Admin token not provided
   | 'ADMIN_AUTH_INVALID'      // Admin token invalid
+  | 'PLAN_QUOTA_EXCEEDED'     // Monthly plan quota exceeded, upgrade required
 
 /**
  * Actionable hints that tell agents what to do about an error.
@@ -30,7 +31,7 @@ export type Hint = 'retry' | 'auth' | 'abort'
  * Allowed HTTP status codes for Feelr responses.
  * Feelr normalizes all upstream codes to this set.
  */
-export type FeelrHttpStatus = 400 | 401 | 403 | 404 | 429 | 500 | 502
+export type FeelrHttpStatus = 400 | 401 | 402 | 403 | 404 | 429 | 500 | 502
 
 /**
  * Options for constructing a FeelrError.
