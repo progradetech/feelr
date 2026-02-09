@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Dashboard** - Next.js web UI for API key management, connector status, and usage visualization
 - [x] **Phase 7: Production Hardening** - Rate limiting per API key and usage metering with persistent storage
 - [x] **Phase 8: Composable Actions** - Chain engine with pre-built workflows, custom chains, data passing, and conditionals
-- [ ] **Phase 9: Self-Hosting** - Docker Compose deployment with workerd, feature parity via runtime abstraction
+- [x] **Phase 9: Self-Hosting** - Docker Compose deployment with workerd, feature parity via runtime abstraction
 - [ ] **Phase 10: Launch Prep** - Stripe billing, documentation site, CLI distribution, and open-source packaging
 
 ## Phase Details
@@ -182,13 +182,13 @@ Plans:
 **Plans**: 7 plans
 
 Plans:
-- [ ] 09-01-PLAN.md -- Runtime abstraction interfaces + Cloudflare cloud adapters
-- [ ] 09-02-PLAN.md -- Config system (feelr.yaml template, .env template, config loader)
-- [ ] 09-03-PLAN.md -- Self-hosted adapters (KvStoreDO, UsageDbDO, InMemoryRateLimiter)
-- [ ] 09-04-PLAN.md -- Gateway refactoring (AppEnv + all files to abstract interfaces)
-- [ ] 09-05-PLAN.md -- Adapter factory, self-hosted entry point, workerd capnp config
-- [ ] 09-06-PLAN.md -- Dockerfile, s6-overlay, docker-compose.yml, Caddy profile
-- [ ] 09-07-PLAN.md -- Init script, README, end-to-end verification
+- [x] 09-01-PLAN.md -- Runtime abstraction interfaces + Cloudflare cloud adapters
+- [x] 09-02-PLAN.md -- Config system (feelr.yaml template, .env template, config loader)
+- [x] 09-03-PLAN.md -- Self-hosted adapters (KvStoreDO, UsageDbDO, InMemoryRateLimiter)
+- [x] 09-04-PLAN.md -- Gateway refactoring (AppEnv + all files to abstract interfaces)
+- [x] 09-05-PLAN.md -- Adapter factory, self-hosted entry point, workerd capnp config
+- [x] 09-06-PLAN.md -- Dockerfile, s6-overlay, docker-compose.yml, Caddy profile
+- [x] 09-07-PLAN.md -- Init script, README, end-to-end verification
 
 ### Phase 10: Launch Prep
 **Goal**: Feelr is publicly launchable with documentation, distribution, billing, and open-source packaging
@@ -222,5 +222,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 6. Dashboard | 5/5 | Complete | 2026-02-07 |
 | 7. Production Hardening | 5/5 | Complete | 2026-02-07 |
 | 8. Composable Actions | 7/7 | Complete | 2026-02-07 |
-| 9. Self-Hosting | 0/7 | Not started | - |
+| 9. Self-Hosting | 7/7 | Complete | 2026-02-09 |
 | 10. Launch Prep | 0/TBD | Not started | - |
