@@ -1,302 +1,460 @@
-# Stack Research
+# Technology Stack: Deployment & CI/CD
 
-**Domain:** API Simplification Layer / Agent-Friendly API Gateway
-**Researched:** 2026-02-05
-**Confidence:** HIGH (core stack pre-selected and validated; supporting libraries verified via official sources)
+**Project:** Feelr -- Production Deployment Infrastructure
+**Researched:** 2026-02-09
+**Confidence:** HIGH (all tools verified against official docs and current versions)
 
-## Validation of Pre-Selected Stack
+---
 
-The user pre-selected five core technologies. All five are validated as strong choices for this domain.
+## Executive Summary
 
-| Pre-Selected | Verdict | Rationale |
-|-------------|---------|-----------|
-| Cloudflare Workers + Hono | VALIDATED | Zero cold starts, global edge, Hono is Cloudflare's own choice for internal APIs (D1, KV, Queues all use Hono internally). Sub-12kB framework with batteries-included middleware. |
-| TypeScript / Bun | VALIDATED | Bun runs TS natively with zero transpilation config. Built-in test runner, bundler, and package manager. Fastest JS runtime for connector development. |
-| Go for CLI | VALIDATED | Single binary, zero runtime deps, cross-compiles to every platform. The standard choice for CLI tools (Docker, Kubernetes, GitHub CLI all use Go + Cobra). |
-| Next.js for Dashboard | VALIDATED | Next.js 16 with Turbopack (now default), React 19, and Cache Components. Vercel deployment is trivial. shadcn/ui ecosystem is mature for dashboards. |
-| Stripe for Billing | VALIDATED | Native Cloudflare Workers SDK support (uses Web Fetch + Web Crypto instead of Node.js deps). Usage-based billing via meterEvent API. |
+Deploying Feelr to production requires coordinating three services across two platforms (Cloudflare and Azure), unified through Cloudflare DNS and GitHub Actions CI/CD. The critical architectural decision is that **Cloudflare must be the DNS provider for feelr.dev** (not Namecheap) because Workers custom domains require an active Cloudflare zone. Namecheap remains the domain registrar only. Both the dashboard and docs site are static exports (`output: 'export'`) and should deploy to Azure Static Web Apps (not App Service) because SWA is cheaper ($0-9/mo vs $13+/mo), globally distributed, and purpose-built for static sites.
 
 ---
 
 ## Recommended Stack
 
-### Core Technologies
+### DNS & Domain Management
 
-| Technology | Version | Purpose | Why Recommended | Confidence |
-|------------|---------|---------|-----------------|------------|
-| Hono | ^4.11.7 | Edge API framework | Ultrafast (<12kB), zero deps, built-in JWT/CORS/Bearer auth middleware. Cloudflare uses Hono internally for D1, KV, and Queues APIs. Security patches current as of Jan 2026 (CVE-2026-24473 fixed). | HIGH |
-| Cloudflare Workers | wrangler ^4.61.1 | Edge compute runtime | Zero cold starts, 200+ PoPs globally, $5/mo paid plan includes 10M requests. Web Crypto API built-in for encryption. Native bindings to KV, D1, Durable Objects, Queues. | HIGH |
-| Cloudflare D1 | N/A (platform) | Primary database (SQLite) | 5GB free tier, 25B reads/mo on paid. SQL via SQLite dialect. Perfect for API metadata, connector configs, usage tracking. 10GB max per database. | HIGH |
-| Cloudflare KV | N/A (platform) | Key-value cache & config | Session data, API key lookups, cached connector responses. 1 write/sec per key limit -- suitable for config, not high-write. 10M reads/mo on paid plan. | HIGH |
-| Cloudflare Durable Objects | N/A (platform) | Rate limiting state & coordination | SQLite-backed storage (recommended for new DOs). Single-threaded per-object for rate limit counters, OAuth token state, composable action coordination. Billing started Jan 2026. | HIGH |
-| Bun | ^1.3.x | Connector development runtime | Native TypeScript execution, built-in test runner (`bun test`), fastest package installs. Bun.SQL for local dev database access. Use for local connector development and testing only -- connectors deploy to Workers. | HIGH |
-| Go | ^1.22 | CLI binary | Single binary output, excellent cross-compilation, goroutines for concurrent API calls. Standard for modern CLIs. | HIGH |
-| Next.js | ^16.1 | Dashboard web app | React 19, Turbopack (now default bundler), Cache Components for explicit caching, incremental prefetching. Deploy to Vercel free tier. | HIGH |
-| Stripe SDK | ^20.3.0 | Billing & subscriptions | Native Workers support (no Node.js deps). Usage-based billing via meterEvent. Webhook support for subscription lifecycle. | HIGH |
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| Cloudflare DNS (Free) | N/A | Authoritative DNS for feelr.dev | **Required** for Workers custom domains. Cloudflare must manage the zone to create DNS records and issue certificates for `api.feelr.dev`. Also provides CNAME flattening for apex domain, CDN proxy for Azure subdomains, and a single pane of glass for all DNS records. |
+| Namecheap | N/A | Domain registrar only | Keep as registrar. Change nameservers in Namecheap to point to Cloudflare-assigned nameservers (e.g., `amy.ns.cloudflare.com`, `bob.ns.cloudflare.com`). Registrar handles domain renewal and WHOIS only. |
 
-### Database & Storage Layer
+**DNS Record Layout (configured in Cloudflare dashboard):**
 
-| Technology | Version | Purpose | Why Recommended | Confidence |
-|------------|---------|---------|-----------------|------------|
-| Drizzle ORM | ^0.45.1 | TypeScript ORM for D1 | Type-safe SQL, first-class D1 support, migration generation via drizzle-kit. Works with both D1 HTTP API (for drizzle-kit) and D1 binding (for Workers). Also supports Durable Objects SQLite storage. | HIGH |
-| drizzle-kit | ^0.45.x | Migration tooling | Generates SQL migrations from TypeScript schema, supports D1 HTTP API for remote operations, introspection, and Drizzle Studio for data browsing. | HIGH |
-| Cloudflare Secrets Store | N/A (platform) | Encrypted credential vault | Two-level key hierarchy (DEK + KEK), AES-256 encrypted. Account-level secrets with Worker-level binding permissions. Values never readable after creation -- even by CF employees. | HIGH |
+| Record | Type | Name | Value | Proxy |
+|--------|------|------|-------|-------|
+| API | Custom Domain | `api.feelr.dev` | (auto-created by Workers) | Orange cloud (proxied) |
+| Dashboard | CNAME | `app` | `<swa-name>.azurestaticapps.net` | Gray cloud (DNS only) |
+| Docs/Marketing | CNAME | `@` (apex via CNAME flattening) | `<swa-name>.azurestaticapps.net` | Gray cloud (DNS only) |
+| Docs www redirect | CNAME | `www` | `<swa-name>.azurestaticapps.net` | Gray cloud (DNS only) |
+| Domain verification | TXT | `_dnsauth` | (Azure provides value) | N/A |
+| Domain verification | TXT | `_dnsauth.app` | (Azure provides value) | N/A |
 
-### Authentication & Security
+**Why Cloudflare proxy must be DNS-only (gray cloud) for Azure subdomains:** Azure Static Web Apps requires direct CNAME resolution for domain validation and certificate issuance. Cloudflare orange-cloud proxy would intercept this and cause SSL conflicts (double proxy). The Workers `api.feelr.dev` custom domain uses orange cloud because Cloudflare manages that end-to-end.
 
-| Technology | Version | Purpose | Why Recommended | Confidence |
-|------------|---------|---------|-----------------|------------|
-| jose | ^6.1.3 | JWT signing/verification | Zero deps, tree-shakeable ESM, designed for Web-interoperable runtimes (Workers, Bun, Deno, browsers). WebCrypto-native. The standard for edge JWT operations. | HIGH |
-| Web Crypto API | Built-in | Encryption for credential vault | Native to Workers runtime. AES-256-GCM for encrypting stored OAuth tokens and API keys. PBKDF2 for key derivation. No external library needed. | HIGH |
-| Hono Bearer Auth | Built-in | API key authentication | Built into Hono, zero additional deps. Validates `Authorization: Bearer {token}` headers. Use for Feelr API key auth. | HIGH |
-| Hono JWT Middleware | Built-in | JWT token validation | Built into Hono. Verifies JWT tokens and extracts claims. Use for dashboard session auth. | HIGH |
-| Hono CORS | Built-in | Cross-origin requests | Built into Hono. Configure per-route. Essential for dashboard-to-API communication. | HIGH |
-| golang.org/x/oauth2 | latest | OAuth2 client (Go CLI) | Official Go OAuth2 package. Automatic token refresh via TokenSource interface. RoundTrip auto-refreshes expired tokens. Supports all major OAuth providers. | HIGH |
+**Why CNAME flattening works for apex:** Cloudflare automatically flattens CNAME records at the zone apex into A records when responding to DNS queries. This is RFC-compliant and enabled by default on all Cloudflare plans. This means `feelr.dev` can point to an Azure SWA hostname even though traditional DNS forbids CNAME at apex.
 
-### Validation & API Documentation
+### Cloudflare Workers Deployment
 
-| Technology | Version | Purpose | Why Recommended | Confidence |
-|------------|---------|---------|-----------------|------------|
-| Zod | ^4.3.5 | Runtime schema validation | TypeScript-first validation with static type inference. Zod 4 is latest stable (major rewrite from v3). Use for all API input validation and connector response validation. | HIGH |
-| @hono/zod-validator | ^0.7.6 | Hono validation middleware | Validates json, query, header, param, cookie, form targets. Integrates with Hono's type system for end-to-end type safety. | HIGH |
-| @hono/zod-openapi | ^1.2.0 | OpenAPI spec generation | Generates OpenAPI 3.1 docs from Zod schemas + Hono routes. Serves Swagger UI. Critical for agent discoverability -- agents need machine-readable API specs. | HIGH |
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| Wrangler CLI | ^4.63.0 | Workers deployment, secrets, D1 migrations | Already installed in project. Handles `wrangler deploy`, `wrangler secret bulk`, `wrangler d1 migrations apply --remote`. Supports environment-based configs for staging/production. |
+| cloudflare/wrangler-action | v3 | GitHub Actions integration | Official Cloudflare action. Handles wrangler installation, authentication, and deployment in CI. Supports `environment` parameter, `secrets` injection, custom `command`. |
+| Cloudflare API Token | N/A | CI/CD authentication | Create via Cloudflare dashboard > My Profile > API Tokens. Required permissions: Account: Workers Scripts (Edit), Workers KV Storage (Edit), D1 (Edit); Zone: Workers Routes (Edit), DNS (Edit). |
 
-### Rate Limiting
+**Wrangler Environment Configuration (wrangler.toml):**
 
-| Technology | Version | Purpose | Why Recommended | Confidence |
-|------------|---------|---------|-----------------|------------|
-| @hono-rate-limiter/cloudflare | latest | Per-route rate limiting | Uses Workers KV or Durable Objects as backing store (required -- default memory store does not work in Workers). Supports keyGenerator for per-user/per-key limits. | MEDIUM |
-| Cloudflare Rate Limiting API | N/A (platform) | Platform-level rate limits | Open beta. Native Workers binding. Simpler than middleware for basic rate limiting. Use as complement, not replacement, for @hono-rate-limiter. | MEDIUM |
+The existing `wrangler.toml` needs staging and production environments. Key design:
+- Top-level config = development defaults
+- `[env.staging]` = staging Worker deployed as `feelr-gateway-staging`
+- `[env.production]` = production Worker with custom domain `api.feelr.dev`
 
-### CLI (Go) Libraries
+```toml
+# Top-level: development defaults
+name = "feelr-gateway"
+main = "src/index.ts"
+compatibility_date = "2026-02-05"
 
-| Technology | Version | Purpose | Why Recommended | Confidence |
-|------------|---------|---------|-----------------|------------|
-| cobra | ^1.10.2 | CLI command framework | Used by Docker, K8s, GitHub CLI, Hugo, 173K+ projects. Subcommand structure, auto-generated help, shell completion. The undisputed standard for Go CLIs. | HIGH |
-| viper | latest | Configuration management | Reads JSON, TOML, YAML, env vars. Pairs with Cobra. Use for `~/.feelr/config.yaml` and env-based configuration. | HIGH |
-| lipgloss | v2 (charm.land) | Terminal styling | Style definitions for terminal output. Colorful, readable CLI output without ANSI escape code management. Recently moved to charm.land/lipgloss/v2. | MEDIUM |
-| bubbletea | v2 (charm.land) | Interactive TUI (optional) | Elm-architecture TUI framework. Use only if interactive flows needed (OAuth browser flow, connector selection). Recently moved to charm.land/bubbletea/v2. | LOW |
-| goreleaser | latest | Binary distribution | Automated cross-compilation, GitHub Releases, Homebrew taps, Linux packages, SBOMs. Standard for Go binary distribution. Updated Feb 4, 2026. | HIGH |
-| testify | ^1.11.1 | Go test assertions | Assert, require, mock, suite packages. De facto standard for Go testing. Use assert for non-fatal, require for fatal checks. | HIGH |
+[vars]
+ENVIRONMENT = "development"
 
-### Dashboard (Next.js) Libraries
+# ... KV, D1, DO bindings with dev IDs ...
 
-| Technology | Version | Purpose | Why Recommended | Confidence |
-|------------|---------|---------|-----------------|------------|
-| Tailwind CSS | ^4.0 | Utility-first CSS | v4.0 released Jan 2025. 5x faster full builds, 100x faster incremental. Zero config, automatic content detection. CSS-native with @property and cascade layers. | HIGH |
-| shadcn/ui | latest | Component library | Copy-paste components built on Radix UI + Tailwind. Dashboard starters available for Next.js 16. Not an npm dep -- components live in your codebase. | HIGH |
-| @stripe/stripe-js | latest | Client-side Stripe | Stripe Elements for payment forms. Required for checkout flows in dashboard. | HIGH |
-| @stripe/react-stripe-js | latest | React Stripe components | React wrappers for Stripe Elements. Use for subscription management in dashboard. | HIGH |
-| Better Auth | latest | Dashboard authentication | Comprehensive auth framework for Next.js. Social sign-on, 2FA, team/org support. Type-safe. Alternative to NextAuth with better DX. Works with Cloudflare Workers via Service Bindings. | MEDIUM |
+# --- Staging Environment ---
+[env.staging]
+name = "feelr-gateway-staging"
 
-### Testing
+[env.staging.vars]
+ENVIRONMENT = "staging"
 
-| Technology | Version | Purpose | Why Recommended | Confidence |
-|------------|---------|---------|-----------------|------------|
-| Vitest | ^4.0.18 | TypeScript test runner | Default test framework for Vite/Hono projects. Fast, ESM-native, Jest-compatible API. | HIGH |
-| @cloudflare/vitest-pool-workers | ^0.9.2 | Workers test environment | Runs Vitest tests inside Workers runtime via workerd. Eliminates behavior mismatches between tests and production. Isolated per-test storage, mock outbound requests. Compatible with Vitest 2.0.x-3.2.x. | HIGH |
-| Bun test runner | Built-in | Connector unit tests | Built into Bun runtime. Fast, Jest-compatible. Use for connector logic tests that don't need Workers bindings. | HIGH |
-| Go testing + testify | ^1.11.1 | CLI tests | Standard Go testing with testify assertions. Cobra commands testable via Execute() with captured stdout. | HIGH |
+# Staging KV namespace (separate from production)
+[[env.staging.kv_namespaces]]
+binding = "AUTH_KV"
+id = "<staging-kv-id>"
 
-### Infrastructure & DevOps
+# Staging D1 (separate from production)
+[[env.staging.d1_databases]]
+binding = "USAGE_DB"
+database_name = "feelr-usage-staging"
+database_id = "<staging-d1-id>"
 
-| Technology | Version | Purpose | Why Recommended | Confidence |
-|------------|---------|---------|-----------------|------------|
-| Wrangler | ^4.61.1 | Workers CLI & dev server | Deploy, dev, tail logs, manage secrets, KV, D1, DOs. `wrangler dev` for local development with Miniflare. | HIGH |
-| Cloudflare Queues | N/A (platform) | Async task processing | Now on free plan (10K ops/day). Use for webhook delivery, usage metering to Stripe, async connector operations. | MEDIUM |
-| GitHub Actions | N/A | CI/CD | Standard. Use for: Workers deploy via wrangler, Go binary release via goreleaser, Next.js deploy via Vercel CLI. | HIGH |
-| Vercel | Free tier | Dashboard hosting | Free tier: 100GB bandwidth, serverless functions. Automatic Next.js deployments. Custom domains. | HIGH |
+# Staging Durable Objects
+[env.staging.durable_objects]
+bindings = [
+  { name = "TOKEN_COORDINATOR", class_name = "TokenCoordinator" }
+]
+
+# --- Production Environment ---
+[env.production]
+name = "feelr-gateway"
+
+[[env.production.routes]]
+pattern = "api.feelr.dev"
+custom_domain = true
+
+[env.production.vars]
+ENVIRONMENT = "production"
+
+# Production KV namespace
+[[env.production.kv_namespaces]]
+binding = "AUTH_KV"
+id = "<production-kv-id>"
+
+# Production D1
+[[env.production.d1_databases]]
+binding = "USAGE_DB"
+database_name = "feelr-usage"
+database_id = "<production-d1-id>"
+
+# Production Durable Objects
+[env.production.durable_objects]
+bindings = [
+  { name = "TOKEN_COORDINATOR", class_name = "TokenCoordinator" }
+]
+```
+
+**Critical:** Bindings (kv_namespaces, d1_databases, durable_objects, vars) are **non-inheritable** in wrangler environments. They must be explicitly defined in each `[env.*]` section. Forgetting this causes the Worker to deploy without bindings and fail at runtime.
+
+**D1 Migrations in CI:**
+
+```bash
+# Apply migrations to staging
+npx wrangler d1 migrations apply feelr-usage-staging --remote --env staging
+
+# Apply migrations to production
+npx wrangler d1 migrations apply feelr-usage --remote --env production
+```
+
+**Secrets Management in CI:**
+
+```bash
+# Individual secret (piped via stdin for non-interactive CI)
+echo "$ENCRYPTION_KEY" | npx wrangler secret put ENCRYPTION_KEY --env production
+
+# Bulk secrets from JSON (preferred for multiple secrets)
+echo '{"ENCRYPTION_KEY":"...","ADMIN_TOKEN":"...","SLACK_CLIENT_ID":"...","SLACK_CLIENT_SECRET":"...","STRIPE_SECRET_KEY":"...","STRIPE_WEBHOOK_SECRET":"..."}' | npx wrangler secret bulk --env production
+```
+
+### Azure Static Web Apps (Dashboard + Docs)
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| Azure Static Web Apps | Standard ($9/mo) | Host dashboard (app.feelr.dev) and docs site (feelr.dev) | Both apps use `output: 'export'` (static HTML). SWA is purpose-built: global CDN, free SSL, custom domains, staging environments from PRs. Cheaper than App Service ($9 vs $13+/mo), no container management needed. |
+| Azure/static-web-apps-deploy | v1 | GitHub Actions deployment | Official Azure action. Handles upload, CDN invalidation, PR preview environments. Supports `skip_app_build` for pre-built monorepo apps. |
+| SWA CLI (@azure/static-web-apps-cli) | latest | Alternative deploy tool | Use `swa deploy` in CI as a workaround if the official action has pnpm/monorepo issues. Supports `--output-location`, `--deployment-token`, `--env`. |
+
+**Why Azure Static Web Apps, not Azure App Service:**
+
+| Factor | Azure Static Web Apps | Azure App Service |
+|--------|----------------------|-------------------|
+| Pricing | Free plan or $9/mo Standard | $13+/mo (B1 Linux minimum) |
+| Global CDN | Built-in, automatic | Requires Azure CDN add-on |
+| SSL | Free, automatic | Free on B1+, manual on F1 |
+| Custom domains | Free plan supports custom domains | B1+ only |
+| Staging envs | Auto-created from PRs (3 free, more on Standard) | Requires deployment slots ($$$) |
+| Container management | None (just upload static files) | Docker image build, registry, pull |
+| Cold starts | None (CDN-served static files) | Container startup time |
+| Static export fit | Perfect fit | Overkill for static files |
+
+**Why not Azure App Service for static exports:** Both `@feelr/dashboard` and `@feelr/docs` use `output: 'export'` producing static HTML/CSS/JS in an `out/` directory. Running a container with a web server (nginx/node) to serve static files is unnecessary overhead. Azure SWA serves static files directly from CDN edge nodes with zero container management.
+
+**Why two separate SWA resources (not one):**
+- `app.feelr.dev` (dashboard) and `feelr.dev` (docs) have different build pipelines, different deploy cadences, and different content
+- SWA custom domains are per-resource, so each needs its own SWA instance
+- Independent staging environments for dashboard vs docs PRs
+
+**Monorepo Deployment Strategy:**
+
+The pnpm monorepo with shared workspace dependencies does not work well with Azure SWA's built-in Oryx builder. The solution: **pre-build in GitHub Actions, then deploy the `out/` folder with `skip_app_build: true`**.
+
+```yaml
+# Build step (GitHub Actions)
+- run: pnpm install --frozen-lockfile
+- run: pnpm turbo build --filter=@feelr/dashboard
+
+# Deploy step (skip SWA's built-in build)
+- uses: Azure/static-web-apps-deploy@v1
+  with:
+    azure_static_web_apps_api_token: ${{ secrets.AZURE_SWA_DASHBOARD_TOKEN }}
+    action: upload
+    app_location: apps/dashboard/out
+    output_location: ""
+    skip_app_build: true
+```
+
+### GitHub Actions CI/CD
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| actions/checkout | v4 | Repository checkout | Standard. Use `fetch-depth: 0` for GoReleaser changelog. |
+| actions/setup-node | v4 | Node.js setup | Required for pnpm install and turbo build. Pin to Node 22 (LTS). |
+| pnpm/action-setup | v4 | pnpm installation | Installs pnpm in CI. Reads version from `packageManager` field in root package.json. |
+| cloudflare/wrangler-action | v3 | Workers deployment | See above. |
+| Azure/static-web-apps-deploy | v1 | SWA deployment | See above. |
+| goreleaser/goreleaser-action | v6 | CLI binary release | Already in use (`.github/workflows/release.yml`). v6 defaults to GoReleaser v2. |
+| actions/setup-go | v5 | Go toolchain | Already in use. Reads version from `cli/go.mod`. |
+
+**Workflow Architecture:**
+
+```
+Trigger                  Workflow                          Deploys To
+--------                 --------                          ----------
+push to main     -->     ci.yml                    -->     (tests only, no deploy)
+push to main     -->     deploy-staging.yml        -->     staging (all services)
+push tag v*      -->     deploy-production.yml     -->     production (all services)
+push tag v*      -->     release.yml (existing)    -->     GitHub Releases (CLI binaries)
+pull_request     -->     ci.yml                    -->     (tests + SWA preview)
+```
+
+**Recommended: 4 workflow files:**
+
+1. **`ci.yml`** -- Runs on all pushes and PRs. Lint, typecheck, test. SWA preview deploy on PRs.
+2. **`deploy-staging.yml`** -- Runs on push to `main`. Deploys Workers (staging env), dashboard SWA (staging), docs SWA (staging).
+3. **`deploy-production.yml`** -- Runs on tag `v*`. Deploys Workers (production env), dashboard SWA (production), docs SWA (production). Runs D1 migrations before deploy.
+4. **`release.yml`** (existing) -- Runs on tag `v*`. GoReleaser builds CLI binaries.
+
+**Concurrency Control:**
+
+```yaml
+concurrency:
+  group: deploy-staging-${{ github.ref }}
+  cancel-in-progress: false  # Never cancel active deployments
+```
+
+Use `cancel-in-progress: false` for deployment workflows. Active deployments should complete to avoid inconsistent state (e.g., D1 migration applied but Worker not deployed).
+
+### Go CLI Release (Existing -- No Changes Needed)
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| GoReleaser | v2 (via goreleaser-action v6) | Cross-compile + release | Already configured in `.goreleaser.yaml`. Builds for linux/darwin/windows on amd64/arm64. Publishes to GitHub Releases + Homebrew tap. |
+| goreleaser/goreleaser-action | v6 | GitHub Actions integration | Already in `.github/workflows/release.yml`. v6.4.0 is latest stable. |
+
+The existing release workflow is correct and complete. No changes needed for production deployment.
+
+---
+
+## Secrets & Environment Variables
+
+### GitHub Actions Secrets Required
+
+| Secret | Used By | How to Obtain |
+|--------|---------|---------------|
+| `CLOUDFLARE_API_TOKEN` | wrangler-action (all Workers deploys) | Cloudflare Dashboard > My Profile > API Tokens > Create Token. Permissions: Account Workers Scripts (Edit), Workers KV Storage (Edit), D1 (Edit); Zone Workers Routes (Edit). |
+| `CLOUDFLARE_ACCOUNT_ID` | wrangler-action | Cloudflare Dashboard > any zone > Overview sidebar (right side). |
+| `AZURE_SWA_DASHBOARD_TOKEN` | SWA deploy (dashboard) | Azure Portal > Static Web App (dashboard) > Overview > Manage deployment token. |
+| `AZURE_SWA_DOCS_TOKEN` | SWA deploy (docs) | Azure Portal > Static Web App (docs) > Overview > Manage deployment token. |
+| `GITHUB_TOKEN` | GoReleaser, PR comments | Auto-provided by GitHub Actions. No manual setup. |
+| `HOMEBREW_TAP_GITHUB_TOKEN` | GoReleaser Homebrew tap | Already configured (existing release.yml). PAT with repo scope on `andrewprograde/homebrew-feelr`. |
+
+### Cloudflare Worker Secrets (set via wrangler, not in wrangler.toml)
+
+| Secret | Environment | Purpose |
+|--------|-------------|---------|
+| `ENCRYPTION_KEY` | staging, production | AES-256 key for credential vault encryption |
+| `ADMIN_TOKEN` | staging, production | Admin API authentication |
+| `SLACK_CLIENT_ID` | staging, production | Slack OAuth app ID |
+| `SLACK_CLIENT_SECRET` | staging, production | Slack OAuth secret |
+| `DISCORD_CLIENT_ID` | staging, production | Discord OAuth app ID |
+| `DISCORD_CLIENT_SECRET` | staging, production | Discord OAuth secret |
+| `STRIPE_SECRET_KEY` | production only | Stripe API key (use test key for staging) |
+| `STRIPE_WEBHOOK_SECRET` | production only | Stripe webhook endpoint secret |
+
+**Secrets are per-environment in Cloudflare.** Setting a secret with `--env staging` sets it only for the `feelr-gateway-staging` Worker. Production secrets are separate. This is correct and desirable.
+
+### Dashboard Environment Variables (build-time)
+
+| Variable | Value (staging) | Value (production) |
+|----------|-----------------|-------------------|
+| `NEXT_PUBLIC_GATEWAY_URL` | `https://feelr-gateway-staging.<account>.workers.dev` | `https://api.feelr.dev` |
+
+Set in the GitHub Actions workflow as build-time env vars before `next build`.
+
+---
+
+## Azure Resource Provisioning
+
+Two Azure Static Web Apps resources need to be created before the first deployment:
+
+### Resource 1: Dashboard SWA
+
+```bash
+az staticwebapp create \
+  --name feelr-dashboard \
+  --resource-group feelr-prod \
+  --location eastus2 \
+  --sku Standard \
+  --source https://github.com/andrewprograde/feelr \
+  --branch main \
+  --app-location "apps/dashboard" \
+  --output-location "out" \
+  --login-with-github
+```
+
+After creation:
+1. Get deployment token: Azure Portal > feelr-dashboard > Manage deployment token
+2. Add custom domain: Azure Portal > feelr-dashboard > Custom domains > Add > `app.feelr.dev`
+3. Azure will provide a TXT record value for domain validation
+4. Add TXT record in Cloudflare DNS: `_dnsauth.app` -> (Azure's validation value)
+5. Add CNAME record in Cloudflare DNS: `app` -> `<auto-hostname>.azurestaticapps.net` (DNS only, gray cloud)
+
+### Resource 2: Docs SWA
+
+```bash
+az staticwebapp create \
+  --name feelr-docs \
+  --resource-group feelr-prod \
+  --location eastus2 \
+  --sku Standard \
+  --source https://github.com/andrewprograde/feelr \
+  --branch main \
+  --app-location "apps/docs" \
+  --output-location "out" \
+  --login-with-github
+```
+
+After creation:
+1. Get deployment token: Azure Portal > feelr-docs > Manage deployment token
+2. Add custom domains: `feelr.dev` (apex) and `www.feelr.dev`
+3. For apex: Add TXT record `_dnsauth` -> (Azure's validation value)
+4. For www: Add TXT record `_dnsauth.www` -> (Azure's validation value)
+5. Add CNAME records in Cloudflare (both DNS only, gray cloud)
+
+**SKU choice: Standard ($9/mo per app = $18/mo total)**
+- Free plan works but limited to 2 custom domains per app and 3 staging environments
+- Standard adds SLA (99.95%), unlimited custom domains, 10 staging environments, password-protected environments
+- For production launch, Standard is worth $9/mo for SLA and staging previews
+
+### Cloudflare Resource Provisioning
+
+```bash
+# Add feelr.dev zone to Cloudflare (free plan)
+# Done via Cloudflare Dashboard > Add a Site > feelr.dev > Free plan
+# Then update Namecheap nameservers to Cloudflare-assigned values
+
+# Create production KV namespace
+npx wrangler kv namespace create AUTH_KV --env production
+# Output: id = "abc123..." -> put in wrangler.toml [env.production]
+
+# Create staging KV namespace
+npx wrangler kv namespace create AUTH_KV --env staging
+
+# Create production D1 database
+npx wrangler d1 create feelr-usage
+# Output: database_id = "def456..." -> put in wrangler.toml [env.production]
+
+# Create staging D1 database
+npx wrangler d1 create feelr-usage-staging
+
+# Apply D1 migrations
+npx wrangler d1 migrations apply feelr-usage --remote --env production
+npx wrangler d1 migrations apply feelr-usage-staging --remote --env staging
+
+# Deploy Workers
+npx wrangler deploy --env staging
+npx wrangler deploy --env production
+
+# Set production secrets
+echo '{"ENCRYPTION_KEY":"...","ADMIN_TOKEN":"..."}' | npx wrangler secret bulk --env production
+
+# Configure custom domain (after DNS is active)
+# This happens automatically on `wrangler deploy --env production` because
+# wrangler.toml [env.production] has routes with custom_domain = true
+```
 
 ---
 
 ## Alternatives Considered
 
-| Category | Recommended | Alternative | Why Not Alternative |
-|----------|-------------|-------------|---------------------|
-| Edge Framework | Hono | Itty Router | Hono has richer middleware ecosystem (JWT, CORS, OpenAPI), better TypeScript DX, Cloudflare internal usage. Itty is smaller but less batteries-included. |
-| Edge Framework | Hono | Express (via CF adapter) | Express not designed for edge. Larger bundle, slower cold starts, no native Workers integration. |
-| Database | D1 (SQLite) | Planetscale / Neon | D1 is free, colocated with Workers (no network hop), SQLite is simpler for this use case. External DBs add latency and cost. |
-| ORM | Drizzle | Prisma | Prisma has poor Workers support (query engine binary), slower, larger bundle. Drizzle is SQL-first and Workers-native. |
-| Validation | Zod | TypeBox / Valibot | Zod has the largest ecosystem (Hono integration, OpenAPI generation). Zod 4 addresses previous performance concerns. TypeBox is faster but less ecosystem. |
-| JWT | jose | jsonwebtoken | jsonwebtoken requires Node.js crypto. jose uses WebCrypto natively -- works in Workers without polyfills. |
-| CLI Framework | Cobra | urfave/cli | Cobra has 10x adoption, better docs, subcommand model matches Feelr's needs (feelr connect, feelr run, etc). |
-| Dashboard Auth | Better Auth | NextAuth.js / Auth.js | Better Auth has superior TypeScript DX, simpler setup, built-in team/org support. Auth.js v5 had rocky migration. |
-| Dashboard Components | shadcn/ui | Chakra UI / MUI | shadcn gives you the source code (not a dep). Tailwind-native, tree-shakeable, customizable. MUI is heavy. |
-| Test Runner (TS) | Vitest | Jest | Vitest is faster (ESM native), has official Cloudflare Workers pool, better DX. Jest requires more config for ESM/TS. |
-| Go Tests | testify | gomock | testify is simpler (assert/require), gomock is for complex mocking. Use testify assert for most tests. |
-
-## What NOT to Use
-
-| Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| Prisma on Workers | Query engine binary doesn't work in Workers runtime. Accelerate proxy adds latency and cost. | Drizzle ORM |
-| jsonwebtoken npm package | Requires Node.js crypto module, not available in Workers runtime | jose (WebCrypto native) |
-| Express / Fastify | Not designed for edge runtimes. Large bundles, slow cold starts on Workers. | Hono |
-| CryptoJS | Outdated, uses legacy crypto patterns. Workers have native Web Crypto API. | Web Crypto API (built-in) |
-| Miniflare v2 (standalone) | Deprecated. Replaced by @cloudflare/vitest-pool-workers which uses workerd directly. | Vitest + vitest-pool-workers |
-| node-fetch | Workers have native fetch. node-fetch adds unnecessary dep and compatibility issues. | Native fetch (built-in) |
-| dotenv | Workers use wrangler secrets and env bindings. Bun reads .env natively. Go uses viper. No need for dotenv anywhere. | Platform-native env handling |
-| Redis for rate limiting | External dependency, adds latency, costs money. Workers KV or Durable Objects handle this natively. | Durable Objects or Workers KV |
-| MongoDB / DynamoDB | External database adds network latency from Workers edge. D1 is colocated. | Cloudflare D1 |
-| Passport.js | Node.js-only authentication middleware. Heavy, callback-based. | Better Auth or Hono built-in middleware |
-
----
-
-## Stack Patterns by Variant
-
-**If self-hosted (non-Cloudflare):**
-- Replace D1 with SQLite (same dialect, Drizzle works with both)
-- Replace KV with Redis or in-memory cache
-- Replace Workers with Node.js + Hono (Hono runs on Node.js too)
-- Replace Durable Objects with Redis for rate limiting state
-- Hono middleware (JWT, CORS, Bearer) works unchanged
-
-**If open-source distribution:**
-- Stripe billing must be toggleable (env flag)
-- Better Auth must support self-hosted identity provider
-- D1 migrations must work with plain SQLite
-- CLI must work with configurable API base URL
-
-**If adding more connectors rapidly:**
-- Use @hono/zod-openapi for auto-documenting connector endpoints
-- Connector SDK pattern: base class with typed methods, Zod schemas for I/O
-- Bun for local connector development, Vitest for testing, wrangler for deploy
+| Category | Recommended | Alternative | Why Not |
+|----------|-------------|-------------|---------|
+| DNS Provider | Cloudflare DNS (Free) | Namecheap BasicDNS | Workers custom domains **require** Cloudflare zone. Cannot use external DNS for `api.feelr.dev` Worker. |
+| Dashboard Hosting | Azure Static Web Apps | Azure App Service (container) | Dashboard is static export. SWA is cheaper ($9 vs $13+), globally distributed, zero container overhead. |
+| Dashboard Hosting | Azure Static Web Apps | Vercel | Previous research suggested Vercel. Azure SWA chosen to consolidate Azure billing and avoid Vercel vendor lock-in. Both are valid; SWA wins on cost control. |
+| Docs Hosting | Azure Static Web Apps | Cloudflare Pages | Could work, but would split hosting across vendors. SWA keeps dashboard + docs on same platform with same billing. |
+| Docs Hosting | Azure Static Web Apps | GitHub Pages | Lacks staging environments, custom headers, and redirect rules. SWA is more capable for a production marketing site. |
+| CI/CD Approach | Pre-build + skip_app_build | Let SWA Oryx build | SWA's built-in builder does not support pnpm monorepos well (known issue #1594). Pre-building with pnpm/turbo gives full control. |
+| SWA Deploy Method | Azure/static-web-apps-deploy@v1 | SWA CLI (`swa deploy`) | Official action is simpler for GitHub Actions. SWA CLI is a fallback if the action has issues with monorepo output paths. |
+| Workers CI Deploy | cloudflare/wrangler-action@v3 | Raw `npx wrangler deploy` | Action handles caching, auth, and provides deployment URL output. Slightly more convenient than raw commands. |
+| Secrets Management | wrangler secret bulk (JSON) | Individual `wrangler secret put` per secret | Bulk is faster in CI (single API call) and easier to maintain as secret count grows. |
+| Environment Strategy | wrangler.toml environments | Separate wrangler.toml files | Single file with `[env.*]` sections is the Cloudflare-recommended pattern. Easier to see all config in one place. |
 
 ---
 
 ## Version Compatibility Matrix
 
-| Package A | Compatible With | Notes |
-|-----------|-----------------|-------|
-| hono ^4.11.7 | wrangler ^4.x | Hono is Cloudflare's recommended framework |
-| drizzle-orm ^0.45.1 | D1 (binding + HTTP) | Use `drizzle(env.DB)` in Workers, HTTP API for migrations |
-| @cloudflare/vitest-pool-workers ^0.9.2 | vitest 2.0.x - 3.2.x | Does NOT yet support Vitest 4.x (GitHub issue #11064 open) |
-| vitest ^3.2.x (for Workers tests) | @cloudflare/vitest-pool-workers | Pin to 3.2.x until pool-workers supports v4 |
-| vitest ^4.0.18 (for non-Workers tests) | Standard Vitest | Use for dashboard tests, connector unit tests without Workers bindings |
-| zod ^4.3.5 | @hono/zod-validator ^0.7.6 | Zod 4 compatibility confirmed via honojs/middleware issue #1148 |
-| next ^16.1 | react ^19, tailwindcss ^4.0 | Next.js 16 requires React 19 |
-| stripe ^20.3.0 | Cloudflare Workers | Native Workers support via Web Fetch client |
-
-**CRITICAL COMPATIBILITY NOTE:** `@cloudflare/vitest-pool-workers` does NOT support Vitest 4.x yet. For Workers integration tests, pin Vitest to ^3.2.x. You can use Vitest 4.x for non-Workers tests (dashboard, connector unit tests) in a separate test config.
-
----
-
-## Installation
-
-### Edge Gateway (Cloudflare Workers + Hono)
-
-```bash
-# Core
-npm install hono@^4.11.7 drizzle-orm@^0.45.1 zod@^4.3.5 jose@^6.1.3 stripe@^20.3.0
-
-# Hono middleware
-npm install @hono/zod-validator@^0.7.6 @hono/zod-openapi@^1.2.0 @hono-rate-limiter/cloudflare
-
-# Dev dependencies
-npm install -D wrangler@^4.61.1 drizzle-kit@^0.45 typescript
-npm install -D vitest@^3.2 @cloudflare/vitest-pool-workers@^0.9.2
-```
-
-### Dashboard (Next.js)
-
-```bash
-# Core
-npx create-next-app@latest dashboard --typescript --tailwind --app
-
-# Auth & Billing
-npm install better-auth stripe @stripe/stripe-js @stripe/react-stripe-js
-
-# UI (shadcn is not installed via npm -- use the CLI)
-npx shadcn@latest init
-npx shadcn@latest add button card table dialog input form toast
-
-# Dev dependencies
-npm install -D vitest@^4.0.18
-```
-
-### CLI (Go)
-
-```bash
-# Initialize module
-go mod init github.com/andrewprograde/feelr-cli
-
-# Core deps
-go get github.com/spf13/cobra@v1.10.2
-go get github.com/spf13/viper
-go get golang.org/x/oauth2
-go get github.com/stretchr/testify@v1.11.1
-
-# Optional: TUI styling
-go get charm.land/lipgloss/v2
-
-# Build & release
-go install github.com/goreleaser/goreleaser@latest
-```
-
-### Connector SDK (TypeScript / Bun)
-
-```bash
-# Initialize with Bun
-bun init feelr-connectors
-
-# Core deps (shared with gateway)
-bun add zod@^4.3.5 hono@^4.11.7
-
-# Dev
-bun add -d typescript @types/bun
-```
+| Tool | Pinned Version | Compatible With | Notes |
+|------|---------------|-----------------|-------|
+| wrangler | ^4.63.0 | Cloudflare Workers, KV, D1, DO | Already installed in gateway. Latest stable. |
+| cloudflare/wrangler-action | v3 | wrangler ^4.x | Installs wrangler automatically. Supports `environment` input. |
+| Azure/static-web-apps-deploy | v1 | Azure SWA Standard | Only v1 exists. Supports `skip_app_build`. |
+| goreleaser/goreleaser-action | v6 | GoReleaser v2 | v6 defaults to GoReleaser v2. Already working. |
+| actions/checkout | v4 | All workflows | Standard. |
+| actions/setup-node | v4 | Node 22 LTS | Use `node-version: 22`. |
+| pnpm/action-setup | v4 | pnpm 9.15.0 | Reads version from `packageManager` in package.json. |
+| actions/setup-go | v5 | Go (from go.mod) | Already in use. |
+| Node.js | 22 (LTS) | pnpm 9.x, turbo, next 15.x, nextra 4.x | LTS until April 2027. |
+| pnpm | 9.15.0 | Monorepo, frozen lockfile | Matches `packageManager` field in root package.json. |
 
 ---
 
-## Cloudflare Platform Budget Estimate
+## Cost Summary
 
-For $10-30/month MVP target:
+| Service | Plan | Monthly Cost | Notes |
+|---------|------|-------------|-------|
+| Cloudflare Workers (Paid) | $5/mo | $5 | Includes 10M requests, KV, D1, DO allowances |
+| Cloudflare DNS | Free | $0 | Free zone management |
+| Azure SWA (Dashboard) | Standard | $9 | `app.feelr.dev` |
+| Azure SWA (Docs) | Standard | $9 | `feelr.dev` |
+| Namecheap (Registrar) | Annual | ~$1/mo | Domain renewal only |
+| GitHub Actions | Free tier | $0 | 2,000 min/mo free for private repos |
+| **Total** | | **~$24/mo** | |
 
-| Service | Free Tier | Paid ($5/mo plan) | Est. MVP Usage | Est. Cost |
-|---------|-----------|-------------------|----------------|-----------|
-| Workers | 100K req/day | 10M req/mo | ~500K req/mo | $5 (base) |
-| KV | 100K reads/day | 10M reads/mo | ~1M reads/mo | $0 (included) |
-| D1 | 5M reads/day | 25B reads/mo | ~10M reads/mo | $0 (included) |
-| Durable Objects | 100K req/day | 1M req/mo | ~200K req/mo | $0 (included) |
-| Queues | 10K ops/day | 1M ops/mo | ~100K ops/mo | $0 (included) |
-| **Total** | | | | **~$5/mo** |
-
-The $5/mo Workers Paid plan includes generous allowances for all services. MVP usage will likely stay well within included limits, keeping total infrastructure cost at $5/mo for the edge gateway. Add Vercel free tier for dashboard = $5/mo total.
+Note: Azure SWA Free plan could reduce cost to $5/mo total (Workers only), but loses SLA and staging environment depth. Start with Standard for production launch; downgrade if cost is a concern.
 
 ---
 
 ## Sources
 
 ### Official Documentation (HIGH confidence)
-- [Hono Official Docs](https://hono.dev/docs/) -- framework docs, middleware reference
-- [Hono GitHub Releases](https://github.com/honojs/hono/releases) -- v4.11.7 (Jan 27, 2025)
-- [Cloudflare Workers Docs](https://developers.cloudflare.com/workers/) -- pricing, limits, bindings
-- [Cloudflare Workers Pricing](https://developers.cloudflare.com/workers/platform/pricing/) -- detailed pricing verified
-- [Cloudflare D1 Docs](https://developers.cloudflare.com/d1/platform/limits/) -- 10GB limit, capabilities
-- [Cloudflare Secrets Store](https://developers.cloudflare.com/secrets-store/) -- beta, AES-256 encryption
-- [Cloudflare Web Crypto](https://developers.cloudflare.com/workers/runtime-apis/web-crypto/) -- AES-GCM, PBKDF2
-- [Cloudflare Vitest Integration](https://developers.cloudflare.com/workers/testing/vitest-integration/) -- testing setup
-- [Cobra GitHub](https://github.com/spf13/cobra) -- v1.10.2 (Dec 2025)
-- [jose GitHub](https://github.com/panva/jose) -- v6.1.3, WebCrypto native
-- [Drizzle ORM D1 Docs](https://orm.drizzle.team/docs/connect-cloudflare-d1) -- D1 integration
-- [Next.js 16 Blog](https://nextjs.org/blog/next-16) -- Turbopack, Cache Components, React 19
-- [Stripe Cloudflare Blog](https://blog.cloudflare.com/announcing-stripe-support-in-workers/) -- native SDK support
-- [Go oauth2 Package](https://pkg.go.dev/golang.org/x/oauth2) -- automatic token refresh
-- [Testify GitHub Releases](https://github.com/stretchr/testify/releases) -- v1.11.1 (Aug 2024)
+- [Cloudflare Workers Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/) -- zone requirement, wrangler.toml config
+- [Cloudflare Wrangler Environments](https://developers.cloudflare.com/workers/wrangler/environments/) -- inheritable vs non-inheritable keys, naming
+- [Cloudflare Wrangler Configuration](https://developers.cloudflare.com/workers/wrangler/configuration/) -- full wrangler.toml reference
+- [Cloudflare DNS Full Setup](https://developers.cloudflare.com/dns/zone-setups/full-setup/setup/) -- nameserver change process
+- [Cloudflare CNAME Flattening](https://developers.cloudflare.com/dns/cname-flattening/) -- apex domain CNAME support
+- [Cloudflare Wrangler Commands](https://developers.cloudflare.com/workers/wrangler/commands/) -- secret put, secret bulk, d1 migrations
+- [Cloudflare D1 Wrangler Commands](https://developers.cloudflare.com/d1/wrangler-commands/) -- migrations apply --remote
+- [Cloudflare API Token Permissions](https://developers.cloudflare.com/fundamentals/api/reference/permissions/) -- token scoping
+- [Azure Static Web Apps Deploy (Next.js static export)](https://learn.microsoft.com/en-us/azure/static-web-apps/deploy-nextjs-static-export) -- static export deployment guide
+- [Azure SWA Build Configuration](https://learn.microsoft.com/en-us/azure/static-web-apps/build-configuration) -- skip_app_build, monorepo, output_location
+- [Azure SWA Custom Domains (External)](https://learn.microsoft.com/en-us/azure/static-web-apps/custom-domain-external) -- CNAME + TXT validation
+- [Azure SWA Apex Domain (External)](https://learn.microsoft.com/en-us/azure/static-web-apps/apex-domain-external) -- apex domain with external DNS
+- [Azure SWA Pricing](https://azure.microsoft.com/en-us/pricing/details/app-service/static/) -- Free vs Standard plan comparison
+- [Azure SWA Hosting Plans](https://learn.microsoft.com/en-us/azure/static-web-apps/plans) -- feature comparison
+- [cloudflare/wrangler-action README](https://github.com/cloudflare/wrangler-action) -- v3 inputs, secrets, environment
+- [Azure/static-web-apps-deploy](https://github.com/Azure/static-web-apps-deploy) -- v1 action documentation
+- [goreleaser/goreleaser-action](https://github.com/goreleaser/goreleaser-action) -- v6 features
+- [Namecheap: DNS with Cloudflare](https://www.namecheap.com/support/knowledgebase/article.aspx/9607/2210/how-to-set-up-dns-records-for-your-domain-in-a-cloudflare-account/) -- nameserver change guide
+- [GitHub Actions Environments](https://docs.github.com/en/actions/concepts/workflows-and-actions/deployment-environments) -- protection rules, approvals
+- [GitHub Actions Concurrency](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency) -- cancel-in-progress for deployments
 
-### Verified via Multiple Sources (MEDIUM confidence)
-- [Better Auth](https://www.better-auth.com/) -- Next.js auth, team support, type-safe
-- [@hono-rate-limiter/cloudflare](https://www.npmjs.com/package/@hono-rate-limiter/cloudflare) -- KV/DO-backed rate limiting
-- [Goreleaser](https://goreleaser.com/) -- cross-compilation, updated Feb 4, 2026
-- [Bubbletea v2](https://github.com/charmbracelet/bubbletea) -- moved to charm.land, updated Feb 5, 2026
-- [Cloudflare workers-oauth-provider](https://github.com/cloudflare/workers-oauth-provider) -- OAuth provider on Workers
-- [Hono Stripe Webhook Example](https://hono.dev/examples/stripe-webhook) -- verified pattern
+### Verified via Project Files (HIGH confidence)
+- `apps/gateway/wrangler.toml` -- existing Workers config with KV, D1, DO bindings
+- `apps/dashboard/next.config.ts` -- confirms `output: 'export'` (static site)
+- `apps/docs/next.config.mjs` -- confirms `output: 'export'` (static site)
+- `apps/gateway/package.json` -- wrangler ^4.0.0, deploy script exists
+- `.goreleaser.yaml` -- existing CLI release config
+- `.github/workflows/release.yml` -- existing GoReleaser workflow
+- `self-host/Dockerfile` -- existing self-host build (separate from cloud deploy)
+- `package.json` -- pnpm 9.15.0, turbo scripts
 
-### WebSearch Only (LOW confidence -- verify before implementing)
-- @cloudflare/vitest-pool-workers Vitest 4.x support timeline -- check [Issue #11064](https://github.com/cloudflare/workers-sdk/issues/11064)
-- Zod 4 full compatibility with @hono/zod-validator -- check [Issue #1148](https://github.com/honojs/middleware/issues/1148)
-- Better Auth Cloudflare Workers integration via Service Bindings -- verify with official docs
+### Known Issues (flag for validation)
+- [Azure SWA pnpm support (Issue #1594)](https://github.com/Azure/static-web-apps/issues/1594) -- pnpm monorepos do not work with SWA's built-in Oryx builder. Workaround: pre-build with pnpm/turbo, deploy with `skip_app_build: true`. **LOW confidence** this is fully resolved.
+- [Wrangler secret bulk hanging (Issue #10555)](https://github.com/cloudflare/workers-sdk/issues/10555) -- Some reports of `wrangler secret bulk` hanging in CI. If encountered, fall back to individual `echo | wrangler secret put` calls.
 
 ---
-*Stack research for: Feelr -- Agent-Friendly API Simplification Layer*
-*Researched: 2026-02-05*
+
+*Deployment stack research for: Feelr -- Production Deployment Infrastructure*
+*Researched: 2026-02-09*

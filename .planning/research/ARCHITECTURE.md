@@ -1,778 +1,876 @@
-# Architecture Patterns
+# Architecture Patterns: Deployment & CI/CD Infrastructure
 
-**Domain:** Agent-friendly API simplification layer (multi-runtime: edge gateway, connector runtime, CLI binary, web dashboard)
-**Researched:** 2026-02-05
-**Confidence:** MEDIUM-HIGH (verified with official Cloudflare docs, Hono docs, and established architectural patterns)
+**Domain:** Deployment pipelines, CI/CD, DNS, and container infrastructure for a multi-runtime monorepo
+**Researched:** 2026-02-09
+**Confidence:** HIGH (verified with official Cloudflare, Turborepo, Docker, and Azure docs)
 
 ---
 
 ## Recommended Architecture
 
-Feelr is a multi-runtime system with four distinct deployment targets that share code through a monorepo. The architecture follows a **hub-and-spoke model** where the Edge Gateway is the central hub, connectors are spokes, and the CLI and Dashboard are clients that communicate exclusively through the gateway.
+Feelr's deployment architecture maps four distinct deployment targets to three infrastructure providers, unified by a single monorepo CI/CD pipeline in GitHub Actions. The critical insight: **each service has a different deployment mechanism** (Wrangler for Workers, Docker for Azure, GoReleaser for CLI), so the CI/CD layer must orchestrate heterogeneous deploys with correct dependency ordering.
 
 ```
-                        +------------------+
-                        |   Dashboard      |
-                        |   (Next.js)      |
-                        +--------+---------+
-                                 |
-                                 | HTTPS
-                                 v
-+-------------+          +------+----------+          +------------------+
-|  Go CLI     +--------->+  Edge Gateway   +--------->+  Upstream APIs   |
-|  (binary)   |  HTTPS   |  (CF Workers +  |  HTTPS   |  (GitHub, Slack, |
-+-------------+          |   Hono)         |          |   Stripe, etc.)  |
-                         +------+----------+          +------------------+
-                                |
-                    +-----------+-----------+
-                    |           |           |
-              +-----+   +------+    +------+---+
-              | KV   |  | D1   |   | Durable   |
-              | Auth |  | Meta |   | Objects   |
-              | Vault|  | data |   | (Rate     |
-              +------+  +------+   | Limiting) |
-                                   +----------+
+                         GitHub Actions (CI/CD Hub)
+                        /          |            \
+                       /           |             \
+         wrangler deploy    docker push      goreleaser
+              |                 |    \             |
+              v                 v     v            v
+      Cloudflare Workers    Docker Hub        GitHub Releases
+      (api.feelr.dev)       /       \         + Homebrew Tap
+              |            v         v
+        KV + D1 + DO    Azure       Azure
+                       App Svc    App Svc
+                    (app.feelr.dev) (feelr.dev)
+
+         DNS: Namecheap -> Cloudflare (api subdomain)
+              Namecheap -> Azure (app + root domain)
 ```
 
-### High-Level Architecture Summary
+### Deployment Target Matrix
 
-The system comprises six logical components across four runtimes. The Edge Gateway (Cloudflare Workers + Hono) is the single entry point for all traffic. Connectors are TypeScript modules loaded within the Worker runtime, not separate services. The Go CLI is a thin HTTP client that formats output for agents. The Next.js Dashboard is a web client that also talks to the Edge Gateway API. State is distributed across Cloudflare KV (auth tokens), D1 (metadata, usage), and optionally Durable Objects (rate limiting). For self-hosting, the entire Worker stack runs on `workerd` (Cloudflare's open-source runtime) with SQLite replacing D1 and local KV storage.
+| Service | Target | Mechanism | Image/Artifact | Custom Domain |
+|---------|--------|-----------|----------------|---------------|
+| **Gateway** | Cloudflare Workers | `wrangler deploy` | JS bundle (automatic) | api.feelr.dev (CF Custom Domain) |
+| **Dashboard** | Azure App Service | Docker Hub pull | Nginx + static files | app.feelr.dev (CNAME to Azure) |
+| **Docs** | Azure App Service | Docker Hub pull | Nginx + static files | feelr.dev (A + TXT record to Azure) |
+| **CLI** | GitHub Releases | GoReleaser | Multi-platform binaries | N/A (download from GitHub) |
+| **Self-host image** | Docker Hub | docker build/push | workerd + s6-overlay | N/A (user-managed) |
+
+### Why Docker Hub (Not Azure Container Registry)
+
+Use Docker Hub because the self-host image already needs to be on Docker Hub for community users to `docker pull`. Pushing dashboard and docs images there too means one registry, one set of credentials, simpler CI. Azure App Service supports Docker Hub natively -- no ACR needed for this scale.
 
 ---
 
-## Component Boundaries
+## Component Boundaries: New vs Modified
 
-| Component | Responsibility | Communicates With | Runtime | Deployment |
-|-----------|---------------|-------------------|---------|------------|
-| **Edge Gateway** | Request routing, API key validation, rate limiting, usage metering, response envelope | CLI, Dashboard, Auth Vault, Connector Registry, D1 | Cloudflare Workers | `wrangler deploy` |
-| **Connector Registry** | Hosts all connector modules, action dispatch, request mapping | Edge Gateway (in-process), Upstream APIs (HTTP) | Same Worker process | Bundled with gateway |
-| **Transform Layer** | Response flattening, error normalization, pagination handling | Connector Registry (in-process pipeline) | Same Worker process | Bundled with gateway |
-| **Auth Vault** | Stores encrypted user API tokens, handles token refresh, OAuth state | Edge Gateway via KV binding | Cloudflare KV + Worker code | KV namespace |
-| **CLI Tool** | User-facing command interface, output formatting, local config | Edge Gateway (HTTPS) | Go binary | GitHub Releases / Homebrew |
-| **Dashboard** | Key management, connector setup, usage visualization, OAuth callback UI | Edge Gateway API (HTTPS), OAuth providers | Next.js on Vercel | Vercel deploy |
-| **Composable Actions Engine** | Chain definitions, step execution, data passing between steps, conditional logic | Connector Registry (in-process) | Same Worker process | Bundled with gateway |
+### New Components (To Build)
 
-### Critical Boundary: Connectors Are NOT Microservices
+| Component | Purpose | Location |
+|-----------|---------|----------|
+| **CI workflow: gateway** | Test + deploy Workers on push to main | `.github/workflows/gateway.yml` |
+| **CI workflow: dashboard** | Build Docker image, push, trigger Azure restart | `.github/workflows/dashboard.yml` |
+| **CI workflow: docs** | Build Docker image, push, trigger Azure restart | `.github/workflows/docs.yml` |
+| **CI workflow: pr-check** | Lint + typecheck + test on PR (all affected packages) | `.github/workflows/pr-check.yml` |
+| **Dashboard Dockerfile** | Multi-stage: pnpm build static export -> Nginx | `apps/dashboard/Dockerfile` |
+| **Docs Dockerfile** | Multi-stage: pnpm build static export -> Nginx | `apps/docs/Dockerfile` |
+| **Wrangler staging env** | `[env.staging]` block in wrangler.toml | `apps/gateway/wrangler.toml` |
+| **Wrangler production env** | `[env.production]` block in wrangler.toml | `apps/gateway/wrangler.toml` |
 
-**Confidence: HIGH** (architectural decision, verified against Cloudflare Workers constraints)
+### Modified Components
 
-Connectors run **in-process** within the Worker, not as separate services. This is a deliberate architectural choice:
-
-- Cloudflare Workers have a 128MB memory limit and 30s CPU time limit (paid plan). Connectors must be lightweight modules, not separate processes.
-- Inter-service communication on Workers would require Service Bindings or external HTTP calls, adding latency and complexity unnecessarily.
-- Each connector is a TypeScript module with a standard interface. The gateway imports and dispatches to them directly.
-
-This means the Edge Gateway + Connector Registry + Transform Layer are a **single deployable unit** (one Worker). This simplifies deployment but means all connectors ship together. A connector update redeploys the whole gateway.
-
----
-
-## Data Flow
-
-### Primary Request Flow (Agent Calling an API)
-
-```
-1. Agent invokes CLI:
-   $ feelr run github issues.list --repo owner/repo --state open
-
-2. CLI resolves to HTTP request:
-   GET https://api.feelr.dev/v1/github/issues.list?repo=owner/repo&state=open
-   Headers: X-Feelr-Key: fk_abc123
-
-3. Edge Gateway receives request:
-   a. Parse route → connector: "github", action: "issues.list"
-   b. Validate API key (fk_abc123) → look up user_id in D1 or KV
-   c. Check rate limit → Durable Object or KV-based counter
-   d. Fetch user's GitHub token from Auth Vault (KV)
-      - Decrypt token using application-level AES-256-GCM via Web Crypto API
-      - If OAuth token expired, attempt refresh
-
-4. Dispatch to Connector:
-   a. Connector Registry looks up "github" connector
-   b. Action "issues.list" maps to connector's handler
-   c. Request Mapper transforms flat args → GitHub API params
-      { repo: "owner/repo", state: "open" } → GET /repos/owner/repo/issues?state=open
-   d. Auth Adapter injects Authorization header with decrypted token
-   e. Connector makes HTTP call to api.github.com
-   f. Handles pagination if needed (auto-fetch up to N pages)
-
-5. Transform Layer processes response:
-   a. Response Flattener: nested JSON → flat key-value pairs
-   b. Error Normalizer: GitHub 404 → Feelr standard error format
-   c. Strip unnecessary metadata (rate limit headers, etc.)
-
-6. Edge Gateway wraps response:
-   {
-     "ok": true,
-     "data": [...],
-     "meta": { "count": 12, "connector": "github", "action": "issues.list" }
-   }
-
-7. CLI formats output:
-   - JSON mode (default for agents): raw JSON
-   - Table mode: formatted table
-   - Minimal mode: just data array
-```
-
-### Auth Setup Flow
-
-```
-1. User runs: $ feelr auth github
-
-2. CLI opens browser to: https://feelr.dev/auth/github/connect?session=xyz
-
-3. Dashboard handles OAuth flow:
-   a. User authorizes Feelr's GitHub App
-   b. GitHub redirects to callback with auth code
-   c. Dashboard exchanges code for access_token + refresh_token
-   d. Dashboard sends tokens to Edge Gateway API:
-      POST /v1/internal/auth/store
-      { connector: "github", access_token: "...", refresh_token: "..." }
-
-4. Edge Gateway encrypts and stores in KV:
-   Key: auth:{user_id}:github
-   Value: AES-256-GCM encrypted JSON { access_token, refresh_token, expires_at }
-
-5. CLI polls for completion:
-   GET /v1/internal/auth/status?session=xyz
-   → { "ok": true, "connector": "github", "status": "connected" }
-
-6. CLI confirms: "GitHub connected. Run 'feelr tools github' to see available actions."
-```
-
-### Composable Actions Flow
-
-```
-1. Agent runs: $ feelr run chain deploy-notify --repo owner/repo --channel general
-
-2. Gateway loads chain definition:
-   {
-     "name": "deploy-notify",
-     "steps": [
-       { "connector": "github", "action": "repos.latest-release", "args": { "repo": "{{repo}}" } },
-       { "connector": "slack", "action": "message.send",
-         "args": { "channel": "{{channel}}", "text": "Deployed {{steps.0.data.tag_name}}" } }
-     ]
-   }
-
-3. Engine executes steps sequentially:
-   Step 0: Call github.repos.latest-release → { tag_name: "v1.2.3" }
-   Step 1: Call slack.message.send with interpolated data → { ok: true }
-
-4. Return aggregated response:
-   { "ok": true, "steps": [{ ... }, { ... }], "meta": { "chain": "deploy-notify" } }
-```
+| Component | Change | Why |
+|-----------|--------|-----|
+| `apps/gateway/wrangler.toml` | Add `[env.staging]` and `[env.production]` with per-env KV/D1/DO bindings and custom domain routes | Bindings are NOT inheritable in Wrangler -- each env needs explicit KV IDs, D1 IDs, DO bindings |
+| `.github/workflows/release.yml` | Extend to also build + push self-host Docker image on tag | Self-host image should be published alongside CLI binaries on release |
+| `turbo.json` | Add `lint` task, refine `deploy` outputs | CI needs explicit lint task; deploy needs per-env awareness |
+| `apps/dashboard/next.config.ts` | Potentially switch from `output: 'export'` to `output: 'standalone'` for SSR support, OR keep static and use build-arg for API URL | See "Critical Decision" section below |
 
 ---
 
-## Where State Lives
+## Critical Decision: Dashboard Static Export vs Standalone
 
-| State Type | Storage | Why | Consistency Needs |
-|------------|---------|-----|-------------------|
-| **User API tokens** (encrypted) | Cloudflare KV | High read, low write. Tokens change rarely (OAuth refresh). KV's AES-256 at-rest encryption + application-level AES-256-GCM. Eventually consistent is fine -- tokens are per-user. | Eventually consistent (OK) |
-| **API keys** (fk_xxx → user_id mapping) | Cloudflare KV | High read, very low write. Created once, read on every request. KV caching gives sub-1ms reads for hot keys. | Eventually consistent (OK -- new keys may take seconds to propagate) |
-| **User accounts + metadata** | Cloudflare D1 | Relational data: users, teams, connector configs, chain definitions. D1's 10GB limit is fine for metadata. Strongly consistent. | Strongly consistent |
-| **Usage metrics** | Cloudflare D1 or Analytics Engine | Per-user call counts, per-connector usage. Analytics Engine is purpose-built for time-series metrics. D1 works for simple counters. | Eventually consistent (OK for metrics) |
-| **Rate limiting counters** | Durable Objects (recommended) or KV with TTL | Rate limiting needs precise per-key counting. Durable Objects give strict serializability. KV with TTL is simpler but only eventually consistent (could allow brief overages). | Strictly serializable (Durable Objects) or best-effort (KV) |
-| **Chain definitions** (composable actions) | D1 (user-defined) + bundled JSON (pre-built) | User-defined chains need CRUD. Pre-built chains ship with the codebase. | Strongly consistent for user chains |
-| **OAuth state** (CSRF tokens, pending flows) | KV with TTL | Short-lived state during OAuth flows. TTL auto-expires. | Eventually consistent (OK -- single-user flow) |
-| **CLI local config** | Filesystem (`~/.config/feelr/`) | Feelr API key, preferred output format, default endpoint URL. XDG base directory spec on Linux, `~/Library/Application Support/` on macOS. | Local only |
+**Current state:** The dashboard uses `output: 'export'` (fully static, Nginx-servable). The API URL is baked in at build time via `NEXT_PUBLIC_GATEWAY_URL`.
 
-### Self-Hosting State Mapping
+**Implication:** The Docker image is environment-specific. Building with `NEXT_PUBLIC_GATEWAY_URL=https://api.feelr.dev` creates an image that ONLY works for production. A staging image needs a separate build with a different URL.
 
-| Cloud State | Self-Hosted Equivalent | Notes |
-|-------------|----------------------|-------|
-| Cloudflare KV | workerd local KV (disk-backed) | Same API surface via workerd |
-| Cloudflare D1 | SQLite (via workerd or direct) | D1 is SQLite-based anyway |
-| Durable Objects | workerd Durable Objects (single-machine) | Limited to single machine, no geo-distribution |
-| Analytics Engine | SQLite table or Prometheus metrics | Simpler, no distributed analytics needed |
-| Vercel (Dashboard) | Node.js server or Docker container | Next.js runs standalone with `next start` |
+**Recommendation: Keep static export.** The dashboard is a simple SPA that calls the gateway API. There is no SSR, no server-side data fetching, no need for Node.js at runtime. Static export with Nginx results in:
+- Tiny image (~25MB vs ~150MB+ for standalone)
+- Zero runtime dependencies (no Node.js process to crash)
+- Trivially cacheable
+- The build-arg approach for API URL is standard for static SPAs
+
+The tradeoff (separate builds per environment) is acceptable because you only have two environments (staging + production), and builds are fast (~30s for a static export).
 
 ---
 
-## Monorepo Structure (Recommended)
+## Wrangler Environment Architecture
 
-**Confidence: MEDIUM-HIGH** (pattern verified across multiple Turborepo + pnpm workspace + Cloudflare Workers projects)
+**Confidence: HIGH** (verified with official Cloudflare docs on environments and non-inheritable bindings)
 
-Use **pnpm workspaces + Turborepo** for monorepo orchestration. This is the most widely adopted pattern for multi-runtime TypeScript projects that include Cloudflare Workers.
+Wrangler environments create separate Workers named `<worker>-<env>`. Bindings (KV, D1, DO, vars, secrets) are NOT inherited and must be explicitly declared per environment.
 
-```
-feelr/
-├── package.json              # Root workspace config
-├── pnpm-workspace.yaml       # Workspace definitions
-├── turbo.json                # Turborepo pipeline config
-│
-├── apps/
-│   ├── gateway/              # Cloudflare Workers + Hono (Edge Gateway)
-│   │   ├── src/
-│   │   │   ├── index.ts      # Hono app entry point
-│   │   │   ├── routes/       # Route handlers per domain
-│   │   │   │   ├── v1.ts     # /v1/* routes
-│   │   │   │   └── internal.ts # /internal/* routes (dashboard API)
-│   │   │   ├── middleware/    # Auth, rate limiting, metering
-│   │   │   │   ├── auth.ts
-│   │   │   │   ├── rate-limit.ts
-│   │   │   │   └── meter.ts
-│   │   │   ├── connectors/   # Connector dispatch & registry
-│   │   │   │   └── registry.ts
-│   │   │   ├── transform/    # Response flattening, error normalization
-│   │   │   │   ├── flatten.ts
-│   │   │   │   ├── errors.ts
-│   │   │   │   └── paginate.ts
-│   │   │   ├── vault/        # Auth token encryption/decryption
-│   │   │   │   └── crypto.ts
-│   │   │   └── chains/       # Composable actions engine
-│   │   │       └── engine.ts
-│   │   ├── wrangler.toml     # Workers config
-│   │   └── package.json
-│   │
-│   ├── dashboard/            # Next.js dashboard
-│   │   ├── src/
-│   │   │   ├── app/          # App router pages
-│   │   │   ├── components/
-│   │   │   └── lib/
-│   │   ├── next.config.js
-│   │   └── package.json
-│   │
-│   └── docs/                 # Documentation site (future)
-│       └── package.json
-│
-├── cli/                      # Go CLI (outside pnpm workspace)
-│   ├── cmd/                  # Cobra commands
-│   │   ├── root.go
-│   │   ├── run.go
-│   │   ├── tools.go
-│   │   ├── auth.go
-│   │   └── status.go
-│   ├── internal/             # Internal packages
-│   │   ├── client/           # HTTP client for gateway API
-│   │   ├── config/           # Local config management
-│   │   ├── output/           # JSON/table/minimal formatters
-│   │   └── version/
-│   ├── go.mod
-│   ├── go.sum
-│   └── Makefile
-│
-├── connectors/               # Individual connector packages
-│   ├── github/
-│   │   ├── src/
-│   │   │   ├── index.ts      # Connector entry: exports actions
-│   │   │   ├── actions/      # One file per action
-│   │   │   │   ├── issues-list.ts
-│   │   │   │   ├── issues-create.ts
-│   │   │   │   ├── pr-list.ts
-│   │   │   │   └── repos-list.ts
-│   │   │   ├── auth.ts       # Auth adapter (OAuth/PAT)
-│   │   │   ├── mapper.ts     # Request mapping
-│   │   │   ├── flatten.ts    # Response flattening rules
-│   │   │   └── docs.ts       # Agent-optimized descriptions
-│   │   ├── tests/
-│   │   └── package.json
-│   ├── slack/
-│   ├── stripe/
-│   ├── discord/
-│   └── _template/            # Connector template for contributors
-│       └── ...
-│
-├── packages/                 # Shared TypeScript packages
-│   ├── connector-sdk/        # Connector interface & utilities
-│   │   ├── src/
-│   │   │   ├── types.ts      # ConnectorDefinition, Action, etc.
-│   │   │   ├── base.ts       # Base connector class
-│   │   │   ├── flatten.ts    # Shared flattening utilities
-│   │   │   ├── errors.ts     # Standard error types
-│   │   │   └── docs.ts       # Doc generation helpers
-│   │   └── package.json
-│   │
-│   ├── shared-types/         # Types shared across gateway + dashboard
-│   │   ├── src/
-│   │   │   ├── api.ts        # API request/response types
-│   │   │   ├── auth.ts       # Auth-related types
-│   │   │   └── user.ts       # User/team types
-│   │   └── package.json
-│   │
-│   └── tsconfig/             # Shared TypeScript configs
-│       ├── base.json
-│       ├── worker.json
-│       └── nextjs.json
-│
-├── docker/                   # Self-hosting Docker configs
-│   ├── Dockerfile.gateway    # workerd-based gateway
-│   ├── Dockerfile.dashboard  # Next.js standalone
-│   └── docker-compose.yml    # Full self-hosted stack
-│
-└── .github/
-    └── workflows/
-        ├── gateway.yml       # Deploy Workers on push to main
-        ├── dashboard.yml     # Deploy dashboard to Vercel
-        ├── cli-release.yml   # Build + release Go binaries
-        └── connectors.yml    # Test connectors on PR
+### Recommended wrangler.toml Structure
+
+```toml
+name = "feelr-gateway"
+main = "src/index.ts"
+compatibility_date = "2026-02-05"
+
+# Top-level = development (wrangler dev)
+[vars]
+ENVIRONMENT = "development"
+
+[[kv_namespaces]]
+binding = "AUTH_KV"
+id = "placeholder-create-with-wrangler"
+
+[durable_objects]
+bindings = [
+  { name = "TOKEN_COORDINATOR", class_name = "TokenCoordinator" }
+]
+
+[[d1_databases]]
+binding = "USAGE_DB"
+database_name = "feelr-usage"
+database_id = "placeholder-create-with-wrangler"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["TokenCoordinator"]
+
+# ---------- Staging ----------
+[env.staging]
+vars = { ENVIRONMENT = "staging" }
+
+[[env.staging.kv_namespaces]]
+binding = "AUTH_KV"
+id = "<staging-kv-id>"
+
+[env.staging.durable_objects]
+bindings = [
+  { name = "TOKEN_COORDINATOR", class_name = "TokenCoordinator" }
+]
+
+[[env.staging.d1_databases]]
+binding = "USAGE_DB"
+database_name = "feelr-usage-staging"
+database_id = "<staging-d1-id>"
+
+[[env.staging.routes]]
+pattern = "staging-api.feelr.dev"
+custom_domain = true
+
+# Rate limiting bindings (must be redeclared per env)
+[[env.staging.unsafe.bindings]]
+name = "RATE_LIMIT_FREE"
+type = "ratelimit"
+namespace_id = "0"
+simple = { limit = 30, period = 60 }
+
+# ... (all other rate limit bindings)
+
+# ---------- Production ----------
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+[[env.production.kv_namespaces]]
+binding = "AUTH_KV"
+id = "<production-kv-id>"
+
+[env.production.durable_objects]
+bindings = [
+  { name = "TOKEN_COORDINATOR", class_name = "TokenCoordinator" }
+]
+
+[[env.production.d1_databases]]
+binding = "USAGE_DB"
+database_name = "feelr-usage"
+database_id = "<production-d1-id>"
+
+[[env.production.routes]]
+pattern = "api.feelr.dev"
+custom_domain = true
+
+# Rate limiting bindings
+[[env.production.unsafe.bindings]]
+name = "RATE_LIMIT_FREE"
+type = "ratelimit"
+namespace_id = "0"
+simple = { limit = 30, period = 60 }
+
+# ... (all other rate limit bindings)
 ```
 
-### Why This Structure
+### Worker Secrets Per Environment
 
-| Decision | Rationale |
-|----------|-----------|
-| **Go CLI outside pnpm workspace** | Go has its own module system. Including it in the pnpm workspace would be confusing. It lives as a sibling directory with its own build tooling. |
-| **Connectors as separate packages** | Each connector is independently testable and versioned. Community contributors work in isolated packages. The gateway bundles them at build time. |
-| **Connector SDK as shared package** | Defines the interface all connectors must implement. Versioning the SDK independently allows backward-compatible evolution. |
-| **shared-types package** | Types shared between gateway and dashboard (API response shapes, auth types). Exported as raw TypeScript source -- each consumer transpiles for its own runtime. |
-| **docker/ directory** | Self-hosting is a first-class concern. Docker Compose makes it approachable. |
+Secrets are set via `wrangler secret put` and are scoped per environment:
+
+```bash
+# Production secrets
+npx wrangler secret put ENCRYPTION_KEY --env production
+npx wrangler secret put ADMIN_TOKEN --env production
+npx wrangler secret put SLACK_CLIENT_ID --env production
+npx wrangler secret put SLACK_CLIENT_SECRET --env production
+npx wrangler secret put STRIPE_SECRET_KEY --env production
+
+# Staging secrets (different values)
+npx wrangler secret put ENCRYPTION_KEY --env staging
+npx wrangler secret put ADMIN_TOKEN --env staging
+# ... etc
+```
+
+### D1 Migrations in CI
+
+D1 migrations run via `wrangler d1 migrations apply` and must target the correct environment:
+
+```bash
+# Apply migrations to production D1
+npx wrangler d1 migrations apply feelr-usage --env production
+
+# Apply migrations to staging D1
+npx wrangler d1 migrations apply feelr-usage-staging --env staging
+```
+
+In CI, the confirmation prompt is automatically skipped. If a migration fails, it is rolled back and the previous state remains.
+
+---
+
+## Docker Image Architecture
+
+### Dashboard Dockerfile (Static Export + Nginx)
+
+**Confidence: HIGH** (standard pattern for Next.js static exports)
+
+```dockerfile
+# apps/dashboard/Dockerfile
+# Multi-stage: turbo prune -> pnpm build -> Nginx serve
+
+# -- Stage 1: Prune monorepo --
+FROM node:22-alpine AS pruner
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+RUN pnpm add -g turbo
+WORKDIR /app
+COPY . .
+RUN turbo prune @feelr/dashboard --docker
+
+# -- Stage 2: Build static export --
+FROM node:22-alpine AS builder
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+WORKDIR /app
+
+# Install dependencies from pruned lockfile (layer cache)
+COPY --from=pruner /app/out/json/ .
+RUN pnpm install --frozen-lockfile
+
+# Copy full source
+COPY --from=pruner /app/out/full/ .
+
+# Build-time API URL injection
+ARG NEXT_PUBLIC_GATEWAY_URL=https://api.feelr.dev
+ENV NEXT_PUBLIC_GATEWAY_URL=$NEXT_PUBLIC_GATEWAY_URL
+
+RUN pnpm turbo build --filter=@feelr/dashboard
+
+# -- Stage 3: Nginx serve --
+FROM nginx:alpine AS runner
+COPY --from=builder /app/apps/dashboard/out /usr/share/nginx/html
+
+# Custom nginx config for SPA routing
+COPY apps/dashboard/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+### Why turbo prune
+
+The `turbo prune --docker` command creates a minimal subset of the monorepo containing only the packages needed to build `@feelr/dashboard`. This:
+- Reduces Docker build context from the entire monorepo to only relevant packages
+- Separates `package.json` files (for dependency install caching) from source code
+- Ensures `pnpm install` layer is cached unless actual dependencies change
+
+### Nginx Configuration for SPA
+
+Both dashboard and docs use `output: 'export'` which produces static HTML/JS/CSS. Nginx needs a fallback rule for client-side routing:
+
+```nginx
+# apps/dashboard/nginx.conf
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Gzip static assets
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+    gzip_min_length 256;
+
+    # Cache static assets aggressively
+    location /_next/static/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # SPA fallback: serve index.html for client-side routes
+    location / {
+        try_files $uri $uri.html $uri/ /index.html;
+    }
+
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+}
+```
+
+### Docs Dockerfile (Identical Pattern)
+
+The docs site uses the same pattern (Nextra static export + Nginx). The Dockerfile is nearly identical, targeting `@feelr/docs` instead:
+
+```dockerfile
+# apps/docs/Dockerfile
+FROM node:22-alpine AS pruner
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+RUN pnpm add -g turbo
+WORKDIR /app
+COPY . .
+RUN turbo prune @feelr/docs --docker
+
+FROM node:22-alpine AS builder
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+WORKDIR /app
+COPY --from=pruner /app/out/json/ .
+RUN pnpm install --frozen-lockfile
+COPY --from=pruner /app/out/full/ .
+RUN pnpm turbo build --filter=@feelr/docs
+
+FROM nginx:alpine AS runner
+COPY --from=builder /app/apps/docs/out /usr/share/nginx/html
+COPY apps/docs/nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+### Image Size Estimates
+
+| Image | Base | Expected Size | Rationale |
+|-------|------|---------------|-----------|
+| Dashboard | nginx:alpine | ~25-35MB | Static HTML/JS/CSS only, no Node runtime |
+| Docs | nginx:alpine | ~20-30MB | Smaller than dashboard (less JS) |
+| Self-host | debian:bookworm-slim | ~150-200MB | Includes workerd binary (~90MB) + s6-overlay |
+
+---
+
+## CI/CD Pipeline Architecture
+
+### Workflow Strategy: Separate Workflows Per Service
+
+**Recommendation: One workflow per deployment target.** Not a single unified workflow because:
+
+1. **Different triggers:** Gateway deploys on push to main. Docker images deploy on push to main but with path filters. CLI releases on tag push.
+2. **Different toolchains:** Wrangler for Workers, Docker for containers, GoReleaser for Go binaries.
+3. **Different secrets:** Cloudflare API token vs Docker Hub credentials vs Homebrew tap token.
+4. **Independent failure:** A dashboard build failure should not block gateway deployment.
+
+### Workflow: PR Check (All Services)
+
+```yaml
+# .github/workflows/pr-check.yml
+name: PR Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Required for --affected
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Run all checks but only for affected packages
+      - run: pnpm turbo typecheck test --affected
+
+  cli-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: cli/go.mod
+      - run: cd cli && go vet ./... && go test ./...
+```
+
+### Workflow: Gateway Deploy
+
+```yaml
+# .github/workflows/gateway.yml
+name: Deploy Gateway
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/gateway/**'
+      - 'packages/connector-sdk/**'
+      - 'connectors/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Run tests before deploying
+      - run: pnpm turbo test --filter=@feelr/gateway
+
+      # Apply D1 migrations first
+      - name: Apply D1 migrations
+        run: npx wrangler d1 migrations apply feelr-usage --env production
+        working-directory: apps/gateway
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # Deploy to production
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/gateway
+          command: deploy --env production
+```
+
+**Critical path filter:** The gateway workflow triggers on changes to `apps/gateway/`, `packages/connector-sdk/`, or `connectors/` because connectors are bundled INTO the gateway. A connector change requires a gateway redeploy.
+
+### Workflow: Dashboard Deploy
+
+```yaml
+# .github/workflows/dashboard.yml
+name: Deploy Dashboard
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/dashboard/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/dashboard/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_USER }}/feelr-dashboard:latest
+            ${{ secrets.DOCKER_HUB_USER }}/feelr-dashboard:${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_GATEWAY_URL=https://api.feelr.dev
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Trigger Azure App Service to pull new image
+      - name: Restart Azure App Service
+        run: |
+          curl -X POST "${{ secrets.AZURE_DASHBOARD_WEBHOOK_URL }}" \
+            -H "Content-Length: 0"
+```
+
+### Workflow: Docs Deploy
+
+Same pattern as dashboard, targeting `apps/docs/` path filter, `feelr-docs` image name, and `AZURE_DOCS_WEBHOOK_URL` secret.
+
+### Workflow: Release (Existing + Extended)
+
+```yaml
+# .github/workflows/release.yml
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  cli-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: cli/go.mod
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
+
+  self-host-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: self-host/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_USER }}/feelr:latest
+            ${{ secrets.DOCKER_HUB_USER }}/feelr:${{ github.ref_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+```
+
+---
+
+## Turborepo + Monorepo CI Patterns
+
+### How `--affected` Works in GitHub Actions
+
+**Confidence: HIGH** (verified with Turborepo official docs)
+
+Turborepo detects the CI environment automatically via `GITHUB_BASE_REF` (for PRs) and `GITHUB_EVENT_PATH` (for pushes). The `--affected` flag compares the current commit against the base and only runs tasks for packages with changes.
+
+```bash
+# In PR context: compares PR head vs PR base
+pnpm turbo typecheck test --affected
+
+# In push context: compares push commit vs parent
+pnpm turbo build --affected
+```
+
+**Limitation:** `--affected` works at the package level. If `connector-sdk` changes, ALL packages that depend on it (gateway, all connectors) are marked affected. This is correct behavior but means connector-sdk changes trigger a full test run.
+
+### Build Caching Strategy
+
+| Layer | Mechanism | Scope |
+|-------|-----------|-------|
+| **pnpm install** | GitHub Actions cache (`actions/setup-node` with `cache: pnpm`) | Caches `node_modules` based on lockfile hash |
+| **Turbo task cache** | Local `.turbo` directory OR Vercel Remote Cache | Caches build/test/typecheck outputs per package |
+| **Docker layer cache** | GitHub Actions cache (`cache-from: type=gha`) | Caches Docker build layers between CI runs |
+| **turbo prune** | Reduces Docker context to only relevant packages | Speeds up COPY and install steps |
+
+### Selective Deploy vs Selective Test
+
+**Testing:** Use `--affected` on PRs. Run ALL affected package tests.
+**Deploying:** Use path filters on workflows. Each service deploys independently based on which files changed.
+
+These are complementary, not redundant:
+- `--affected` determines WHICH tests to run within the PR check workflow
+- Path filters determine WHICH deploy workflows trigger on push to main
+
+---
+
+## Deployment Dependency Order
+
+### Initial Setup Order (First-Time DNS + Infrastructure)
+
+This is the one-time setup order when standing up the infrastructure:
+
+```
+Step 1: Cloudflare Zone Setup
+  - Transfer feelr.dev DNS to Cloudflare (or add zone)
+  - Required for Workers Custom Domains
+  - Cloudflare manages api.feelr.dev subdomain
+
+Step 2: Create Cloudflare Resources
+  - wrangler kv namespace create AUTH_KV (staging + production)
+  - wrangler d1 create feelr-usage (staging + production)
+  - wrangler secret put ENCRYPTION_KEY (staging + production)
+  - Record all IDs for wrangler.toml
+
+Step 3: Deploy Gateway to Cloudflare Workers
+  - wrangler deploy --env production
+  - This creates the Custom Domain for api.feelr.dev
+  - Cloudflare auto-creates DNS record + SSL cert
+  - Verify: curl https://api.feelr.dev/health
+
+Step 4: Create Azure App Service Instances
+  - feelr-dashboard (container, Linux, B1 tier)
+  - feelr-docs (container, Linux, B1 tier)
+  - Both start with placeholder nginx image
+
+Step 5: Configure Azure Custom Domains
+  - app.feelr.dev -> CNAME to feelr-dashboard.azurewebsites.net
+  - feelr.dev -> A record to Azure IP + TXT verification record
+  - Configure in Namecheap Advanced DNS (NOT Cloudflare for these)
+  - Azure provides free managed SSL for custom domains
+
+Step 6: Build + Push Docker Images
+  - Build dashboard image -> Docker Hub
+  - Build docs image -> Docker Hub
+  - Configure Azure App Service to pull from Docker Hub
+
+Step 7: Enable Continuous Deployment
+  - Get webhook URL from Azure Deployment Center for each app
+  - Store as GitHub secrets: AZURE_DASHBOARD_WEBHOOK_URL, AZURE_DOCS_WEBHOOK_URL
+  - Enable "Continuous deployment" toggle in Azure
+```
+
+### DNS Architecture
+
+**Critical nuance:** The domain must be split across two DNS providers.
+
+```
+Namecheap DNS Records:
+
+  feelr.dev         A      -> <Azure App Service IP>
+  feelr.dev         TXT    -> <Azure domain verification ID>
+  app.feelr.dev     CNAME  -> feelr-dashboard.azurewebsites.net
+  api.feelr.dev     --     -> (managed by Cloudflare, see below)
+
+Cloudflare DNS (zone must exist for Workers Custom Domains):
+
+  api.feelr.dev     --     -> Auto-created by wrangler deploy (Custom Domain)
+```
+
+**Option A (Simpler): Full Cloudflare DNS.** Transfer ALL DNS to Cloudflare. This means the nameservers at Namecheap point to Cloudflare. Then:
+- api.feelr.dev: Workers Custom Domain (auto-managed)
+- app.feelr.dev: CNAME proxied through Cloudflare -> Azure
+- feelr.dev: A record proxied through Cloudflare -> Azure
+
+**Option B (Split DNS): Partial Cloudflare.** Only add the zone to Cloudflare for Workers Custom Domain, keep Namecheap as primary DNS. This is more complex and fragile.
+
+**Recommendation: Option A (Full Cloudflare DNS).** It is simpler, gives you Cloudflare's WAF and DDoS protection for ALL domains for free, and avoids split-brain DNS. The cost is zero (free plan). Change Namecheap nameservers to Cloudflare's assigned nameservers, then manage all records in Cloudflare.
+
+### Ongoing Deploy Order (Per Push to Main)
+
+After initial setup, deployments are independent. No ordering constraint because:
+- Gateway is the API backend. It does not depend on dashboard/docs being available.
+- Dashboard is a static SPA. It does not depend on docs.
+- Docs is fully independent of everything.
+
+The only ordering constraint that matters: **D1 migrations must run BEFORE gateway deploy.** This is handled within the gateway workflow (migration step before deploy step).
+
+```
+On push to main:
+  [if apps/gateway/** or connectors/** or packages/connector-sdk/** changed]
+    -> gateway.yml: migrate D1 -> deploy Workers
+
+  [if apps/dashboard/** changed]
+    -> dashboard.yml: build Docker -> push -> webhook Azure
+
+  [if apps/docs/** changed]
+    -> docs.yml: build Docker -> push -> webhook Azure
+
+  These run in PARALLEL. No cross-workflow dependency needed.
+```
+
+### On Tag Push (Release):
+
+```
+On push tag v*:
+  [cli-release job]: GoReleaser -> GitHub Releases + Homebrew
+  [self-host-image job]: Docker build -> Docker Hub push
+
+  These also run in PARALLEL.
+```
+
+---
+
+## GitHub Actions Secrets Inventory
+
+| Secret | Used By | Purpose |
+|--------|---------|---------|
+| `CLOUDFLARE_API_TOKEN` | gateway.yml | Wrangler deploy + D1 migrations |
+| `CLOUDFLARE_ACCOUNT_ID` | gateway.yml | Wrangler account targeting |
+| `DOCKER_HUB_USER` | dashboard.yml, docs.yml, release.yml | Docker Hub login |
+| `DOCKER_HUB_TOKEN` | dashboard.yml, docs.yml, release.yml | Docker Hub login (access token, NOT password) |
+| `AZURE_DASHBOARD_WEBHOOK_URL` | dashboard.yml | Trigger Azure to pull new dashboard image |
+| `AZURE_DOCS_WEBHOOK_URL` | docs.yml | Trigger Azure to pull new docs image |
+| `GITHUB_TOKEN` | release.yml | GoReleaser GitHub Releases (auto-provided) |
+| `HOMEBREW_TAP_GITHUB_TOKEN` | release.yml | Push to andrewprograde/homebrew-feelr |
 
 ---
 
 ## Patterns to Follow
 
-### Pattern 1: Connector Interface Contract
+### Pattern 1: Path-Filtered Workflows
 
-**What:** Every connector exports a standardized interface. The gateway never reaches into connector internals.
-**When:** Always. This is the core extensibility pattern.
-**Confidence:** HIGH (standard adapter/plugin pattern, verified for TypeScript)
+**What:** Each deployment workflow uses `paths:` filter to only trigger when relevant files change.
+**When:** All deploy workflows on push to main.
+**Why:** Prevents unnecessary deploys. A README change should not redeploy the gateway.
 
-```typescript
-// packages/connector-sdk/src/types.ts
-
-export interface ConnectorDefinition {
-  name: string;          // "github"
-  displayName: string;   // "GitHub"
-  version: string;       // "1.0.0"
-  authType: "oauth2" | "api_key" | "bearer_token";
-  actions: Record<string, ActionDefinition>;
-  docs: ConnectorDocs;
-}
-
-export interface ActionDefinition {
-  name: string;          // "issues.list"
-  description: string;   // ~50 tokens for agent consumption
-  params: ParamDefinition[];
-  handler: (ctx: ActionContext) => Promise<ActionResult>;
-}
-
-export interface ActionContext {
-  params: Record<string, string>;
-  userToken: string;     // Decrypted upstream API token
-  fetch: typeof fetch;   // Workers-compatible fetch
-}
-
-export interface ActionResult {
-  data: Record<string, unknown>[] | Record<string, unknown>;
-  meta?: { count?: number; hasMore?: boolean; cursor?: string };
-}
-
-export interface ParamDefinition {
-  name: string;
-  type: "string" | "number" | "boolean";
-  required: boolean;
-  description: string;   // Short, for agent consumption
-  default?: string;
-}
+```yaml
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/gateway/**'
+      - 'packages/connector-sdk/**'
+      - 'connectors/**'
 ```
 
-### Pattern 2: Middleware Pipeline (Hono)
+**Important consideration for gateway:** Include `connectors/**` and `packages/connector-sdk/**` in the gateway's path filter because connectors are bundled into the gateway Worker. A connector code change without redeploying the gateway means the change is not live.
 
-**What:** Use Hono's middleware chain for cross-cutting concerns. Each middleware does one thing.
-**When:** All request processing in the gateway.
-**Confidence:** HIGH (verified via Hono official docs)
+### Pattern 2: Webhook-Based Azure Deployment
 
-```typescript
-// apps/gateway/src/index.ts
+**What:** After pushing a Docker image to Docker Hub, POST to Azure's webhook URL to trigger a pull + restart.
+**When:** Dashboard and docs deploys.
+**Why:** Simpler than installing Azure CLI in CI. Azure App Service provides a webhook URL in Deployment Center that triggers image pull when POSTed to.
 
-import { Hono } from "hono";
-import { cors } from "hono/cors";
-import { logger } from "hono/logger";
-import { authMiddleware } from "./middleware/auth";
-import { rateLimitMiddleware } from "./middleware/rate-limit";
-import { meterMiddleware } from "./middleware/meter";
-import { v1Routes } from "./routes/v1";
-import { internalRoutes } from "./routes/internal";
-
-type Bindings = {
-  AUTH_KV: KVNamespace;
-  META_DB: D1Database;
-  ENCRYPTION_KEY: string;
-  RATE_LIMITER: DurableObjectNamespace;
-};
-
-const app = new Hono<{ Bindings: Bindings }>();
-
-// Global middleware (order matters)
-app.use("*", cors());
-app.use("*", logger());
-
-// API routes with auth + rate limiting
-app.use("/v1/*", authMiddleware);
-app.use("/v1/*", rateLimitMiddleware);
-app.use("/v1/*", meterMiddleware);
-app.route("/v1", v1Routes);
-
-// Internal routes (dashboard API, auth callbacks)
-app.route("/internal", internalRoutes);
-
-export default app;
+```yaml
+- name: Trigger Azure restart
+  run: curl -X POST "${{ secrets.AZURE_DASHBOARD_WEBHOOK_URL }}" -H "Content-Length: 0"
 ```
 
-### Pattern 3: Response Envelope
+### Pattern 3: Build-Time Environment Injection for Static Exports
 
-**What:** Every response follows the same envelope. Agents can parse any Feelr response with identical logic.
-**When:** All API responses.
-**Confidence:** HIGH (standard API design pattern)
+**What:** Pass environment-specific values as Docker build args for static Next.js exports.
+**When:** Dashboard builds.
+**Why:** `NEXT_PUBLIC_*` variables are inlined at build time in static exports. The Docker image is environment-specific by design.
 
-```typescript
-// Success response
-{
-  "ok": true,
-  "data": [ ... ],       // Always flat objects, never nested
-  "meta": {
-    "connector": "github",
-    "action": "issues.list",
-    "count": 12,
-    "cursor": "abc123",  // Only present if more pages exist
-    "cached": false
-  }
-}
-
-// Error response
-{
-  "ok": false,
-  "error": {
-    "code": "UPSTREAM_AUTH_FAILED",
-    "message": "GitHub token expired. Run 'feelr auth github' to reconnect.",
-    "connector": "github",
-    "upstream_status": 401
-  }
-}
+```yaml
+build-args: |
+  NEXT_PUBLIC_GATEWAY_URL=https://api.feelr.dev
 ```
 
-### Pattern 4: Application-Level Encryption for Auth Vault
+For staging, a separate build with `NEXT_PUBLIC_GATEWAY_URL=https://staging-api.feelr.dev` would be needed.
 
-**What:** Encrypt user tokens with AES-256-GCM via Web Crypto API before storing in KV. KV encrypts at rest too (defense in depth).
-**When:** All token storage and retrieval.
-**Confidence:** HIGH (verified via Cloudflare Web Crypto docs and KV security docs)
+### Pattern 4: D1 Migrations Before Deploy
 
-```typescript
-// apps/gateway/src/vault/crypto.ts
+**What:** Run `wrangler d1 migrations apply` as a step BEFORE `wrangler deploy` in the gateway workflow.
+**When:** Every gateway deploy.
+**Why:** New Worker code may depend on new database schema. Deploying code before migrating the database causes runtime errors.
 
-export async function encryptToken(
-  plaintext: string,
-  encryptionKey: string
-): Promise<string> {
-  const keyMaterial = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(encryptionKey),
-    "PBKDF2",
-    false,
-    ["deriveKey"]
-  );
+**Safety:** D1 migrations are atomic. If a migration fails, it rolls back. The Worker code does NOT deploy (the CI step fails, blocking subsequent steps).
 
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const iv = crypto.getRandomValues(new Uint8Array(12));
+### Pattern 5: Docker Layer Caching with GHA
 
-  const key = await crypto.subtle.deriveKey(
-    { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
-    keyMaterial,
-    { name: "AES-GCM", length: 256 },
-    false,
-    ["encrypt"]
-  );
+**What:** Use GitHub Actions cache backend for Docker BuildKit layer caching.
+**When:** All Docker builds.
+**Why:** Dramatically speeds up repeat builds. The `pnpm install` layer (the slowest step) is cached unless the lockfile changes.
 
-  const encrypted = await crypto.subtle.encrypt(
-    { name: "AES-GCM", iv },
-    key,
-    new TextEncoder().encode(plaintext)
-  );
-
-  // Pack salt + iv + ciphertext into single base64 string
-  const packed = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
-  packed.set(salt, 0);
-  packed.set(iv, salt.length);
-  packed.set(new Uint8Array(encrypted), salt.length + iv.length);
-
-  return btoa(String.fromCharCode(...packed));
-}
-```
-
-### Pattern 5: Connector Action Dispatch
-
-**What:** Route-based dispatch from URL path to connector action.
-**When:** All /v1/ requests.
-**Confidence:** HIGH
-
-```typescript
-// apps/gateway/src/routes/v1.ts
-
-import { Hono } from "hono";
-import { connectorRegistry } from "../connectors/registry";
-
-const v1 = new Hono();
-
-// Pattern: /v1/:connector/:action
-v1.all("/:connector/:action", async (c) => {
-  const connectorName = c.req.param("connector");
-  const actionName = c.req.param("action");
-
-  const connector = connectorRegistry.get(connectorName);
-  if (!connector) {
-    return c.json({ ok: false, error: { code: "UNKNOWN_CONNECTOR" } }, 404);
-  }
-
-  const action = connector.actions[actionName];
-  if (!action) {
-    return c.json({ ok: false, error: { code: "UNKNOWN_ACTION" } }, 404);
-  }
-
-  // Params from query string (GET) or body (POST)
-  const params = c.req.method === "GET"
-    ? Object.fromEntries(new URL(c.req.url).searchParams)
-    : await c.req.json();
-
-  // User token was decrypted in auth middleware and placed in context
-  const userToken = c.get("userToken");
-
-  const result = await action.handler({
-    params,
-    userToken,
-    fetch: fetch, // Workers fetch
-  });
-
-  return c.json({
-    ok: true,
-    data: result.data,
-    meta: { connector: connectorName, action: actionName, ...result.meta },
-  });
-});
-
-export { v1 as v1Routes };
+```yaml
+- uses: docker/build-push-action@v6
+  with:
+    cache-from: type=gha
+    cache-to: type=gha,mode=max
 ```
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Connectors as Separate Workers (Service Bindings)
+### Anti-Pattern 1: Single Unified Deploy Workflow
 
-**What:** Deploying each connector as its own Cloudflare Worker and using Service Bindings to route between them.
-**Why bad:** Adds inter-worker latency (even same-zone Service Bindings have overhead). Multiplies deployment complexity. Each Worker has its own limits and billing. For 20+ connectors, this becomes unmanageable.
-**Instead:** Bundle all connectors into a single Worker. Use in-process module dispatch. A connector is a TypeScript module, not a service.
+**What:** One massive workflow that deploys gateway, dashboard, docs, and CLI together.
+**Why bad:** Couples unrelated deployments. A dashboard CSS change blocks on gateway tests. A gateway failure blocks docs deploy. Makes debugging CI failures harder.
+**Instead:** Separate workflows per target with path filters.
 
-### Anti-Pattern 2: Storing Unencrypted Tokens in KV
+### Anti-Pattern 2: Using `turbo deploy` for Everything
 
-**What:** Relying solely on KV's at-rest encryption without application-level encryption.
-**Why bad:** KV's encryption protects against Cloudflare infrastructure compromise, but anyone with KV read access (e.g., a compromised Worker, a rogue deploy) can read tokens in plaintext. Application-level encryption means the ENCRYPTION_KEY secret must also be compromised.
-**Instead:** Always encrypt tokens at the application level before writing to KV. Use the ENCRYPTION_KEY Worker secret for key derivation.
+**What:** Running `pnpm turbo deploy` and expecting Turborepo to handle all deployment targets.
+**Why bad:** Turborepo is a task runner, not a deployment orchestrator. It does not know how to wrangler deploy, docker push, or goreleaser release. The `deploy` task in turbo.json runs package-level scripts, but deployment needs CI-level orchestration (secrets, environments, webhooks).
+**Instead:** Use Turborepo for build/test/typecheck. Use GitHub Actions workflows for deployment orchestration.
 
-### Anti-Pattern 3: Synchronous Pagination in Request Path
+### Anti-Pattern 3: Skipping turbo prune for Docker
 
-**What:** Fetching ALL pages from an upstream API before returning a response. If GitHub has 50 pages of issues, the Worker fetches all 50 before responding.
-**Why bad:** Workers have CPU time limits (30s on paid plan). Large paginated responses can hit limits. Also wastes resources when the agent only needs the first page.
-**Instead:** Return one page at a time with a `cursor` in the response. Let the agent/CLI request more pages if needed. Offer an optional `--all` flag that auto-paginates, with a sane maximum (e.g., 10 pages / 1000 items).
+**What:** Copying the entire monorepo into Docker build context.
+**Why bad:** Docker context upload is slow (all node_modules, .git, etc). Layer caching breaks on any file change. The image includes unnecessary files.
+**Instead:** Use `turbo prune @feelr/dashboard --docker` to create a minimal context with only relevant packages and a pruned lockfile.
 
-### Anti-Pattern 4: Tightly Coupling Dashboard to Gateway Internals
+### Anti-Pattern 4: Hardcoding API URLs in Code
 
-**What:** Having the Dashboard directly access KV, D1, or other Cloudflare bindings.
-**Why bad:** Creates two entry points to state, bypassing gateway middleware (auth, metering, rate limiting). Makes self-hosting harder since Dashboard needs Cloudflare-specific bindings.
-**Instead:** Dashboard communicates ONLY through the gateway's /internal/* API routes. The gateway is the single source of truth and the single writer to all state stores.
+**What:** Writing `https://api.feelr.dev` directly in dashboard source code.
+**Why bad:** Cannot deploy to staging, local dev breaks, self-hosting requires code changes.
+**Instead:** Always use `NEXT_PUBLIC_GATEWAY_URL` environment variable with a sensible default (`http://localhost:8787` for dev). Inject the production URL at build time via Docker build args.
 
-### Anti-Pattern 5: Monolithic Connector Files
+### Anti-Pattern 5: Applying D1 Migrations Manually
 
-**What:** Putting all actions for a connector in a single file (e.g., a 2000-line `github.ts`).
-**Why bad:** Hard to review, test, and contribute to. Community contributors need to understand the whole file to add one action.
-**Instead:** One file per action. Each action is ~50-100 lines: param validation, request mapping, response flattening. The connector's `index.ts` just re-exports them.
-
----
-
-## Build Order (Dependency Chain)
-
-The build order is driven by hard dependencies between components. Build what enables the next thing.
-
-### Phase 1: Foundation (Gateway + SDK + First Connector)
-
-**Must build first because everything depends on it.**
-
-1. **Connector SDK types** (`packages/connector-sdk/`) -- defines the interface all connectors implement
-2. **Edge Gateway skeleton** (`apps/gateway/`) -- Hono app with route structure, env bindings typed
-3. **Auth Vault** (encryption module + KV integration) -- needed before any connector can work
-4. **API key validation middleware** -- basic `fk_xxx` key → user lookup
-5. **Response envelope** (transform layer) -- standardized response wrapping
-6. **GitHub connector** (first connector) -- proves the whole pipeline works end-to-end
-
-**End state:** `curl api.feelr.dev/v1/github/issues.list -H "X-Feelr-Key: fk_test"` returns flat JSON.
-
-### Phase 2: CLI + More Connectors
-
-**Depends on:** Phase 1 (working gateway to call)
-
-7. **Go CLI** (`cli/`) -- `feelr run`, `feelr tools`, `feelr auth`, `feelr status`
-8. **Slack connector** -- second connector validates the SDK pattern works for different APIs
-9. **Stripe connector** -- third connector validates for non-REST/webhook-heavy APIs
-10. **Discord connector** -- fourth connector, community management use case
-11. **`feelr tools` discovery** -- gateway endpoint that returns connector/action metadata
-
-**End state:** `feelr run github issues.list --repo x/y` works from terminal.
-
-### Phase 3: Dashboard + Auth Flows
-
-**Depends on:** Phase 1 (gateway API), can partially parallel with Phase 2
-
-12. **Internal API routes** (`/internal/*`) -- dashboard-specific endpoints for key management, user settings
-13. **Next.js Dashboard** (`apps/dashboard/`) -- API key management, connector status, usage display
-14. **OAuth flows** -- GitHub App OAuth, Slack OAuth, browser-based auth via dashboard
-15. **`feelr auth` CLI flow** -- opens browser, polls for completion
-
-**End state:** Full auth setup flow works: CLI opens browser, user connects, CLI confirms.
-
-### Phase 4: Production Hardening
-
-**Depends on:** Phases 1-3 (core features working)
-
-16. **Rate limiting** (Durable Objects or KV-based)
-17. **Usage metering** (D1 or Analytics Engine)
-18. **Error normalization** (comprehensive mapping from upstream errors)
-19. **Agent-optimized descriptions** (~100 token per connector docs)
-
-### Phase 5: Composable Actions + Self-Hosting
-
-**Depends on:** Phase 4 (stable connector system)
-
-20. **Composable Actions engine** -- chain definitions, step execution, data passing
-21. **Pre-built chains** -- common workflows shipped as JSON definitions
-22. **User-defined chains** -- CRUD for custom chains in D1
-23. **Self-hosting package** -- Docker Compose with workerd + SQLite + Next.js standalone
-
-### Phase 6: Billing + Launch
-
-**Depends on:** Phase 4-5 (metering exists, features complete)
-
-24. **Stripe Billing integration** -- metered subscriptions, plan enforcement
-25. **Documentation site** -- feelr.dev/docs
-26. **Open-source preparation** -- LICENSE, CONTRIBUTING.md, README, connector template
+**What:** SSH-ing in or running migrations from a developer laptop before deploying.
+**Why bad:** Humans forget. Migrations drift. No audit trail. Race conditions if two developers migrate simultaneously.
+**Instead:** Migrations are always applied by CI as a step in the gateway deploy workflow. Never manually.
 
 ---
 
-## Self-Hosting Architecture
+## Azure App Service Configuration
 
-**Confidence: MEDIUM** (workerd is open-source and functional, but self-hosting a full Cloudflare Workers app with KV/D1/Durable Objects locally is an emerging pattern, not a mature one)
+### Dashboard App Service
 
-### Cloud vs. Self-Hosted
+| Setting | Value | Notes |
+|---------|-------|-------|
+| **Name** | feelr-dashboard | -> feelr-dashboard.azurewebsites.net |
+| **Plan** | B1 Linux | ~$13/mo, sufficient for container hosting |
+| **Container** | Docker Hub: `andrewprograde/feelr-dashboard:latest` | Updated via webhook |
+| **Custom domain** | app.feelr.dev | CNAME -> feelr-dashboard.azurewebsites.net |
+| **SSL** | Azure managed certificate (free) | Auto-renewed |
+| **Continuous deployment** | Enabled (webhook) | Pulls new image on push |
 
-| Component | Cloud (api.feelr.dev) | Self-Hosted |
-|-----------|----------------------|-------------|
-| Edge Gateway | Cloudflare Workers (global edge) | workerd binary (single machine) |
-| KV (Auth Vault) | Cloudflare KV (distributed) | workerd local KV (disk-backed) |
-| D1 (Metadata) | Cloudflare D1 (managed SQLite) | SQLite file (direct) |
-| Durable Objects | Cloudflare DO (distributed) | workerd DO (single machine) |
-| Dashboard | Vercel (managed) | `next start` or Docker |
-| DNS/TLS | Cloudflare (automatic) | User-provided (nginx/caddy reverse proxy) |
-| Billing | Stripe (enabled) | Disabled (toggle off) |
+### Docs App Service
 
-### Self-Hosting Docker Compose
+| Setting | Value | Notes |
+|---------|-------|-------|
+| **Name** | feelr-docs | -> feelr-docs.azurewebsites.net |
+| **Plan** | B1 Linux (shared with dashboard) | Same App Service Plan |
+| **Container** | Docker Hub: `andrewprograde/feelr-docs:latest` | Updated via webhook |
+| **Custom domain** | feelr.dev | A record + TXT verification |
+| **SSL** | Azure managed certificate (free) | Auto-renewed |
+| **Continuous deployment** | Enabled (webhook) | Pulls new image on push |
 
-```yaml
-# docker/docker-compose.yml
-version: "3.8"
-
-services:
-  gateway:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.gateway
-    ports:
-      - "8787:8787"
-    environment:
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      - ENVIRONMENT=self-hosted
-    volumes:
-      - gateway-data:/data  # KV + D1 persistence
-
-  dashboard:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.dashboard
-    ports:
-      - "3000:3000"
-    environment:
-      - GATEWAY_URL=http://gateway:8787
-      - NEXTAUTH_URL=http://localhost:3000
-      - BILLING_ENABLED=false
-
-volumes:
-  gateway-data:
-```
-
-### Self-Hosting Architectural Differences
-
-1. **No global edge distribution** -- all requests hit one machine. Latency depends on user proximity to the server.
-2. **No distributed KV** -- eventually-consistent model is moot; it is just local disk.
-3. **Durable Objects are single-machine** -- rate limiting works but cannot scale horizontally.
-4. **Billing is toggled off** -- no Stripe integration, no metering enforcement (but usage tracking can still work for the user's own analytics).
-5. **User manages TLS** -- need a reverse proxy (nginx, caddy) for HTTPS.
-
-### Code Abstraction for Dual Deployment
-
-To support both cloud and self-hosted, abstract storage behind interfaces:
-
-```typescript
-// packages/connector-sdk/src/storage.ts
-
-export interface StorageAdapter {
-  get(key: string): Promise<string | null>;
-  put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
-  delete(key: string): Promise<void>;
-}
-
-export interface DatabaseAdapter {
-  query<T>(sql: string, params?: unknown[]): Promise<T[]>;
-  execute(sql: string, params?: unknown[]): Promise<void>;
-}
-```
-
-In cloud mode, these wrap KV/D1 bindings. In self-hosted mode, they wrap workerd's local equivalents (which have the same API surface, so the abstraction may be thin). The key point: **connector code and gateway logic never import Cloudflare-specific APIs directly**. They go through the adapter.
-
-**Caveat:** workerd provides the same API surface as Workers (KV namespace, D1 database), so in practice the "abstraction" may just be passing through the binding. The value is in making the boundary explicit for when someone wants to run on a non-workerd runtime (e.g., plain Node.js with SQLite).
+**Cost note:** Both apps can share the same B1 App Service Plan (~$13/mo total, not per app). Two apps on one plan is standard for low-traffic sites.
 
 ---
 
 ## Scalability Considerations
 
-| Concern | At 100 users | At 10K users | At 1M users |
-|---------|--------------|--------------|-------------|
-| **Request throughput** | Single Worker handles easily. CF free tier: 100K req/day. | Paid plan: 10M req/month ($5). Workers auto-scale globally. | Workers scale horizontally on CF edge. No changes needed. |
-| **Auth Vault reads** | KV cache hits for repeated reads. Sub-ms latency. | Same -- KV caching is per-location. Hot keys are fast everywhere. | Same -- KV is designed for this pattern. |
-| **D1 metadata queries** | Minimal load. Single query per key validation. | Read replicas help. May need to cache user→plan mappings in KV. | Consider migrating hot paths off D1 to KV. D1 has 10GB limit. |
-| **Rate limiting** | KV-based is fine for 100 users. | Durable Objects recommended for accurate counting. | DO per-user rate limiting scales with user count (each user = 1 DO). |
-| **CLI distribution** | GitHub Releases. | Homebrew tap, apt repo, Go install. | Same + CDN for binary downloads. |
-| **Connector count** | 4-5 connectors, small bundle. | 20+ connectors, bundle size matters. Consider lazy loading. | 50+ connectors -- may need to split into connector "packs" or use dynamic imports. |
-| **Composable actions** | Simple sequential execution. | Add timeout per step. Consider max chain length. | May need async execution for long chains (Queues). |
-
----
-
-## Key Architectural Decisions Summary
-
-| Decision | Choice | Rationale | Alternatives Considered |
-|----------|--------|-----------|------------------------|
-| **Monorepo tool** | pnpm + Turborepo | Industry standard for multi-runtime TS projects. Proven with CF Workers + Next.js. | nx (heavier, more features than needed), Lerna (legacy) |
-| **Gateway framework** | Hono on CF Workers | Lightweight, Web Standards based, first-class CF Workers support, rich middleware ecosystem. | itty-router (too minimal), Express-style (not edge-compatible) |
-| **Connector architecture** | In-process modules, not microservices | Avoids inter-service latency, simplifies deployment, fits Worker constraints. | Service Bindings (too much overhead for this use case) |
-| **Auth token storage** | KV with app-level AES-256-GCM encryption | KV's read-heavy pattern fits token access. Double encryption (KV at-rest + app-level). | D1 (overkill for key-value token storage), Durable Objects (unnecessary consistency for per-user tokens) |
-| **Metadata storage** | D1 | Relational queries needed for users, teams, chains. Managed. Free tier generous. | Neon Postgres via Hyperdrive (more powerful but external dependency), KV (not relational) |
-| **Rate limiting** | Durable Objects (phase 4+), KV with TTL (MVP) | DO gives accuracy. KV gives simplicity for MVP. | External service like Upstash (adds latency, external dependency) |
-| **CLI language** | Go with Cobra | Single binary, no runtime, fast startup, Cobra is the standard CLI framework (powers gh, kubectl, docker). | Rust (slower dev velocity), Node (requires runtime) |
-| **Self-hosting runtime** | workerd (CF open-source runtime) | Same API surface as production Workers. Bug-for-bug compatible. | Plain Node.js (would need shims for KV/D1/DO APIs), Docker + miniflare (deprecated in favor of workerd) |
-| **Dashboard deployment** | Next.js on Vercel (cloud), standalone (self-hosted) | Next.js App Router for dashboard UI. Vercel for zero-config deploys. `next start` for self-hosted. | Remix (fine alternative), SvelteKit (smaller community) |
+| Concern | Current (Launch) | At 10K users | At 100K users |
+|---------|-----------------|--------------|---------------|
+| **Gateway deploy** | Wrangler direct deploy, ~20s | Same. CF Workers scale automatically. | Same. No changes needed. |
+| **Dashboard/Docs images** | Single Azure B1 instance | Still fine for static files. Nginx handles thousands of concurrent connections. | Consider Azure CDN or Cloudflare proxy for global caching. |
+| **CI build time** | ~3-5 min per workflow | Turbo remote cache helps. Consider parallel jobs. | Self-hosted runners if GH Actions minutes become expensive. |
+| **Docker image pulls** | Docker Hub free tier (200 pulls/6hrs) | Should be fine (one pull per deploy). | Consider caching proxy or pre-pulling. |
+| **D1 migrations** | Instantaneous for small schemas | Same. Migrations are schema-only, not data. | Same. |
 
 ---
 
 ## Sources
 
-- [Cloudflare Workers Storage Options](https://developers.cloudflare.com/workers/platform/storage-options/) -- HIGH confidence, official docs
-- [Cloudflare KV Data Security](https://developers.cloudflare.com/kv/reference/data-security/) -- HIGH confidence, official docs
-- [Cloudflare Web Crypto API](https://developers.cloudflare.com/workers/runtime-apis/web-crypto/) -- HIGH confidence, official docs
-- [Hono Getting Started with Cloudflare Workers](https://hono.dev/docs/getting-started/cloudflare-workers) -- HIGH confidence, official docs
-- [Cloudflare Workers Secrets](https://developers.cloudflare.com/workers/configuration/secrets/) -- HIGH confidence, official docs
-- [workerd GitHub Repository](https://github.com/cloudflare/workerd) -- HIGH confidence, official source
-- [TypeScript Monorepo Setup: Sharing Types Between Workers and Next.js](https://www.outstand.so/blog/typescript-monorepo-setup) -- MEDIUM confidence, verified pattern
-- [Cloudflare Monorepo Advanced Setups](https://developers.cloudflare.com/workers/ci-cd/builds/advanced-setups/) -- HIGH confidence, official docs
-- [Cobra CLI Framework](https://github.com/spf13/cobra) -- HIGH confidence, official source
-- [API Gateway Architecture Deep Dive](https://api7.ai/learning-center/api-gateway-guide/api-gateway-architecture) -- MEDIUM confidence, industry reference
-- [Designing an Effective API Orchestration Layer](https://api7.ai/blog/designing-an-effective-api-orchestration-layer) -- MEDIUM confidence, industry reference
-- [Encrypt Workers KV](https://github.com/bradyjoslin/encrypt-workers-kv) -- MEDIUM confidence, community reference implementation
-- [Adapter Pattern in TypeScript](https://refactoring.guru/design-patterns/adapter/typescript/example) -- HIGH confidence, canonical reference
-- [Plugin System in TypeScript](https://dev.to/hexshift/designing-a-plugin-system-in-typescript-for-modular-web-applications-4db5) -- LOW confidence, single community source
+- [Cloudflare Workers Environments](https://developers.cloudflare.com/workers/wrangler/environments/) -- HIGH confidence, official docs
+- [Cloudflare KV Environments](https://developers.cloudflare.com/kv/reference/environments/) -- HIGH confidence, official docs
+- [Cloudflare Durable Objects Environments](https://developers.cloudflare.com/durable-objects/reference/environments/) -- HIGH confidence, official docs
+- [Cloudflare Workers Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/) -- HIGH confidence, official docs
+- [Cloudflare D1 Migrations](https://developers.cloudflare.com/d1/reference/migrations/) -- HIGH confidence, official docs
+- [Cloudflare Workers GitHub Actions](https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/) -- HIGH confidence, official docs
+- [Cloudflare Wrangler Configuration](https://developers.cloudflare.com/workers/wrangler/configuration/) -- HIGH confidence, official docs
+- [Turborepo Constructing CI](https://turborepo.dev/docs/crafting-your-repository/constructing-ci) -- HIGH confidence, official docs
+- [Turborepo Docker Guide](https://turborepo.dev/docs/guides/tools/docker) -- HIGH confidence, official docs
+- [Turborepo GitHub Actions Guide](https://turborepo.dev/docs/guides/ci-vendors/github-actions) -- HIGH confidence, official docs
+- [Docker Build and Push Action](https://github.com/docker/build-push-action) -- HIGH confidence, official GitHub Action
+- [Docker Login Action](https://github.com/docker/login-action) -- HIGH confidence, official GitHub Action
+- [Cloudflare Wrangler Action](https://github.com/cloudflare/wrangler-action) -- HIGH confidence, official GitHub Action
+- [Azure App Service Custom Container CI/CD](https://learn.microsoft.com/en-us/azure/app-service/deploy-ci-cd-custom-container) -- HIGH confidence, official Microsoft docs
+- [Azure App Service Custom Domain Setup](https://learn.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-custom-domain) -- HIGH confidence, official Microsoft docs
+- [Azure App Service Webhooks for Docker Hub](https://azureossd.github.io/2025/12/16/Using-Webhooks-for-image-pulls-with-Web-App-for-Containers/index.html) -- MEDIUM confidence, Azure engineering team blog
+- [Namecheap to Azure DNS Guide](https://gist.github.com/hans-ob1/a1656f660379117eb8d8661042911fe6) -- MEDIUM confidence, community gist
+- [Next.js Static Export Docker Nginx](https://dbtek.medium.com/deploy-next-js-14-static-export-with-nginx-81380ea41140) -- MEDIUM confidence, community guide

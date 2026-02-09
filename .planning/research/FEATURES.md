@@ -1,242 +1,262 @@
-# Feature Research
+# Feature Landscape: Deployment & CI/CD Infrastructure
 
-**Domain:** Agent-friendly API simplification layer / hosted service + CLI + dashboard
-**Researched:** 2026-02-05
-**Confidence:** MEDIUM (multiple web sources cross-referenced; no single authoritative source for this nascent product category)
+**Domain:** Production deployment for multi-service app (Cloudflare Workers + Azure App Service + GitHub Actions)
+**Researched:** 2026-02-09
+**Confidence:** HIGH (official platform docs verified, existing codebase inspected)
 
-## Feature Landscape
+## Context
 
-### Table Stakes (Users Expect These)
+Feelr v1.0 is shipped. The app consists of three services that need production deployment:
 
-Features users assume exist. Missing these = product feels incomplete.
+- **api.feelr.dev** -- Cloudflare Workers (edge gateway with Hono, KV, Durable Objects, D1)
+- **app.feelr.dev** -- Azure App Service (Next.js 15 dashboard, containerized)
+- **feelr.dev** -- Azure App Service (Nextra docs/marketing site, containerized)
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| API key generation and management | Every API platform provides this. Developers will not adopt a service without self-serve key provisioning. | LOW | Standard pattern: create, revoke, rotate, list keys. Show partial key in dashboard, full key only on creation. |
-| At least 2-3 working connectors at launch | An API simplification layer with zero or one connector has no network value. Users need enough breadth to justify adoption. | HIGH | GitHub + Slack are the minimum viable pair for developer audiences. Stripe adds monetization relevance. |
-| Consistent, predictable response format | The entire value proposition is simplification. If each connector returns differently shaped JSON, the product fails its core promise. | MEDIUM | Flat JSON with consistent envelope: `{ ok, data, error, meta }`. Every connector must conform. |
-| Standardized error format | Agents cannot recover from errors without machine-parseable error structures. Every API gateway and platform provides this. | LOW | `{ ok: false, error: { code, message, action } }` where `action` tells the agent what to do (retry, auth, abort). |
-| Authentication flow (API keys + OAuth) | Users expect to connect external services (GitHub, Slack, Stripe) without manual token management. OAuth is table stakes for any integration platform. | HIGH | One-time `feelr auth <connector>` flow that handles OAuth dance, stores tokens, and refreshes automatically. API keys for Feelr itself are simpler. |
-| CLI that works in shell pipelines | Target audience is developers with agents. If CLI output cannot be piped, parsed, or composed in shell, the tool is broken for its primary use case. | MEDIUM | JSON output by default, `--format` flag for table/minimal, exit codes that scripts can check. |
-| Rate limiting | Without rate limits, a single runaway agent can exhaust upstream API quotas or rack up costs. Every API platform enforces this. | MEDIUM | Per-key and per-connector limits. Return `429` with `Retry-After` header. Dashboard shows usage against limits. |
-| Usage tracking and metering | Users need to know how many calls they are making, both for cost awareness and debugging. Every API dashboard shows this. | MEDIUM | Track requests per key, per connector, per time window. Display in dashboard. Required foundation for billing. |
-| Documentation with examples | Developers will not adopt a tool they cannot understand in 5 minutes. Every API platform has getting-started docs and per-endpoint references. | MEDIUM | Docs site at feelr.dev/docs. Quick-start, per-connector action reference, auth setup guide. |
-| HTTPS and encrypted credential storage | Storing OAuth tokens and API keys in plaintext is a dealbreaker. Security is non-negotiable for any auth-handling service. | MEDIUM | TLS everywhere. Encrypt credentials at rest (AES-256 or equivalent via Cloudflare Workers secrets / KV encryption). |
-| Health check and status endpoint | Agents and monitoring systems need to verify the service is operational before making calls. | LOW | `GET /status` returning service health. `feelr status` CLI command. |
+Existing infrastructure: monorepo with pnpm + Turborepo, GoReleaser for CLI, self-host Docker image. One GitHub Actions workflow exists (release.yml for Go CLI via GoReleaser). No deployment workflows, no staging environments, no DNS configuration, no deployment guides exist yet.
 
-### Differentiators (Competitive Advantage)
+---
 
-Features that set the product apart. Not required, but valued.
+## Table Stakes
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Ultra-low token overhead (~50-100 tokens per tool description) | **This is the core differentiator.** MCP servers consume 500-1,000 tokens per tool definition and 10K-20K tokens across a typical server. Feelr's promise of ~50 tokens per action description is a 10-100x improvement. Agents can load Feelr's entire tool catalog in fewer tokens than a single MCP server. | MEDIUM | Requires ruthless description editing. Each action needs a one-liner description + minimal parameter list. Verify with actual tokenizer. Confidence: HIGH -- Anthropic's own engineering blog confirms MCP token bloat is a real problem. |
-| Response flattening / normalization | Upstream APIs return deeply nested, inconsistent JSON. Feelr flattens to predictable, shallow structures, saving agents from parsing 500-token nested objects when 50 tokens of flat data suffice. | MEDIUM | Strip nested objects to key fields. E.g., GitHub PR response goes from 150+ fields to 10-15 essential fields. Must be per-action configurable so power users can request raw responses if needed. |
-| Composable actions (pre-built chains) | Multi-step workflows like "create GitHub issue then post to Slack" are common agent patterns. Pre-built chains reduce multi-call overhead to a single call. Competitors (Zapier, Make) do this but with massive overhead and non-agent-friendly interfaces. | HIGH | Start with pre-built chains only (e.g., `github.issue-to-slack`). User-defined chains with conditional logic and data passing is significantly more complex -- defer full custom chains to post-MVP. |
-| Progressive tool discovery via `feelr tools` | Instead of dumping all schemas upfront (MCP's approach), agents call `feelr tools` to get a lightweight catalog, then drill into specific actions. Mirrors the "progressive discovery" pattern identified as best practice for MCP servers. | LOW | `feelr tools` returns connector list. `feelr tools github` returns action list with one-liner descriptions. `feelr tools github.create-issue` returns full schema. Three levels of detail, agent picks what it needs. |
-| Agent-optimized output modes | Different agents want different output shapes. A coding agent wants minimal JSON. A chat agent wants formatted tables. An orchestrator wants structured data. Offering mode switching (`--format json|minimal|table`) lets one CLI serve all agent types. | LOW | `--format` flag on CLI. `Accept` header on HTTP API. Three modes: `json` (full response), `minimal` (values only, no keys), `table` (human-readable). |
-| Self-hostable with open-source core | Composio, Nango, and Auth0 Token Vault are all hosted-only or have significant self-hosting friction. An open-source, self-hostable Feelr with simple Docker deployment differentiates for security-conscious teams and enterprises. | MEDIUM | All code open-source. Billing is a toggleable feature (disabled for self-hosted). Docker Compose for local deployment. Confidence: HIGH -- open-source model is validated by Nango's success. |
-| Zero-config agent integration | One `feelr auth github` command + one `feelr run github.list-issues` command gets an agent operational. No server processes to manage (unlike MCP), no JSON-RPC setup, no schema registration. | LOW | The CLI is the integration layer. No daemon process, no server management, no config files beyond auth credentials. |
-| Encrypted credential vault with automatic token refresh | Auth0 Token Vault and Composio AgentAuth prove this pattern works. Storing encrypted OAuth tokens with automatic refresh so agents never deal with expired credentials is a significant DX improvement over raw OAuth management. | HIGH | Vault stores encrypted OAuth tokens + refresh tokens. Background refresh before expiration. Agents never see raw credentials -- vault injects auth headers into requests. |
-| Team key sharing | Solo developers upgrade to teams. Shared API keys with scoped permissions let a team of agents and developers share connector access without credential duplication. | MEDIUM | Team-level keys that inherit connector auth. Per-key permission scopes. Audit log of which key made which call. |
+Features that production deployments universally require. Missing any of these is a blocker.
 
-### Anti-Features (Commonly Requested, Often Problematic)
+| Feature | Why Expected | Complexity | Dependencies |
+|---------|--------------|------------|--------------|
+| Wrangler environment configuration (staging + production) | Workers without environments means deploying directly to production with no safety net. Every serious Workers project uses at least two environments. | LOW | Existing wrangler.toml needs `[env.staging]` and `[env.production]` blocks with separate KV/DO/D1 bindings |
+| Workers secrets management in CI | Gateway requires ENCRYPTION_KEY, ADMIN_TOKEN, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET, STRIPE_SECRET_KEY. Deploying without secrets = broken service. | LOW | GitHub repository secrets + cloudflare/wrangler-action secret passthrough |
+| Workers custom domain (api.feelr.dev) | A workers.dev subdomain is not acceptable for production. Custom domain provides SSL, professional URLs, and stable addressing. | LOW | Cloudflare zone for feelr.dev must be active; Workers Custom Domains auto-provision SSL certificates |
+| Azure App Service Dockerfiles (dashboard + docs) | Neither app has a Dockerfile. Cannot deploy to Azure App Service for Containers without them. Self-host Dockerfile exists but bundles both gateway + dashboard for self-hosting, not suitable for cloud. | MEDIUM | Separate Dockerfiles for dashboard and docs; multi-stage builds with pnpm workspace awareness |
+| Azure custom domains (app.feelr.dev, feelr.dev) | Default Azure URLs (*.azurewebsites.net) are not acceptable for production. | LOW | DNS CNAME records pointing to Azure + TXT records for domain verification |
+| Azure managed SSL certificates | HTTPS is non-negotiable. Azure provides free managed certificates for custom domains that auto-renew every 6 months. | LOW | Custom domain must be configured first; CNAME must be resolvable for certificate issuance |
+| GitHub Actions CI workflow (lint, typecheck, test) | Every push and PR must be validated before deployment. No CI = broken code reaches production. | MEDIUM | pnpm install + turbo run typecheck + turbo run test; cache pnpm store for speed |
+| GitHub Actions CD workflow (deploy on merge/tag) | Manual deployments do not scale. main branch should deploy to staging; version tags should deploy to production. | HIGH | Separate jobs for gateway (wrangler), dashboard (Docker + Azure), docs (Docker + Azure); path-based filtering |
+| DNS records for all three services | Without DNS, nothing is reachable at the planned domains. | LOW | Cloudflare DNS zone: CNAME for api/app subdomains, A/CNAME for apex |
+| Health check endpoints for Azure apps | Azure App Service uses health probes to determine instance readiness. Without a health endpoint, Azure cannot properly manage container lifecycle or slot swaps. | LOW | Dashboard and docs need `/api/health` or similar route returning 200 |
+| GitHub Actions environment protection for production | Production deploys without any gate = accidental deploys from bad merges. Environment protection rules are table stakes for any team shipping to production. | LOW | GitHub environment "production" with required reviewers or wait timer; deployment branches restricted to tags |
+| Deployment secrets management | Secrets scattered across platforms with no documentation = locked-out-of-production scenarios. Every secret must be documented (not the value, the name and where it lives). | LOW | Secret inventory document listing every secret, which platform stores it, and how to rotate |
+| Rollback procedures | Every deployment needs a known rollback path. "Just revert the commit" is not a rollback plan. | LOW | Workers: `wrangler rollback` or redeploy previous version. Azure: swap slots back or redeploy previous image tag. |
 
-Features that seem good but create problems.
+## Differentiators
 
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| Full MCP-compatible mode in v1 | "MCP is the standard, you should support it" | MCP compatibility means inheriting MCP's token bloat problem. The entire point of Feelr is to be lighter than MCP. Adding MCP support dilutes the value proposition and adds significant protocol complexity (JSON-RPC, server process management, bidirectional communication). | Keep MCP as a future consideration. Offer a thin MCP-to-Feelr bridge tool later if demand materializes, but do not make Feelr itself an MCP server. |
-| User-defined custom chain builder with visual editor | "I want to build my own workflows with a drag-and-drop UI" | Visual chain builders are enormous scope (Zapier spent years building theirs). They appeal to non-developers but Feelr's target audience is developers with agents. A visual editor is a separate product. | Support user-defined chains via code/config (YAML or JSON chain definitions). Let agents compose chains programmatically. No visual builder. |
-| Python/Node/Ruby SDKs in v1 | "I want a native SDK for my language" | SDKs are maintenance multipliers. Each SDK needs testing, versioning, documentation, and release management. The CLI + HTTP API already serves every language. | CLI + HTTP API is the universal SDK. Publish OpenAPI spec so users can auto-generate clients if they want. Add official SDKs only after proving demand with usage data. |
-| Real-time streaming / WebSocket responses | "I want to stream long-running API responses" | Streaming adds significant infrastructure complexity (persistent connections, backpressure, reconnection logic) and most upstream APIs Feelr wraps are request-response anyway. Agents work better with complete, flat responses than partial streams. | Return complete, flat JSON responses. For long-running operations, use a polling pattern: start operation, return job ID, poll for completion. |
-| Connector marketplace with third-party submissions | "Let the community build connectors" | Third-party connectors introduce quality control, security review, and maintenance burdens. A connector that breaks silently is worse than no connector. Premature ecosystem building before core stability is a common startup mistake. | Provide a connector SDK/template so developers can build private connectors for their own use. Curate the official connector catalog tightly. Open community contributions only after establishing quality standards and review processes. |
-| GraphQL API | "GraphQL lets agents request exactly the fields they need" | GraphQL adds query parsing complexity, introduces a second API paradigm, and the response flattening layer already solves the "too many fields" problem. Agents are better at calling simple REST endpoints than constructing GraphQL queries. | REST-only with field filtering via query parameters (e.g., `?fields=id,title,status`). The response flattening layer handles the rest. |
-| Per-user OAuth on behalf of end-users (multi-tenant) | "I want my SaaS app to connect each user's GitHub through Feelr" | Multi-tenant OAuth delegation is an enormous auth complexity jump. It requires per-user token isolation, consent flows, and turns Feelr into an auth platform (competing with Auth0, not API gateways). | v1 targets developers connecting their own accounts. The developer's API key maps to their own OAuth tokens. Multi-tenant delegation is a v2+ enterprise feature if demand exists. |
-| Automatic API schema detection / scraping | "Just point Feelr at any API and it auto-generates a connector" | API auto-detection is unreliable, produces low-quality connectors, and undermines the hand-crafted simplification that is Feelr's value. Auto-generated connectors would be no better than raw API calls. | Hand-craft each connector with curated, minimal action sets. Quality over quantity. Each connector is opinionated about which actions matter. |
+Features that elevate deployment from "it works" to "it works well and is maintainable."
+
+| Feature | Value Proposition | Complexity | Dependencies |
+|---------|-------------------|------------|--------------|
+| Wrangler gradual rollouts for gateway | Workers supports splitting traffic between two versions by percentage. For an API gateway handling real traffic, this prevents blast-radius-100% deployments. | MEDIUM | Wrangler 3.40.0+ (project uses 4.x, so available); separate `wrangler versions upload` + `wrangler versions deploy` commands; **limitation: Durable Objects require single-version** so DO-heavy operations need careful handling |
+| Azure deployment slots (staging slot) | Deploy to staging slot, verify, then swap to production with zero downtime. Slot swap is atomic -- no request dropping. | MEDIUM | Requires Standard tier or higher App Service Plan ($$$). Auto swap is NOT supported for Linux containers -- must use manual or scripted swaps. |
+| Post-deploy smoke tests in CI | After each deployment, automatically verify the service is actually working by hitting health/status endpoints. Catches "deployed but broken" scenarios that pass all pre-deploy tests. | LOW | `curl` or `eko/url-health-check` action hitting /health after deploy step completes; retry logic for cold starts |
+| Monorepo path-filtered deployments | Only deploy what changed. Gateway code change should not trigger dashboard redeploy. Saves CI minutes and reduces unnecessary deployment risk. | MEDIUM | `dorny/paths-filter` action or built-in `paths:` trigger filter; outputs feed conditional deploy jobs |
+| Turborepo remote cache in CI | pnpm + Turbo builds are fast locally but CI starts from scratch each run. Remote caching lets CI reuse build artifacts across runs. | LOW | Set TURBO_TOKEN and TURBO_TEAM env vars in GitHub Actions; Vercel Remote Cache (free for small teams) or self-hosted |
+| Workers preview URLs for PR verification | Every PR that touches gateway code gets a unique preview URL for testing. No need to deploy to staging just to verify a PR. | LOW | Automatic with `wrangler versions upload`; Wrangler 3.74.0+ generates version preview URLs; preview URL can be posted as PR comment |
+| Concurrency controls on CI/CD | Prevent multiple deployments to the same environment from racing. If two merges happen quickly, only the latest should deploy. | LOW | `concurrency: group: deploy-${{ env }}, cancel-in-progress: true` in workflow YAML |
+| Internal deployment runbook (markdown) | A single document that anyone (including future-you) can follow to deploy, troubleshoot, and rollback. Reduces bus factor to zero. | LOW | No technical dependencies; just documentation covering first-time setup, routine deploys, rollback, and troubleshooting |
+| Separate staging DNS (staging-api.feelr.dev, staging-app.feelr.dev) | Staging environments need their own URLs. Testing against staging that uses production domains creates confusion and potential for cross-contamination. | LOW | Additional CNAME records in Cloudflare DNS; Workers staging environment uses separate custom domain |
+| Docker image tagging strategy | Images tagged only with `latest` are unrollbackable. Tagging with git SHA + semver enables precise rollback to any previous version. | LOW | Tag format: `ghcr.io/andrewprograde/feelr-dashboard:sha-abc1234` and `ghcr.io/andrewprograde/feelr-dashboard:v1.0.0` |
+
+## Anti-Features
+
+Features commonly associated with deployment that should be explicitly avoided for this project.
+
+| Anti-Feature | Why Tempting | Why Problematic | What to Do Instead |
+|--------------|-------------|-----------------|-------------------|
+| Kubernetes / container orchestration | "We have multiple containers, we need Kubernetes" | This is a 3-service app with a single developer. Kubernetes adds massive operational overhead (cluster management, YAML sprawl, networking complexity) for zero benefit at this scale. Azure App Service is already a managed container platform. | Use Azure App Service for Containers (managed PaaS). If scaling needs increase dramatically, evaluate Azure Container Apps (serverless containers) before ever considering Kubernetes. |
+| Multi-region deployment in v1 | "Edge workers should be multi-region for low latency" | Cloudflare Workers are ALREADY globally distributed by default. Azure multi-region adds complexity (data replication, traffic routing, cost multiplication) for a dashboard that does not need global presence. | Workers are inherently global. Azure stays single-region. Add Azure Front Door or Traffic Manager only when usage data shows latency problems in specific regions. |
+| Infrastructure as Code (Terraform/Pulumi) in v1 | "Everything should be declarative and reproducible" | For a solo developer with 3 services, Terraform adds a state management burden, learning curve, and maintenance overhead that exceeds the benefit. The infrastructure is simple enough to manage via CLI + GitHub Actions. | Use wrangler.toml for Workers config (already declarative), Azure CLI or portal for App Service setup (one-time), and GitHub Actions for deployment automation. Document manual setup steps in the runbook. Move to IaC only if infrastructure grows significantly. |
+| Blue-green deployment for all services | "Zero-downtime requires blue-green everywhere" | Workers deployment is inherently zero-downtime (traffic shifts atomically). Azure deployment slots already provide swap-based zero-downtime. Implementing a separate blue-green system on top adds complexity for a problem already solved. | Use Workers' built-in deployment model. Use Azure deployment slots for swap-based zero-downtime. Do not layer additional blue-green infrastructure. |
+| Canary analysis automation (Kayenta, Flagger) | "Automated canary analysis catches regressions" | These tools require significant metrics infrastructure (Prometheus, custom dashboards, SLO definitions) and are designed for teams with dedicated SRE resources. Overkill for a solo developer. | Use Workers gradual rollouts with manual monitoring. Check error rates in Cloudflare dashboard after deploying to 10%, then promote to 100%. Automate only after manual canary process is well-established. |
+| Separate CI/CD tool (ArgoCD, Flux, Jenkins) | "GitHub Actions is limited, we need a real CD tool" | GitHub Actions is fully capable for this use case. Adding a second CI/CD tool doubles the configuration surface, creates tool-switching friction, and adds another system to maintain. | GitHub Actions for everything. It handles CI, CD, environment protection, and secret management in one place. |
+| Production database migrations in CI | "Migrations should run automatically on deploy" | D1 migrations via `wrangler d1 migrations apply` in CI risks running destructive migrations against production data without human review. KV has no schema. DO uses SQLite embedded in the class. | Run D1 migrations manually using `wrangler d1 migrations apply --env production` with explicit human confirmation. Document migration procedure in the runbook. CI can run migrations against staging automatically. |
 
 ## Feature Dependencies
 
 ```
-[API Key Management]
+[DNS Configuration]
     |
-    +-- requires --> [Edge Gateway (request routing)]
-    |                    |
-    |                    +-- requires --> [At least 1 Connector]
-    |                    |                    |
-    |                    |                    +-- requires --> [Response Flattening Layer]
-    |                    |                    +-- requires --> [Standardized Error Format]
-    |                    |
-    |                    +-- requires --> [Rate Limiting]
+    +-- enables --> [Workers Custom Domain (api.feelr.dev)]
+    |                   |
+    |                   +-- requires --> [Cloudflare zone active for feelr.dev]
+    |                   +-- enables --> [SSL certificate auto-provisioned]
     |
-    +-- enables --> [Usage Tracking/Metering]
-                        |
-                        +-- enables --> [Billing Integration]
-                        +-- enables --> [Dashboard Usage Stats]
+    +-- enables --> [Azure Custom Domains (app.feelr.dev, feelr.dev)]
+    |                   |
+    |                   +-- requires --> [CNAME + TXT verification records]
+    |                   +-- enables --> [Azure Managed SSL Certificates]
+    |
+    +-- enables --> [Staging DNS (staging-api.feelr.dev, staging-app.feelr.dev)]
 
-[OAuth/Auth Flow]
+[Wrangler Environment Config]
     |
-    +-- requires --> [Encrypted Credential Vault]
-    |                    |
-    |                    +-- enables --> [Automatic Token Refresh]
-    |                    +-- enables --> [Team Key Sharing]
-    |
-    +-- enables --> [Connector Authentication] (per-connector OAuth)
+    +-- requires --> [Separate KV namespaces for staging/production]
+    +-- requires --> [Separate D1 databases for staging/production]
+    +-- requires --> [Durable Object migrations declared per environment]
+    +-- enables --> [Gateway staging deploys (wrangler deploy --env staging)]
+    +-- enables --> [Gateway production deploys (wrangler deploy --env production)]
 
-[CLI Binary]
+[Azure Dockerfiles (dashboard + docs)]
     |
-    +-- requires --> [Edge Gateway] (to call)
-    +-- requires --> [API Key Management] (to authenticate)
-    +-- enables --> [Progressive Tool Discovery] (feelr tools)
-    +-- enables --> [Agent Output Modes] (--format flag)
-    +-- enables --> [feelr auth] (OAuth setup flow)
+    +-- requires --> [pnpm workspace-aware multi-stage build]
+    +-- enables --> [Azure App Service container deployment]
+    +-- enables --> [Docker image tagging strategy]
+    +-- enables --> [Azure deployment slots]
 
-[Composable Actions]
+[GitHub Actions CI Workflow]
     |
-    +-- requires --> [At least 2 Connectors] (cross-connector chains need multiple connectors)
-    +-- requires --> [Response Flattening] (chain data passing needs predictable shapes)
-    +-- requires --> [Standardized Error Format] (chain error handling)
+    +-- requires --> [pnpm + Turbo cache setup]
+    +-- enables --> [PR validation (lint, typecheck, test)]
+    +-- enables --> [Path-filtered conditional builds]
 
-[Dashboard]
+[GitHub Actions CD Workflow]
     |
-    +-- requires --> [API Key Management]
-    +-- requires --> [Usage Tracking]
-    +-- enhances --> [Billing Integration]
-    +-- enhances --> [Connected Services View]
+    +-- requires --> [CI Workflow (tests must pass first)]
+    +-- requires --> [Wrangler Environment Config]
+    +-- requires --> [Azure Dockerfiles]
+    +-- requires --> [Repository secrets configured]
+    +-- requires --> [DNS + custom domains configured]
+    +-- enables --> [Staging deploys (on merge to main)]
+    +-- enables --> [Production deploys (on version tag)]
+    +-- enables --> [Post-deploy smoke tests]
+    +-- enables --> [Gradual rollouts for gateway]
 
-[Documentation Site]
+[GitHub Environments + Protection Rules]
     |
-    +-- requires --> [At least 1 Working Connector]
-    +-- enhances --> [Progressive Tool Discovery] (docs complement CLI discovery)
+    +-- enables --> [Production deploy gate (required reviewer)]
+    +-- enables --> [Environment-scoped secrets]
+    +-- enables --> [Deployment branch restrictions]
+
+[Deployment Runbook]
+    |
+    +-- requires --> [All of the above to be configured and working]
+    +-- documents --> [First-time setup, routine deploys, rollback, troubleshooting]
 ```
 
-### Dependency Notes
+### Critical Path
 
-- **Edge Gateway requires at least 1 Connector:** The gateway is useless without something to route to. Gateway + first connector must ship together.
-- **Composable Actions require 2+ Connectors:** Cross-connector chains (the most valuable kind) need multiple connectors working. Single-connector chains (e.g., GitHub: create issue then add label) are possible with one, but the feature's value is limited.
-- **Billing requires Usage Tracking:** Cannot bill without metering. Usage tracking must ship before or with billing.
-- **Team Key Sharing requires Credential Vault:** Shared keys need centralized, encrypted credential storage with per-key scoping.
-- **Dashboard requires API Key Management + Usage Tracking:** The dashboard surfaces data from these systems. Without them, the dashboard has nothing to show.
-- **Response Flattening enables Composable Actions:** Chain data passing only works reliably when output shapes are predictable and flat.
+The dependency chain that blocks everything else:
 
-## MVP Definition
+1. **DNS + Cloudflare zone** -- Nothing works without DNS
+2. **Wrangler environments + Azure Dockerfiles** -- Cannot deploy without these
+3. **GitHub repository secrets** -- Deploys fail without auth tokens
+4. **CI workflow** -- CD workflow depends on CI passing
+5. **CD workflow** -- The actual deployment automation
+6. **Smoke tests + protection rules** -- Safety features layered on top
+7. **Deployment runbook** -- Documents the completed system
 
-### Launch With (v1)
+## Staging vs Production Feature Matrix
 
-Minimum viable product -- what is needed to validate the concept and post on HN/Reddit with confidence.
+| Feature | Staging | Production | Notes |
+|---------|---------|------------|-------|
+| Wrangler environment | `--env staging` | `--env production` | Separate KV, D1, DO namespaces |
+| Workers custom domain | staging-api.feelr.dev | api.feelr.dev | Both auto-provision SSL |
+| Azure App Service | staging slot or separate app | production slot | Slot swap for zero-downtime |
+| Azure custom domain | staging-app.feelr.dev | app.feelr.dev | Separate CNAME records |
+| Deploy trigger | Push to main | Version tag (v*) | CD workflow uses branch/tag conditions |
+| Environment protection | None (auto-deploy) | Required reviewer | Prevents accidental production deploys |
+| D1 migrations | Auto-apply in CI | Manual with human review | Protects production data |
+| Gradual rollouts | No (deploy to 100%) | Yes (10% then 100%) | Staging is for verification, not canary |
+| Smoke tests | Yes (verify staging works) | Yes (verify production works) | Same test suite, different URLs |
+| Secrets | Staging-specific values | Production-specific values | GitHub environment-scoped secrets |
+| Monitoring urgency | Best-effort | Alert on failure | Production failures need immediate attention |
 
-- [ ] **Edge gateway on Cloudflare Workers + Hono** -- The routing layer everything depends on
-- [ ] **GitHub connector (8+ actions)** -- Highest-value connector for developer audience; issues, PRs, repos
-- [ ] **Slack connector (3-5 actions)** -- Second-highest value; send message, list channels, search
-- [ ] **Response flattening layer** -- Core differentiator; flat, predictable JSON from nested API responses
-- [ ] **Standardized error format** -- Agents need machine-parseable errors to recover autonomously
-- [ ] **API key generation and management** -- Self-serve key creation, revocation, listing
-- [ ] **OAuth auth flow for GitHub + Slack** -- `feelr auth github` one-time setup
-- [ ] **Encrypted credential vault** -- OAuth tokens encrypted at rest with auto-refresh
-- [ ] **Go CLI: `feelr run`, `feelr tools`, `feelr auth`, `feelr status`** -- The primary interface for agents
-- [ ] **Progressive tool discovery** -- `feelr tools` with ~100-token descriptions per action
-- [ ] **Agent output modes** -- `--format json|minimal|table`
-- [ ] **Rate limiting** -- Per-key limits with 429 responses and Retry-After headers
-- [ ] **Usage metering** -- Track request counts per key, per connector, per time window
-- [ ] **Documentation site** -- Quick-start, auth setup, per-connector action reference
-- [ ] **Health check endpoint** -- `GET /status` and `feelr status`
+## Service-Specific Deployment Features
 
-### Add After Validation (v1.x)
+### Gateway (Cloudflare Workers)
 
-Features to add once core is working and initial users provide feedback.
+| Feature | Table Stakes? | Notes |
+|---------|---------------|-------|
+| `wrangler deploy --env <env>` | YES | Core deployment command |
+| Separate KV namespace per environment | YES | Bindings are non-inheritable; must declare per env |
+| Separate D1 database per environment | YES | Staging data must not pollute production |
+| DO migration tags per environment | YES | `[[migrations]]` applies to all envs; plan carefully |
+| Secrets set per environment | YES | `wrangler secret put KEY --env production` |
+| Custom domain per environment | YES | api.feelr.dev (prod), staging-api.feelr.dev (staging) |
+| Gradual rollouts | DIFFERENTIATOR | `wrangler versions upload` then `wrangler versions deploy` with percentage split |
+| Preview URLs for PRs | DIFFERENTIATOR | Auto-generated on `wrangler versions upload`; requires Wrangler 3.74.0+ |
+| Cron trigger configuration | YES | `[triggers] crons` for daily retention cleanup; verify works per environment |
 
-- [ ] **Stripe connector** -- Add when billing integration validates paid tier demand
-- [ ] **Discord connector** -- Add when community/notification use cases are validated by user requests
-- [ ] **Pre-built composable actions** -- Add when users demonstrate multi-step workflow patterns in their usage (e.g., "I always create a GitHub issue then post to Slack")
-- [ ] **Next.js dashboard** -- Add when self-serve key management via CLI feels insufficient and users request a visual interface for usage stats
-- [ ] **Team key sharing** -- Add when solo developer users start inviting collaborators
-- [ ] **Stripe billing integration** -- Add when hosted cloud usage justifies monetization
+### Dashboard + Docs (Azure App Service)
 
-### Future Consideration (v2+)
+| Feature | Table Stakes? | Notes |
+|---------|---------------|-------|
+| Multi-stage Dockerfile | YES | Separate builder + runtime stages; pnpm workspace aware |
+| Container registry (GHCR) | YES | Push images to ghcr.io/andrewprograde/feelr-dashboard |
+| Custom domain + managed SSL | YES | CNAME + TXT verification; free auto-renewing certificates |
+| Health check endpoint | YES | Azure uses `/api/health` probe for container lifecycle |
+| Deployment slots | DIFFERENTIATOR | Requires Standard tier ($$$); manual swap for Linux containers |
+| Image tag strategy | YES | `sha-<commit>` for traceability; `v<semver>` for releases |
+| Environment variables per slot | YES | NEXT_PUBLIC_GATEWAY_URL differs between staging and production |
+| Startup command override | YES | `node server.js` or `next start` depending on build output |
 
-Features to defer until product-market fit is established.
+### CI/CD (GitHub Actions)
 
-- [ ] **User-defined custom chains** -- Requires a chain definition language (YAML/JSON), validation, error handling, and conditional logic. Defer until pre-built chains prove the pattern works.
-- [ ] **MCP-to-Feelr bridge** -- Only if MCP becomes so dominant that users demand compatibility. Build as a thin adapter, not native MCP support.
-- [ ] **Multi-tenant OAuth (per-end-user auth)** -- Enterprise feature for SaaS builders who want their users to auth through Feelr. Massive complexity increase.
-- [ ] **Connector SDK for community contributions** -- Open the connector template for external developers only after internal quality standards are battle-tested across 6+ first-party connectors.
-- [ ] **Python/Node SDKs** -- Auto-generate from OpenAPI spec only when usage data shows significant demand beyond CLI + HTTP.
-- [ ] **Additional connectors (Notion, Vercel, Linear, Jira, etc.)** -- Expand based on user demand data, not speculation.
+| Feature | Table Stakes? | Notes |
+|---------|---------------|-------|
+| pnpm + Node.js setup with caching | YES | `actions/setup-node@v4` with `cache: 'pnpm'` |
+| Turbo task pipeline (typecheck, test, build) | YES | `turbo run typecheck test build` respects dependency graph |
+| Path-based filtering | YES | Only deploy changed services; `dorny/paths-filter` |
+| Concurrency controls | YES | `concurrency: group: deploy-staging, cancel-in-progress: true` |
+| Environment protection rules | YES | Production requires approval; staging auto-deploys |
+| Post-deploy smoke tests | DIFFERENTIATOR | `curl` health endpoints with retry after each deploy |
+| Matrix builds | NOT NEEDED | Only 3 services; matrix adds complexity without benefit |
+| Reusable workflows | DIFFERENTIATOR | Factor common steps (pnpm setup, Docker build) into callable workflows |
+| Turbo remote cache | DIFFERENTIATOR | TURBO_TOKEN + TURBO_TEAM for cross-run caching |
 
-## Feature Prioritization Matrix
+## MVP Deployment Recommendation
 
-| Feature | User Value | Implementation Cost | Priority |
-|---------|------------|---------------------|----------|
-| Edge gateway + routing | HIGH | MEDIUM | P1 |
-| GitHub connector | HIGH | HIGH | P1 |
-| Slack connector | HIGH | MEDIUM | P1 |
-| Response flattening | HIGH | MEDIUM | P1 |
-| Standardized error format | HIGH | LOW | P1 |
-| API key management | HIGH | LOW | P1 |
-| OAuth flow + credential vault | HIGH | HIGH | P1 |
-| Go CLI (run, tools, auth, status) | HIGH | MEDIUM | P1 |
-| Progressive tool discovery | HIGH | LOW | P1 |
-| Agent output modes | MEDIUM | LOW | P1 |
-| Rate limiting | MEDIUM | MEDIUM | P1 |
-| Usage metering | MEDIUM | MEDIUM | P1 |
-| Documentation site | HIGH | MEDIUM | P1 |
-| Health check endpoint | MEDIUM | LOW | P1 |
-| Stripe connector | HIGH | MEDIUM | P2 |
-| Discord connector | MEDIUM | MEDIUM | P2 |
-| Pre-built composable actions | HIGH | HIGH | P2 |
-| Next.js dashboard | MEDIUM | HIGH | P2 |
-| Team key sharing | MEDIUM | MEDIUM | P2 |
-| Billing integration | MEDIUM | HIGH | P2 |
-| User-defined custom chains | MEDIUM | HIGH | P3 |
-| MCP bridge | LOW | MEDIUM | P3 |
-| Multi-tenant OAuth | LOW | HIGH | P3 |
-| Community connector SDK | MEDIUM | HIGH | P3 |
-| Language SDKs | LOW | MEDIUM | P3 |
+### Ship First (blocking production launch)
 
-**Priority key:**
-- P1: Must have for launch
-- P2: Should have, add when validated by usage
-- P3: Nice to have, future consideration
+1. Wrangler environment configuration (staging + production) with all bindings
+2. Workers custom domain for api.feelr.dev
+3. Dockerfiles for dashboard and docs apps
+4. DNS records for all three subdomains
+5. GitHub Actions CI workflow (typecheck + test on every PR)
+6. GitHub Actions CD workflow (staging on main, production on tags)
+7. GitHub repository and environment secrets
+8. Azure managed SSL certificates
+9. Health check endpoints in dashboard and docs
+10. Deployment runbook (first-time setup + routine deploys + rollback)
 
-## Competitor Feature Analysis
+### Add After Launch (operational improvements)
 
-| Feature | MCP Servers | Composio | Zapier/Make | Nango | Feelr Approach |
-|---------|-------------|----------|-------------|-------|----------------|
-| Token overhead per tool | 500-1,000 tokens per tool; 10K-20K+ per server | Not documented; SDK-based so moderate | N/A (not LLM-native) | N/A (not LLM-native) | ~50-100 tokens per action. 10-100x less than MCP. |
-| Auth management | None built-in; developer manages | Full managed OAuth (AgentAuth) for 500+ services | Managed for 8,000+ apps | OAuth + API key management for 400+ APIs | Encrypted vault with auto-refresh. Fewer connectors but deeper quality per connector. |
-| Connector count | Hundreds of community servers (variable quality) | 500-850+ integrations | 8,000+ apps | 400+ APIs | 2-4 at launch (GitHub, Slack, then Stripe, Discord). Quality over quantity. |
-| Response optimization | Raw API responses (no flattening) | Structured but not flattened | Transformed but for workflow, not LLM consumption | Raw or custom-mapped | Active flattening: strip nested objects to essential flat fields. Purpose-built for LLM token efficiency. |
-| Self-hostable | Yes (individual servers) | No (hosted only) | No (hosted only) | Yes (open-source) | Yes (full open-source, Docker deployment, billing toggle) |
-| CLI-native | mcp-cli exists but secondary | CLI available but SDK-first | No CLI | No CLI | CLI-first. The CLI IS the product for agents. |
-| Composable workflows | No (single-tool calls) | Limited action chaining | Full workflow builder (visual) | Sync scripts (code-based) | Pre-built chains, then user-defined YAML/JSON chains. No visual builder. |
-| Pricing model | Free (community) | Usage-based (free tier + paid) | Subscription + per-task | Open-source + hosted plans | Open-source free; hosted cloud with usage-based billing |
-| Tool discovery | `tools/list` dumps all schemas (token-heavy) | SDK-based discovery | GUI-based | API catalog | Progressive 3-level discovery (connectors -> actions -> schemas) |
-| Target audience | Framework developers, power users | AI agent developers, enterprises | Non-technical automation users | Integration developers | Solo developers with agents, agent framework builders |
+1. Workers gradual rollouts (after first few manual full-deploys build confidence)
+2. Azure deployment slots (when budget allows Standard tier)
+3. Post-deploy smoke tests (after URLs are stable and health endpoints are proven)
+4. Staging DNS subdomains (after main domains work correctly)
+5. Turbo remote cache (after CI time becomes a pain point)
+6. Preview URLs as PR comments (after PR volume justifies the DX investment)
+7. Concurrency controls (after encountering a race condition, or preventively)
 
-### Competitive Positioning Summary
+### Never Build
 
-Feelr occupies a specific niche: **lighter than MCP, more developer-native than Composio, more agent-friendly than Nango, and simpler than Zapier**. The positioning is not "more connectors" (Feelr will always have fewer) but "less overhead per connector" and "zero-config agent integration."
-
-The most dangerous competitor is Composio, which has significant funding, 500+ integrations, and managed auth. Feelr's advantages over Composio are: open-source/self-hostable, CLI-first (not SDK-first), dramatically lower token overhead, and response flattening.
-
-MCP is not a direct competitor but the ecosystem Feelr operates adjacent to. MCP's token bloat problem is Feelr's raison d'etre. If MCP solves its token problem (via progressive discovery adoption), Feelr's core differentiator weakens -- but this is unlikely to happen quickly given MCP's governance structure and backwards-compatibility constraints.
+1. Kubernetes cluster
+2. Multi-region Azure deployment
+3. Terraform/Pulumi for 3 services
+4. Separate CI/CD tool
+5. Automated canary analysis
+6. Auto-apply production D1 migrations
 
 ## Sources
 
-- [MCP Token Bloat Issue (SEP-1576)](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1576) -- HIGH confidence, official GitHub issue documenting the token overhead problem
-- [Anthropic Engineering: Code Execution with MCP](https://www.anthropic.com/engineering/code-execution-with-mcp) -- HIGH confidence, first-party source confirming 134K token overhead in MCP setups
-- [Speakeasy: Reducing MCP Token Usage by 100x](https://www.speakeasy.com/blog/how-we-reduced-token-usage-by-100x-dynamic-toolsets-v2) -- MEDIUM confidence, third-party benchmarks showing dynamic toolset approaches
-- [Klavis AI: 4 MCP Design Patterns](https://www.klavis.ai/blog/less-is-more-mcp-design-patterns-for-ai-agents) -- MEDIUM confidence, identifies progressive discovery as best practice
-- [Auth0 Token Vault Documentation](https://auth0.com/ai/docs/intro/token-vault) -- HIGH confidence, official docs for credential vault architecture
-- [ScaleKit: Token Vault for AI Agents](https://www.scalekit.com/blog/token-vault-ai-agent-workflows) -- MEDIUM confidence, good architectural overview of vault patterns
-- [Composio: Unified API Platforms Review](https://composio.dev/blog/best-unified-api-platforms) -- LOW confidence (Composio-authored, biased), but useful for feature landscape
-- [Composio: iPaaS vs Agent-Native](https://composio.dev/blog/ai-agent-integration-platforms-ipaas-zapier-agent-native) -- LOW confidence (same bias caveat)
-- [Nango GitHub](https://github.com/NangoHQ/nango) -- HIGH confidence, open-source project showing feature set directly
-- [MCP Specification (2025-11-25)](https://modelcontextprotocol.io/specification/2025-11-25) -- HIGH confidence, official spec
-- [Zapier MCP Integration](https://zapier.com/mcp) -- MEDIUM confidence, shows Zapier's MCP approach
-- [API Rate Limiting Guide 2026](https://www.levo.ai/resources/blogs/api-rate-limiting-guide-2026) -- MEDIUM confidence, general best practices
-- [Moesif: Rate Limiting Best Practices](https://www.moesif.com/blog/technical/rate-limiting/Best-Practices-for-API-Rate-Limits-and-Quotas-With-Moesif-to-Avoid-Angry-Customers/) -- MEDIUM confidence, established API analytics company
+- [Cloudflare Workers Environments Documentation](https://developers.cloudflare.com/workers/wrangler/environments/) -- HIGH confidence, official docs
+- [Cloudflare Workers Versions & Deployments](https://developers.cloudflare.com/workers/configuration/versions-and-deployments/) -- HIGH confidence, official docs
+- [Cloudflare Workers Gradual Deployments](https://developers.cloudflare.com/workers/configuration/versions-and-deployments/gradual-deployments/) -- HIGH confidence, official docs
+- [Cloudflare Workers Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/) -- HIGH confidence, official docs
+- [Cloudflare Workers Preview URLs](https://developers.cloudflare.com/workers/configuration/previews/) -- HIGH confidence, official docs
+- [Cloudflare Workers Secrets](https://developers.cloudflare.com/workers/configuration/secrets/) -- HIGH confidence, official docs
+- [Cloudflare CNAME Flattening](https://developers.cloudflare.com/dns/cname-flattening/) -- HIGH confidence, official docs
+- [cloudflare/wrangler-action (GitHub)](https://github.com/cloudflare/wrangler-action) -- HIGH confidence, official Cloudflare action
+- [Azure App Service Deploy Staging Slots](https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots) -- HIGH confidence, official Microsoft docs
+- [Azure App Service Health Check](https://learn.microsoft.com/en-us/azure/app-service/monitor-instances-health-check) -- HIGH confidence, official Microsoft docs
+- [Azure Custom Domain Tutorial](https://learn.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-custom-domain) -- HIGH confidence, official Microsoft docs
+- [Azure App Service Container Deployment via GitHub Actions](https://learn.microsoft.com/en-us/azure/app-service/deploy-container-github-action) -- HIGH confidence, official Microsoft docs
+- [Azure Managed Certificate GA Announcement](https://azure.github.io/AppService/2021/05/25/App-Service-Managed-Certificate-GA.html) -- HIGH confidence, official Microsoft blog
+- [GitHub Actions Environments for Deployment](https://docs.github.com/actions/deployment/targeting-different-environments/using-environments-for-deployment) -- HIGH confidence, official GitHub docs
+- [GitHub Actions Reviewing Deployments](https://docs.github.com/actions/managing-workflow-runs/reviewing-deployments) -- HIGH confidence, official GitHub docs
+- [GitHub Actions Deploying Docker to Azure](https://docs.github.com/en/actions/how-tos/deploy/deploy-to-third-party-platforms/docker-to-azure-app-service) -- HIGH confidence, official GitHub docs
+- [Turborepo GitHub Actions Guide](https://turborepo.dev/docs/guides/ci-vendors/github-actions) -- HIGH confidence, official Turbo docs
+- [dorny/paths-filter GitHub Action](https://github.com/dorny/paths-filter) -- MEDIUM confidence, widely-used community action
+- [Azure App Service Health Checks and Zero Downtime](https://johnnyreilly.com/azure-app-service-health-checks-and-zero-downtime-deployments) -- MEDIUM confidence, practitioner blog with practical details
+- [Deployment Runbook Best Practices (Enov8)](https://www.enov8.com/blog/deployment-runbooks-aka-runsheets-explained/) -- MEDIUM confidence, industry practitioner resource
 
 ---
-*Feature research for: Agent-friendly API simplification layer*
-*Researched: 2026-02-05*
+*Deployment feature research for: Feelr production deployment & CI/CD*
+*Researched: 2026-02-09*
