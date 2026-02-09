@@ -28,6 +28,12 @@ const config :Workerd.Config = (
       name = "dashboard",
       disk = "/opt/feelr/dashboard",
     ),
+
+    # ---------- Durable Object local disk storage ----------
+    (
+      name = "do-storage",
+      disk = (path = "/data/feelr/do", writable = true),
+    ),
   ],
 
   sockets = [
@@ -68,7 +74,7 @@ const gatewayWorker :Workerd.Worker = (
   ],
 
   # Durable Object storage on local disk
-  durableObjectStorage = (localDisk = "/data/feelr/do"),
+  durableObjectStorage = (localDisk = "do-storage"),
 
   bindings = [
     # ---------- Runtime mode ----------

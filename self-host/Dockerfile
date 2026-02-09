@@ -25,51 +25,58 @@ RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /build
 
 # Copy workspace config files first for layer caching
-COPY ../package.json ./package.json
-COPY ../pnpm-workspace.yaml ./pnpm-workspace.yaml
-COPY ../pnpm-lock.yaml ./pnpm-lock.yaml
-COPY ../turbo.json ./turbo.json
+COPY package.json ./package.json
+COPY pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY pnpm-lock.yaml ./pnpm-lock.yaml
+COPY turbo.json ./turbo.json
 
 # Copy package.json files for all workspace packages
-COPY ../apps/gateway/package.json ./apps/gateway/package.json
-COPY ../apps/dashboard/package.json ./apps/dashboard/package.json
-COPY ../packages/tsconfig/package.json ./packages/tsconfig/package.json
-COPY ../packages/connector-sdk/package.json ./packages/connector-sdk/package.json
-COPY ../connectors/github/package.json ./connectors/github/package.json
-COPY ../connectors/slack/package.json ./connectors/slack/package.json
-COPY ../connectors/stripe/package.json ./connectors/stripe/package.json
-COPY ../connectors/discord/package.json ./connectors/discord/package.json
+COPY apps/gateway/package.json ./apps/gateway/package.json
+COPY apps/dashboard/package.json ./apps/dashboard/package.json
+COPY packages/tsconfig/package.json ./packages/tsconfig/package.json
+COPY packages/connector-sdk/package.json ./packages/connector-sdk/package.json
+COPY connectors/github/package.json ./connectors/github/package.json
+COPY connectors/slack/package.json ./connectors/slack/package.json
+COPY connectors/stripe/package.json ./connectors/stripe/package.json
+COPY connectors/discord/package.json ./connectors/discord/package.json
 
 # Install dependencies (lockfile-only for reproducibility)
 RUN pnpm install --frozen-lockfile
 
 # Copy full source
-COPY ../apps/ ./apps/
-COPY ../packages/ ./packages/
-COPY ../connectors/ ./connectors/
+COPY apps/ ./apps/
+COPY packages/ ./packages/
+COPY connectors/ ./connectors/
 
 # Build dashboard static export (output: apps/dashboard/out/)
 RUN cd apps/dashboard && npx next build
 
+# Install esbuild for gateway bundling and workerd for runtime extraction
+RUN pnpm add -w -D esbuild workerd
+
 # Bundle gateway for self-hosted workerd
 # --external:cloudflare:workers leaves the import for workerd runtime resolution
-RUN cd apps/gateway && npx esbuild src/self-hosted-entry.ts \
+RUN pnpm exec esbuild apps/gateway/src/self-hosted-entry.ts \
     --bundle \
-    --outfile=dist/self-hosted-entry.js \
+    --outfile=apps/gateway/dist/self-hosted-entry.js \
     --format=esm \
     --platform=neutral \
     --target=esnext \
+    --main-fields=module,main \
     --external:cloudflare:workers \
     --minify
+
+# Extract workerd native binary to a known location for the runtime stage
+RUN cp "$(find /build/node_modules -name 'workerd' -path '*/workerd-linux-64/bin/*' -o -name 'workerd' -path '*/workerd-linux-arm64/bin/*' | head -1)" /build/workerd-bin \
+    && chmod +x /build/workerd-bin
 
 # ---------------------------------------------------------------------------
 # Stage 2: Runtime -- Minimal image with workerd + s6-overlay
 # ---------------------------------------------------------------------------
 FROM debian:bookworm-slim AS runtime
 
-# s6-overlay and workerd versions
+# s6-overlay version
 ARG S6_OVERLAY_VERSION=3.2.0.2
-ARG WORKERD_VERSION=1.20250124.0
 
 # Install s6-overlay v3
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz /tmp/
@@ -85,43 +92,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
-# Install workerd binary
-# workerd requires glibc (hence debian, not alpine)
-RUN wget -q -O /tmp/workerd.gz \
-    "https://github.com/nicholasgasior/workerd-install/releases/download/v${WORKERD_VERSION}/workerd-linux-64.gz" \
-    || wget -q -O /usr/local/bin/workerd \
-    "https://registry.npmjs.org/workerd/-/workerd-${WORKERD_VERSION}.tgz" \
-    ; true
-# Fallback: install workerd via npm (most reliable method)
-RUN apt-get update && apt-get install -y --no-install-recommends nodejs npm \
-    && npm install -g workerd@${WORKERD_VERSION} 2>/dev/null \
-    || npm install -g workerd 2>/dev/null \
-    ; ln -sf $(which workerd) /usr/local/bin/workerd 2>/dev/null; true \
-    && apt-get purge -y nodejs npm \
-    && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/* /root/.npm
+# Copy workerd binary from builder (installed via npm with Node 22 which handles platform deps)
+COPY --from=builder /build/workerd-bin /usr/local/bin/workerd
 
 # Create application directories
 RUN mkdir -p /app /opt/feelr/dashboard /data/feelr/do /etc/feelr
 
 # Copy built artifacts from builder stage
-COPY --from=builder /build/apps/gateway/dist/self-hosted-entry.js /app/dist/self-hosted-entry.js
+# Place gateway bundle next to config.capnp so workerd embed resolves it
+COPY --from=builder /build/apps/gateway/dist/self-hosted-entry.js /etc/feelr/dist/self-hosted-entry.js
 COPY --from=builder /build/apps/dashboard/out/ /opt/feelr/dashboard/
 
 # Copy workerd configuration
-COPY config.capnp /etc/feelr/config.capnp
-
-# Update config.capnp paths to match container layout
-# The config references relative paths; update to absolute container paths
-RUN sed -i 's|embed "./dist/self-hosted-entry.js"|embed "/app/dist/self-hosted-entry.js"|' /etc/feelr/config.capnp
+# embed path "./dist/self-hosted-entry.js" resolves relative to config.capnp location
+COPY self-host/config.capnp /etc/feelr/config.capnp
 
 # Copy s6-overlay service definitions
-COPY s6/s6-rc.d/ /etc/s6-overlay/s6-rc.d/
-COPY s6/cont-init.d/ /etc/cont-init.d/
+COPY self-host/s6/s6-rc.d/ /etc/s6-overlay/s6-rc.d/
+COPY self-host/s6/cont-init.d/ /etc/cont-init.d/
 
 # Copy config templates
-COPY feelr.yaml.template /etc/feelr/feelr.yaml.template
-COPY env.template /etc/feelr/env.template
+COPY self-host/feelr.yaml.template /etc/feelr/feelr.yaml.template
+COPY self-host/env.template /etc/feelr/env.template
 
 # Make all scripts executable
 RUN find /etc/s6-overlay/s6-rc.d -name 'run' -exec chmod +x {} \; \
