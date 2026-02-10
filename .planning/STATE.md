@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 ## Current Position
 
 Phase: 15 of 16 (Frontend CI/CD Pipelines)
-Plan: 1 of 2 in current phase -- COMPLETE
-Status: Plan 15-01 complete. Next: Plan 15-02
-Last activity: 2026-02-10 -- Completed 15-01 Gateway Workflow Consolidation
+Plan: 2 of 2 in current phase -- COMPLETE
+Status: Phase 15 complete. All frontend CI/CD workflows created. Next: Phase 16
+Last activity: 2026-02-10 -- Completed 15-02 Frontend Deploy Workflows
 
-Progress: [##############......] 68% (60/~62 plans across v1.0 + v1.1)
+Progress: [###############.....] 69% (61/~62 plans across v1.0 + v1.1)
 
 ## Milestone History
 
@@ -32,9 +32,9 @@ Progress: [##############......] 68% (60/~62 plans across v1.0 + v1.1)
 - Timeline: 5 days (2026-02-05 to 2026-02-09)
 
 **v1.1 Velocity:**
-- Total plans completed: 8
+- Total plans completed: 9
 - Average duration: 3 min
-- Total execution time: ~30 min (excludes human checkpoint wait times)
+- Total execution time: ~31 min (excludes human checkpoint wait times)
 
 ## Accumulated Context
 
@@ -75,6 +75,9 @@ v1.1 confirmed decisions:
 - [Phase 15]: Preserved deploy-staging concurrency group name (shared with ci.yml gateway-preview)
 - [Phase 15]: NEXT_PUBLIC_GATEWAY_URL in turbo.json build env for staging/production cache isolation
 - [Phase 15]: GitHub org is progradetech (not andrewprograde) for repository secrets
+- [Phase 15]: Dashboard path triggers include packages/tsconfig/** (shared dependency); docs does not
+- [Phase 15]: Docs workflow has zero gateway URL references (pure content site)
+- [Phase 15]: SWA staging uses deployment_environment: staging; production omits it for default slot
 
 ### Pending Todos
 
@@ -96,5 +99,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 15-01-PLAN.md (Gateway Workflow Consolidation). gateway.yml created, SWA secrets set, turbo.json updated. Plan 15-02 next.
+Stopped at: Completed 15-02-PLAN.md (Frontend Deploy Workflows). dashboard.yml and docs.yml created. Phase 15 complete. Phase 16 next.
 Resume file: None
