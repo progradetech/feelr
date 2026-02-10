@@ -34,7 +34,7 @@
 - [x] **Phase 11: DNS & Cloudflare Zone Setup + CI/CD Audit** - Establish Cloudflare as DNS authority for feelr.dev and fix existing pipelines (completed 2026-02-09)
 - [x] **Phase 12: Gateway Infrastructure & Environments** - Configure wrangler staging/production environments with full resource isolation (completed 2026-02-10)
 - [x] **Phase 13: Gateway CI/CD Pipeline** - Automate gateway deployment with quality gates, rollouts, and environment protection (completed 2026-02-10)
-- [ ] **Phase 14: Azure Static Web Apps Provisioning** - Deploy dashboard and docs to Azure SWA with custom domains and managed SSL
+- [x] **Phase 14: Azure Static Web Apps Provisioning** - Deploy dashboard and docs to Azure SWA with custom domains and managed SSL (completed 2026-02-10)
 - [ ] **Phase 15: Frontend CI/CD Pipelines** - Automate dashboard and docs deployment with environment-aware builds
 - [ ] **Phase 16: Deployment Guides & Hardening** - Document operational procedures and add deployment safety checks
 
@@ -99,8 +99,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 14-01-PLAN.md -- Create SWA config files, fix Turborepo caching, provision Azure resources, and deploy both apps
-- [ ] 14-02-PLAN.md -- Wire custom domains with TXT verification and managed SSL certificates
+- [x] 14-01-PLAN.md -- Create SWA config files, fix Turborepo caching, provision Azure resources, and deploy both apps
+- [x] 14-02-PLAN.md -- Wire custom domains with TXT verification and managed SSL certificates
 
 ### Phase 15: Frontend CI/CD Pipelines
 **Goal**: Dashboard and docs deployments are automated with environment-aware builds, and all three services (gateway, dashboard, docs) have independent CI/CD workflows
@@ -144,6 +144,6 @@ Note: Phase 14 depends on Phase 11 (not 13), so phases 12/13 and 14 could theore
 | 11. DNS & Cloudflare Zone Setup + CI/CD Audit | v1.1 | 2/2 | Complete | 2026-02-09 |
 | 12. Gateway Infrastructure & Environments | v1.1 | 2/2 | Complete | 2026-02-10 |
 | 13. Gateway CI/CD Pipeline | v1.1 | 2/2 | Complete | 2026-02-10 |
-| 14. Azure Static Web Apps Provisioning | v1.1 | 0/2 | Not started | - |
+| 14. Azure Static Web Apps Provisioning | v1.1 | 2/2 | Complete | 2026-02-10 |
 | 15. Frontend CI/CD Pipelines | v1.1 | 0/TBD | Not started | - |
 | 16. Deployment Guides & Hardening | v1.1 | 0/TBD | Not started | - |

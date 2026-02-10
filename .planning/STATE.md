@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 14 - Azure Static Web Apps Provisioning
+**Current focus:** Phase 14 - Azure Static Web Apps Provisioning -- COMPLETE
 
 ## Current Position
 
-Phase: 14 of 16 (Azure Static Web Apps Provisioning)
-Plan: 1 of 2 in current phase
-Status: Completed 14-01. Next: 14-02 (custom domains)
-Last activity: 2026-02-10 -- Completed 14-01 SWA Provisioning (Azure resources created, both apps deployed to default URLs)
+Phase: 14 of 16 (Azure Static Web Apps Provisioning) -- COMPLETE
+Plan: 2 of 2 in current phase -- ALL COMPLETE
+Status: Phase 14 complete. Next: Phase 15
+Last activity: 2026-02-10 -- Completed 14-02 Custom Domain Wiring (app.feelr.dev and feelr.dev live with managed SSL)
 
-Progress: [############........] 62% (58/~61 plans across v1.0 + v1.1)
+Progress: [#############.......] 66% (59/~61 plans across v1.0 + v1.1)
 
 ## Milestone History
 
@@ -68,6 +68,9 @@ v1.1 confirmed decisions:
 - [Phase 14]: Microsoft.Web resource provider registered before SWA creation
 - [Phase 14]: Fixed Nextra 4.6.1 docs build (strict schema, missing imports, not-found page)
 - [Phase 14]: GitHub Actions secrets deferred; tokens retrievable via az CLI
+- [Phase 14]: DNS-only mode (gray cloud) mandatory for Azure SWA CNAME records — proxy breaks SSL
+- [Phase 14]: CNAME flattening at apex for feelr.dev -> SWA default hostname
+- [Phase 14]: _dnsauth TXT records permanent for Azure managed SSL renewal
 
 ### Pending Todos
 
@@ -82,12 +85,12 @@ None.
 ### Blockers/Concerns
 
 - ~~DNS propagation after nameserver change can take up to 24 hours (Phase 11 may gate Phase 12)~~ RESOLVED: Propagation confirmed 2026-02-09
-- Cloudflare orange-cloud proxy must be disabled during Azure domain verification (Phase 14-02 sequencing)
+- ~~Cloudflare orange-cloud proxy must be disabled during Azure domain verification (Phase 14-02 sequencing)~~ RESOLVED: CNAME records set to DNS-only (gray cloud) permanently
 - ~~Workers gradual rollouts may have limitations with Durable Objects (Phase 13 research needed)~~ RESOLVED: DO migration releases use wrangler deploy directly; normal code changes use gradual rollout path
 - GitHub Actions secrets (SWA_DASHBOARD_DEPLOYMENT_TOKEN, SWA_DOCS_DEPLOYMENT_TOKEN) not yet set - needed before Phase 15 CI/CD. Tokens retrievable via `az staticwebapp secrets list`
 
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 14-01-PLAN.md (SWA Provisioning). Dashboard and docs deployed to Azure default URLs. Plan 14-02 (custom domains) next.
+Stopped at: Completed 14-02-PLAN.md (Custom Domain Wiring). Phase 14 complete. Both apps live at custom domains with managed SSL. Phase 15 next.
 Resume file: None
