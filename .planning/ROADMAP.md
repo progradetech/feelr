@@ -35,7 +35,7 @@
 - [x] **Phase 12: Gateway Infrastructure & Environments** - Configure wrangler staging/production environments with full resource isolation (completed 2026-02-10)
 - [x] **Phase 13: Gateway CI/CD Pipeline** - Automate gateway deployment with quality gates, rollouts, and environment protection (completed 2026-02-10)
 - [x] **Phase 14: Azure Static Web Apps Provisioning** - Deploy dashboard and docs to Azure SWA with custom domains and managed SSL (completed 2026-02-10)
-- [ ] **Phase 15: Frontend CI/CD Pipelines** - Automate dashboard and docs deployment with environment-aware builds
+- [x] **Phase 15: Frontend CI/CD Pipelines** - Automate dashboard and docs deployment with environment-aware builds (completed 2026-02-10)
 - [ ] **Phase 16: Deployment Guides & Hardening** - Document operational procedures and add deployment safety checks
 
 ## Phase Details
@@ -114,8 +114,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 15-01-PLAN.md -- Set SWA secrets, update turbo.json env config, consolidate gateway workflows into gateway.yml
-- [ ] 15-02-PLAN.md -- Create dashboard.yml and docs.yml workflows for Azure SWA deployment
+- [x] 15-01-PLAN.md -- Set SWA secrets, update turbo.json env config, consolidate gateway workflows into gateway.yml
+- [x] 15-02-PLAN.md -- Create dashboard.yml and docs.yml workflows for Azure SWA deployment
 
 ### Phase 16: Deployment Guides & Hardening
 **Goal**: All deployment knowledge is captured in runbooks and scripts so the developer can set up, deploy, roll back, and troubleshoot any service without tribal knowledge
@@ -146,5 +146,5 @@ Note: Phase 14 depends on Phase 11 (not 13), so phases 12/13 and 14 could theore
 | 12. Gateway Infrastructure & Environments | v1.1 | 2/2 | Complete | 2026-02-10 |
 | 13. Gateway CI/CD Pipeline | v1.1 | 2/2 | Complete | 2026-02-10 |
 | 14. Azure Static Web Apps Provisioning | v1.1 | 2/2 | Complete | 2026-02-10 |
-| 15. Frontend CI/CD Pipelines | v1.1 | 0/TBD | Not started | - |
+| 15. Frontend CI/CD Pipelines | v1.1 | 2/2 | Complete | 2026-02-10 |
 | 16. Deployment Guides & Hardening | v1.1 | 0/TBD | Not started | - |
