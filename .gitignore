@@ -4,9 +4,21 @@ dist
 .turbo
 *.tsbuildinfo
 
+# Next.js build output
+.next/
+out/
+next-env.d.ts
+
+# Go binaries
+cli/cli
+cli/feelr
+
 # Secrets / local dev
 .dev.vars
 .dev.vars.*
 .env
 .env.*
 !.env.example
+
+# Windows artifacts
+*:Zone.Identifier
