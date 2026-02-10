@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 11 - DNS & Cloudflare Zone Setup
+**Current focus:** Phase 12 - Gateway Infrastructure & Environments
 
 ## Current Position
 
-Phase: 11 of 16 (DNS & Cloudflare Zone Setup)
-Plan: 2 of 2 in current phase (PHASE COMPLETE)
-Status: Phase 11 complete
-Last activity: 2026-02-09 -- Completed 11-02 CI/CD Release Pipeline Audit (GoReleaser validated, Homebrew tap configured)
+Phase: 12 of 16 (Gateway Infrastructure & Environments)
+Plan: 1 of 2 in current phase
+Status: Plan 12-01 complete, 12-02 pending
+Last activity: 2026-02-10 -- Completed 12-01 Gateway Config & D1 Migration (wrangler.toml restructured, D1 migration created)
 
-Progress: [##########..........] 53% (53/~61 plans across v1.0 + v1.1)
+Progress: [###########.........] 54% (54/~61 plans across v1.0 + v1.1)
 
 ## Milestone History
 
@@ -32,9 +32,9 @@ Progress: [##########..........] 53% (53/~61 plans across v1.0 + v1.1)
 - Timeline: 5 days (2026-02-05 to 2026-02-09)
 
 **v1.1 Velocity:**
-- Total plans completed: 2
+- Total plans completed: 3
 - Average duration: 2 min
-- Total execution time: 3 min
+- Total execution time: 5 min
 
 ## Accumulated Context
 
@@ -52,6 +52,9 @@ v1.1 confirmed decisions:
 - DNSSEC left disabled during initial delegation
 - [Phase 11]: Keep GoReleaser brews section (not migrate to homebrew_casks) until v3 deprecation
 - [Phase 11]: Fix archives deprecations (builds->ids, format->formats) to pass goreleaser check
+- [Phase 12]: Placeholder IDs in wrangler.toml for Plan 12-02 to replace with real Cloudflare resource IDs
+- [Phase 12]: Top-level wrangler.toml reduced to inheritable settings only; all bindings in per-env sections
+- [Phase 12]: Staging uses workers_dev URL; production uses custom_domain for api.feelr.dev
 
 ### Pending Todos
 
@@ -71,6 +74,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-09
-Stopped at: Completed 11-02-PLAN.md (CI/CD Release Pipeline Audit). Phase 11 complete. Ready for Phase 12.
+Last session: 2026-02-10
+Stopped at: Completed 12-01-PLAN.md (Gateway Config & D1 Migration). Plan 12-02 next.
 Resume file: None
