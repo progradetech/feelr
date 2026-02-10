@@ -84,6 +84,9 @@ v1.1 confirmed decisions:
 - [Phase 16]: Single runbook file consolidating all deployment procedures for discoverability
 - [Phase 16]: Config file paths referenced in runbook rather than hardcoding resource IDs
 - [Phase 16]: DO migration rollback constraint documented in both rollback and production deploy sections
+- [Phase 16]: Used @azure/static-web-apps-cli for manual SWA deploys (CLI equivalent of CI/CD action)
+- [Phase 16]: Rollback script accepts --version flag or prompts interactively for version selection
+- [Phase 16]: All deployment scripts validate prerequisites before starting work
 
 ### Pending Todos
 
@@ -105,5 +108,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 16-01-PLAN.md (Deployment Runbook). All Phase 16 plans complete. v1.1 milestone complete.
+Stopped at: Completed 16-02-PLAN.md (Deploy Scripts & Secrets Inventory). 5 deployment scripts + secrets inventory created.
 Resume file: None
