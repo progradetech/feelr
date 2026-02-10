@@ -32,7 +32,7 @@
 - Decimal phases (12.1, 12.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 11: DNS & Cloudflare Zone Setup + CI/CD Audit** - Establish Cloudflare as DNS authority for feelr.dev and fix existing pipelines (completed 2026-02-09)
-- [ ] **Phase 12: Gateway Infrastructure & Environments** - Configure wrangler staging/production environments with full resource isolation
+- [x] **Phase 12: Gateway Infrastructure & Environments** - Configure wrangler staging/production environments with full resource isolation (completed 2026-02-10)
 - [ ] **Phase 13: Gateway CI/CD Pipeline** - Automate gateway deployment with quality gates, rollouts, and environment protection
 - [ ] **Phase 14: Azure Static Web Apps Provisioning** - Deploy dashboard and docs to Azure SWA with custom domains and managed SSL
 - [ ] **Phase 15: Frontend CI/CD Pipelines** - Automate dashboard and docs deployment with environment-aware builds
@@ -68,8 +68,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 12-01-PLAN.md -- Prepare configuration files (D1 migration, wrangler.toml restructure, .gitignore)
-- [ ] 12-02-PLAN.md -- Provision Cloudflare resources, deploy environments, verify isolation and custom domain
+- [x] 12-01-PLAN.md -- Prepare configuration files (D1 migration, wrangler.toml restructure, .gitignore)
+- [x] 12-02-PLAN.md -- Provision Cloudflare resources, deploy environments, verify isolation and custom domain
 
 ### Phase 13: Gateway CI/CD Pipeline
 **Goal**: Gateway deployment is fully automated with quality checks on every PR, staging deploys on merge, production deploys on tag, and safety controls preventing bad deploys
@@ -142,7 +142,7 @@ Note: Phase 14 depends on Phase 11 (not 13), so phases 12/13 and 14 could theore
 |-------|-----------|----------------|--------|-----------|
 | 1-10 | v1.0 | 51/51 | Complete | 2026-02-09 |
 | 11. DNS & Cloudflare Zone Setup + CI/CD Audit | v1.1 | 2/2 | Complete | 2026-02-09 |
-| 12. Gateway Infrastructure & Environments | v1.1 | 0/TBD | Not started | - |
+| 12. Gateway Infrastructure & Environments | v1.1 | 2/2 | Complete | 2026-02-10 |
 | 13. Gateway CI/CD Pipeline | v1.1 | 0/TBD | Not started | - |
 | 14. Azure Static Web Apps Provisioning | v1.1 | 0/TBD | Not started | - |
 | 15. Frontend CI/CD Pipelines | v1.1 | 0/TBD | Not started | - |
