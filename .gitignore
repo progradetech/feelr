@@ -3,3 +3,10 @@ dist
 .wrangler
 .turbo
 *.tsbuildinfo
+
+# Secrets / local dev
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+!.env.example
