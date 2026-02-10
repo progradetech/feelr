@@ -127,11 +127,12 @@ Plans:
   3. Automated deployment scripts exist with inline comments explaining each step, and can be run for repeatable operations
   4. CI includes a check that verifies staging and production wrangler bindings do not overlap (no shared KV/D1/DO IDs)
   5. All deployment secrets are documented in a secrets inventory listing what exists, where it is stored, and how to rotate it
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 16-01: TBD
-- [ ] 16-02: TBD
+- [ ] 16-01-PLAN.md -- Deployment runbook (first-time setup, routine deploys, rollbacks, troubleshooting)
+- [ ] 16-02-PLAN.md -- Deployment scripts and secrets inventory
+- [ ] 16-03-PLAN.md -- CI binding validation check
 
 ## Progress
 
@@ -147,4 +148,4 @@ Note: Phase 14 depends on Phase 11 (not 13), so phases 12/13 and 14 could theore
 | 13. Gateway CI/CD Pipeline | v1.1 | 2/2 | Complete | 2026-02-10 |
 | 14. Azure Static Web Apps Provisioning | v1.1 | 2/2 | Complete | 2026-02-10 |
 | 15. Frontend CI/CD Pipelines | v1.1 | 2/2 | Complete | 2026-02-10 |
-| 16. Deployment Guides & Hardening | v1.1 | 0/TBD | Not started | - |
+| 16. Deployment Guides & Hardening | v1.1 | 0/3 | Not started | - |
