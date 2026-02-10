@@ -21,3 +21,23 @@
 
 ---
 
+
+## v1.1 Deployment & CI/CD (Shipped: 2026-02-10)
+
+**Phases:** 11-16 | **Plans:** 13 | **Timeline:** 2 days (2026-02-09 to 2026-02-10)
+**Commits:** 53 | **Files modified:** 71
+
+**Delivered:** Production deployment infrastructure — DNS, multi-environment Workers, Azure Static Web Apps, 3 independent CI/CD pipelines, deployment runbooks, and safety checks.
+
+**Key accomplishments:**
+- Delegated feelr.dev DNS to Cloudflare and validated GoReleaser CLI releases for 6 platforms
+- Provisioned multi-environment Cloudflare Workers (staging/production) with isolated KV/D1/DO and custom domain api.feelr.dev
+- Created CI/CD pipeline with PR quality gates, staging preview deploys, and production gradual rollout (10% → 100%)
+- Deployed dashboard (app.feelr.dev) and docs (feelr.dev) to Azure Static Web Apps with managed SSL
+- Built 3 independent CI/CD workflows (gateway.yml, dashboard.yml, docs.yml) with path-based triggers
+- Created deployment runbook, 5 executable scripts, secrets inventory, and CI binding isolation checks
+
+**Archive:** [v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md) | [v1.1-REQUIREMENTS.md](milestones/v1.1-REQUIREMENTS.md)
+
+---
+

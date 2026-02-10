@@ -2,26 +2,26 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-09)
+See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 16 - Deployment Guides & Hardening
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 16 of 16 (Deployment Guides & Hardening)
-Plan: 3 of 3 in current phase -- COMPLETE
-Status: v1.1 milestone complete. All 6 phases (11-16) shipped. Next: /gsd:complete-milestone
-Last activity: 2026-02-10 -- Phase 16 complete, v1.1 milestone shipped
+Phase: All complete (16 phases across 2 milestones)
+Plan: N/A
+Status: v1.1 milestone archived. Ready for next milestone via /gsd:new-milestone
+Last activity: 2026-02-10 — v1.1 Deployment & CI/CD milestone archived
 
-Progress: [####################] 100% (65/65 plans across v1.0 + v1.1)
+Progress: [####################] 100% (64/64 plans across v1.0 + v1.1)
 
 ## Milestone History
 
 | Milestone | Phases | Plans | Shipped |
 |-----------|--------|-------|---------|
 | v1.0 MVP | 1-10 | 51 | 2026-02-09 |
-| v1.1 Deployment & CI/CD | 11-16 | 14 | 2026-02-10 |
+| v1.1 Deployment & CI/CD | 11-16 | 13 | 2026-02-10 |
 
 ## Performance Metrics
 
@@ -32,61 +32,16 @@ Progress: [####################] 100% (65/65 plans across v1.0 + v1.1)
 - Timeline: 5 days (2026-02-05 to 2026-02-09)
 
 **v1.1 Velocity:**
-- Total plans completed: 14
+- Total plans completed: 13
 - Average duration: 3 min
 - Total execution time: ~41 min (excludes human checkpoint wait times)
+- Timeline: 2 days (2026-02-09 to 2026-02-10)
 
 ## Accumulated Context
 
 ### Decisions
 
-All v1.0 decisions are logged in PROJECT.md Key Decisions table with outcomes.
-v1.1 pending decisions (from research):
-- Azure Static Web Apps over App Service (static exports, lower cost)
-- Cloudflare DNS as sole authority (required for Workers Custom Domains)
-- Pre-build strategy for SWA (skip Oryx builder, use pnpm/turbo in CI)
-
-v1.1 confirmed decisions:
-- Cloudflare Free plan for DNS zone hosting (braden.ns + ruth.ns assigned)
-- SSL/TLS Full mode for .dev HSTS compliance
-- DNSSEC left disabled during initial delegation
-- [Phase 11]: Keep GoReleaser brews section (not migrate to homebrew_casks) until v3 deprecation
-- [Phase 11]: Fix archives deprecations (builds->ids, format->formats) to pass goreleaser check
-- [Phase 12]: Placeholder IDs in wrangler.toml for Plan 12-02 to replace with real Cloudflare resource IDs
-- [Phase 12]: Top-level wrangler.toml reduced to inheritable settings only; all bindings in per-env sections
-- [Phase 12]: Staging uses workers_dev URL; production uses custom_domain for api.feelr.dev
-- [Phase 12]: Auto-registered feelr.workers.dev subdomain for Worker deployment
-- [Phase 12]: KV isolation verified architecturally (separate namespace IDs) rather than direct write test
-- [Phase 12]: Per-environment secrets set interactively; different values for staging vs production
-- [Phase 13]: Lint aliases tsc --noEmit (lightweight, no dedicated linter yet)
-- [Phase 13]: PR staging comment updates in-place instead of creating duplicates
-- [Phase 13]: Shared deploy-staging concurrency group between ci.yml and deploy-staging.yml to prevent staging races
-- [Phase 13]: Automatic gradual rollout (10% -> smoke test -> 100%) for production; manual CLI available if needed
-- [Phase 13]: versions upload + versions deploy for production (not wrangler deploy) to enable traffic splitting
-- [Phase 13]: DO migration releases must bypass gradual rollout and use wrangler deploy directly
-- [Phase 14]: Standard plan for both SWAs (required for custom domains)
-- [Phase 14]: Microsoft.Web resource provider registered before SWA creation
-- [Phase 14]: Fixed Nextra 4.6.1 docs build (strict schema, missing imports, not-found page)
-- [Phase 14]: GitHub Actions secrets deferred; tokens retrievable via az CLI
-- [Phase 14]: DNS-only mode (gray cloud) mandatory for Azure SWA CNAME records — proxy breaks SSL
-- [Phase 14]: CNAME flattening at apex for feelr.dev -> SWA default hostname
-- [Phase 14]: _dnsauth TXT records permanent for Azure managed SSL renewal
-- [Phase 15]: Consolidated deploy-staging.yml + deploy-production.yml into single gateway.yml with conditional jobs
-- [Phase 15]: Preserved deploy-staging concurrency group name (shared with ci.yml gateway-preview)
-- [Phase 15]: NEXT_PUBLIC_GATEWAY_URL in turbo.json build env for staging/production cache isolation
-- [Phase 15]: GitHub org is progradetech (not andrewprograde) for repository secrets
-- [Phase 15]: Dashboard path triggers include packages/tsconfig/** (shared dependency); docs does not
-- [Phase 15]: Docs workflow has zero gateway URL references (pure content site)
-- [Phase 15]: SWA staging uses deployment_environment: staging; production omits it for default slot
-- [Phase 16]: Rate limit namespace_id excluded from binding validation (policy identifier, not resource ID)
-- [Phase 16]: Binding check runs in existing CI check job before lint/typecheck/test for early failure
-- [Phase 16]: Validation step placed before lint/typecheck/test for early configuration error detection
-- [Phase 16]: Single runbook file consolidating all deployment procedures for discoverability
-- [Phase 16]: Config file paths referenced in runbook rather than hardcoding resource IDs
-- [Phase 16]: DO migration rollback constraint documented in both rollback and production deploy sections
-- [Phase 16]: Used @azure/static-web-apps-cli for manual SWA deploys (CLI equivalent of CI/CD action)
-- [Phase 16]: Rollback script accepts --version flag or prompts interactively for version selection
-- [Phase 16]: All deployment scripts validate prerequisites before starting work
+All decisions logged in PROJECT.md Key Decisions table with outcomes.
 
 ### Pending Todos
 
@@ -100,13 +55,10 @@ None.
 
 ### Blockers/Concerns
 
-- ~~DNS propagation after nameserver change can take up to 24 hours (Phase 11 may gate Phase 12)~~ RESOLVED: Propagation confirmed 2026-02-09
-- ~~Cloudflare orange-cloud proxy must be disabled during Azure domain verification (Phase 14-02 sequencing)~~ RESOLVED: CNAME records set to DNS-only (gray cloud) permanently
-- ~~Workers gradual rollouts may have limitations with Durable Objects (Phase 13 research needed)~~ RESOLVED: DO migration releases use wrangler deploy directly; normal code changes use gradual rollout path
-- ~~GitHub Actions secrets (SWA_DASHBOARD_DEPLOYMENT_TOKEN, SWA_DOCS_DEPLOYMENT_TOKEN) not yet set - needed before Phase 15 CI/CD. Tokens retrievable via `az staticwebapp secrets list`~~ RESOLVED: Secrets set in progradetech/feelr repository via GitHub web UI (Phase 15-01)
+None — all v1.1 blockers resolved.
 
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: v1.1 milestone complete. All phases 11-16 shipped. Phase 16 verified (15/15 must-haves).
+Stopped at: v1.1 milestone archived. Next: /gsd:new-milestone
 Resume file: None
