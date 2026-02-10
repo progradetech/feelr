@@ -56,10 +56,11 @@
   1. `wrangler deploy` in staging CI succeeds without KV permission errors
   2. Running `brew install progradetech/feelr/feelr` installs the latest Feelr CLI binary
   3. Running `brew install andrewprograde/feelr/feelr` prints a deprecation message directing users to the new tap
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 17-01: TBD
+- [ ] 17-01-PLAN.md — Infrastructure prerequisites: create new tap repo, fix CF token, configure PAT
+- [ ] 17-02-PLAN.md — GoReleaser config migration and old tap deprecation formula
 
 ### Phase 18: Demo Foundation
 **Goal**: Demo infrastructure exists so that dashboard and terminal features can activate demo mode and receive realistic fake data
@@ -126,10 +127,10 @@ Phases 17-21 execute in numeric order. Phases 18 and 17 have no mutual dependenc
 |-------|-----------|----------------|--------|-----------|
 | 1-10 | v1.0 | 51/51 | Complete | 2026-02-09 |
 | 11-16 | v1.1 | 13/13 | Complete | 2026-02-10 |
-| 17. CI/CD & Homebrew Migration | v1.2 | 0/TBD | Not started | - |
+| 17. CI/CD & Homebrew Migration | v1.2 | 0/2 | Not started | - |
 | 18. Demo Foundation | v1.2 | 0/TBD | Not started | - |
 | 19. Dashboard Demo Mode | v1.2 | 0/TBD | Not started | - |
 | 20. Landing Page | v1.2 | 0/TBD | Not started | - |
 | 21. Interactive Demo & Integration | v1.2 | 0/TBD | Not started | - |
 
-**Total:** 21 phases, 64+ plans across 3 milestones.
+**Total:** 21 phases, 66+ plans across 3 milestones.
