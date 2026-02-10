@@ -1,262 +1,133 @@
-# Feature Landscape: Deployment & CI/CD Infrastructure
+# Feature Landscape: Interactive Demo, Demo Dashboard Mode, and Landing Page
 
-**Domain:** Production deployment for multi-service app (Cloudflare Workers + Azure App Service + GitHub Actions)
-**Researched:** 2026-02-09
-**Confidence:** HIGH (official platform docs verified, existing codebase inspected)
-
-## Context
-
-Feelr v1.0 is shipped. The app consists of three services that need production deployment:
-
-- **api.feelr.dev** -- Cloudflare Workers (edge gateway with Hono, KV, Durable Objects, D1)
-- **app.feelr.dev** -- Azure App Service (Next.js 15 dashboard, containerized)
-- **feelr.dev** -- Azure App Service (Nextra docs/marketing site, containerized)
-
-Existing infrastructure: monorepo with pnpm + Turborepo, GoReleaser for CLI, self-host Docker image. One GitHub Actions workflow exists (release.yml for Go CLI via GoReleaser). No deployment workflows, no staging environments, no DNS configuration, no deployment guides exist yet.
+**Domain:** Marketing and onboarding features for developer tool SaaS
+**Researched:** 2026-02-10
+**Confidence:** HIGH (features scoped against existing codebase, static export constraints verified)
 
 ---
 
 ## Table Stakes
 
-Features that production deployments universally require. Missing any of these is a blocker.
+Features that must ship for this milestone to deliver value. Missing any of these makes the milestone incomplete.
 
-| Feature | Why Expected | Complexity | Dependencies |
-|---------|--------------|------------|--------------|
-| Wrangler environment configuration (staging + production) | Workers without environments means deploying directly to production with no safety net. Every serious Workers project uses at least two environments. | LOW | Existing wrangler.toml needs `[env.staging]` and `[env.production]` blocks with separate KV/DO/D1 bindings |
-| Workers secrets management in CI | Gateway requires ENCRYPTION_KEY, ADMIN_TOKEN, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET, STRIPE_SECRET_KEY. Deploying without secrets = broken service. | LOW | GitHub repository secrets + cloudflare/wrangler-action secret passthrough |
-| Workers custom domain (api.feelr.dev) | A workers.dev subdomain is not acceptable for production. Custom domain provides SSL, professional URLs, and stable addressing. | LOW | Cloudflare zone for feelr.dev must be active; Workers Custom Domains auto-provision SSL certificates |
-| Azure App Service Dockerfiles (dashboard + docs) | Neither app has a Dockerfile. Cannot deploy to Azure App Service for Containers without them. Self-host Dockerfile exists but bundles both gateway + dashboard for self-hosting, not suitable for cloud. | MEDIUM | Separate Dockerfiles for dashboard and docs; multi-stage builds with pnpm workspace awareness |
-| Azure custom domains (app.feelr.dev, feelr.dev) | Default Azure URLs (*.azurewebsites.net) are not acceptable for production. | LOW | DNS CNAME records pointing to Azure + TXT records for domain verification |
-| Azure managed SSL certificates | HTTPS is non-negotiable. Azure provides free managed certificates for custom domains that auto-renew every 6 months. | LOW | Custom domain must be configured first; CNAME must be resolvable for certificate issuance |
-| GitHub Actions CI workflow (lint, typecheck, test) | Every push and PR must be validated before deployment. No CI = broken code reaches production. | MEDIUM | pnpm install + turbo run typecheck + turbo run test; cache pnpm store for speed |
-| GitHub Actions CD workflow (deploy on merge/tag) | Manual deployments do not scale. main branch should deploy to staging; version tags should deploy to production. | HIGH | Separate jobs for gateway (wrangler), dashboard (Docker + Azure), docs (Docker + Azure); path-based filtering |
-| DNS records for all three services | Without DNS, nothing is reachable at the planned domains. | LOW | Cloudflare DNS zone: CNAME for api/app subdomains, A/CNAME for apex |
-| Health check endpoints for Azure apps | Azure App Service uses health probes to determine instance readiness. Without a health endpoint, Azure cannot properly manage container lifecycle or slot swaps. | LOW | Dashboard and docs need `/api/health` or similar route returning 200 |
-| GitHub Actions environment protection for production | Production deploys without any gate = accidental deploys from bad merges. Environment protection rules are table stakes for any team shipping to production. | LOW | GitHub environment "production" with required reviewers or wait timer; deployment branches restricted to tags |
-| Deployment secrets management | Secrets scattered across platforms with no documentation = locked-out-of-production scenarios. Every secret must be documented (not the value, the name and where it lives). | LOW | Secret inventory document listing every secret, which platform stores it, and how to rotate |
-| Rollback procedures | Every deployment needs a known rollback path. "Just revert the commit" is not a rollback plan. | LOW | Workers: `wrangler rollback` or redeploy previous version. Azure: swap slots back or redeploy previous image tag. |
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| **Landing page with hero section** | First-time visitors currently see a redirect to login, which is a dead end for non-users. A landing page is the minimum viable marketing surface. | Low | Server component with static text + CTA buttons. Brand colors from strategy doc (Lobster Red `#E85D3A`, Deep Sea `#0a0a14`). |
+| **"Try Demo" button on landing page** | Visitors need a zero-friction way to explore the product without signing up. This is the primary conversion path for the demo feature. | Low | Link to `/demo` route. Styled as primary CTA. |
+| **Demo mode activation (/demo route)** | Sets demo flag in sessionStorage, redirects to dashboard. The entry point for the entire demo experience. | Low | Thin page component: call `enterDemo()`, `router.replace('/overview')`. |
+| **AuthGuard demo bypass** | Demo users have no admin token. Without this bypass, they are redirected to /login and never see the dashboard. | Low | 3-line conditional added to existing AuthGuard component. |
+| **SWR hooks return mock data in demo mode** | Without mock data, dashboard pages show loading spinners forever (no token = no gateway fetch). All 4 hooks (keys, connectors, overview, usage) must be modified. | Medium | Each hook gains ~3 lines. Mock data must conform to existing TypeScript types. Uses namespaced SWR keys (`demo-keys` vs `admin-keys`) for cache isolation. |
+| **Mock data fixtures (demo-data.ts)** | The 4 modified hooks need data to return. Fixtures must look realistic: 3 API keys, 2/4 connectors connected, usage charts with variance. | Medium | Single file, ~100 lines. Must import and satisfy types from `lib/types.ts`. |
+| **Demo mode banner** | Users must know they are viewing demo data, not their real account. Without this, demo mode is deceptive. | Low | Persistent top banner: "You're viewing demo data. Sign in to connect your own." with "Sign In" link. |
+| **Sidebar demo indicator** | Users navigating between dashboard pages need a persistent reminder they are in demo mode. | Low | "DEMO" pill badge next to "Feelr" in sidebar header. "Exit Demo" replaces "Logout" button. |
+| **"Exit Demo" flow** | Users must be able to leave demo mode cleanly. Clears sessionStorage, redirects to /login. | Low | `exitDemo()` function on DemoContext. Sidebar button and banner button call it. |
+| **Install commands on landing page** | Visitors who are convinced need to know how to install. `brew install progradetech/feelr/feelr` and `feelr init` below the hero. | Low | Static code blocks with copy-to-clipboard buttons using `navigator.clipboard`. |
+| **GoReleaser tap owner fix** | The install command references `progradetech` but `.goreleaser.yaml` has `andrewprograde`. Homebrew tap would push to wrong repo. | Low | One-line change in `.goreleaser.yaml`. |
+
+---
 
 ## Differentiators
 
-Features that elevate deployment from "it works" to "it works well and is maintainable."
+Features that make the demo experience memorable and drive conversion. Not blocking for launch but significantly increase value.
 
-| Feature | Value Proposition | Complexity | Dependencies |
-|---------|-------------------|------------|--------------|
-| Wrangler gradual rollouts for gateway | Workers supports splitting traffic between two versions by percentage. For an API gateway handling real traffic, this prevents blast-radius-100% deployments. | MEDIUM | Wrangler 3.40.0+ (project uses 4.x, so available); separate `wrangler versions upload` + `wrangler versions deploy` commands; **limitation: Durable Objects require single-version** so DO-heavy operations need careful handling |
-| Azure deployment slots (staging slot) | Deploy to staging slot, verify, then swap to production with zero downtime. Slot swap is atomic -- no request dropping. | MEDIUM | Requires Standard tier or higher App Service Plan ($$$). Auto swap is NOT supported for Linux containers -- must use manual or scripted swaps. |
-| Post-deploy smoke tests in CI | After each deployment, automatically verify the service is actually working by hitting health/status endpoints. Catches "deployed but broken" scenarios that pass all pre-deploy tests. | LOW | `curl` or `eko/url-health-check` action hitting /health after deploy step completes; retry logic for cold starts |
-| Monorepo path-filtered deployments | Only deploy what changed. Gateway code change should not trigger dashboard redeploy. Saves CI minutes and reduces unnecessary deployment risk. | MEDIUM | `dorny/paths-filter` action or built-in `paths:` trigger filter; outputs feed conditional deploy jobs |
-| Turborepo remote cache in CI | pnpm + Turbo builds are fast locally but CI starts from scratch each run. Remote caching lets CI reuse build artifacts across runs. | LOW | Set TURBO_TOKEN and TURBO_TEAM env vars in GitHub Actions; Vercel Remote Cache (free for small teams) or self-hosted |
-| Workers preview URLs for PR verification | Every PR that touches gateway code gets a unique preview URL for testing. No need to deploy to staging just to verify a PR. | LOW | Automatic with `wrangler versions upload`; Wrangler 3.74.0+ generates version preview URLs; preview URL can be posted as PR comment |
-| Concurrency controls on CI/CD | Prevent multiple deployments to the same environment from racing. If two merges happen quickly, only the latest should deploy. | LOW | `concurrency: group: deploy-${{ env }}, cancel-in-progress: true` in workflow YAML |
-| Internal deployment runbook (markdown) | A single document that anyone (including future-you) can follow to deploy, troubleshoot, and rollback. Reduces bus factor to zero. | LOW | No technical dependencies; just documentation covering first-time setup, routine deploys, rollback, and troubleshooting |
-| Separate staging DNS (staging-api.feelr.dev, staging-app.feelr.dev) | Staging environments need their own URLs. Testing against staging that uses production domains creates confusion and potential for cross-contamination. | LOW | Additional CNAME records in Cloudflare DNS; Workers staging environment uses separate custom domain |
-| Docker image tagging strategy | Images tagged only with `latest` are unrollbackable. Tagging with git SHA + semver enables precise rollback to any previous version. | LOW | Tag format: `ghcr.io/andrewprograde/feelr-dashboard:sha-abc1234` and `ghcr.io/andrewprograde/feelr-dashboard:v1.0.0` |
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| **Animated terminal demo** | Shows the product in action before the user installs anything. Animated typing creates a sense of "liveness" that static code blocks lack. Terminal demos are standard for CLI tools (Warp, Fig, Railway). | Medium | Custom component, ~80 lines React + CSS. Scripted sequence: install, auth, run command, see output. No library dependency -- uses `setInterval` for typing + CSS `@keyframes` for cursor blink. |
+| **Demo mode mutation feedback** | When users click "Create Key" in demo mode, show a toast "Demo mode -- this would create an API key" and update mock data locally. This teaches the product's capabilities without dead-ending on disabled buttons. | Medium | Modify KeyCreateDialog and KeyRevokeDialog to check `isDemo` and call `toast()` instead of `gatewayMutate`. Optionally update local mock state for immediate visual feedback. |
+| **Install commands on login page** | Users who reach the login page but do not have a token need instructions. Currently the page says "Get your admin token from `feelr init`" but does not show how to install the CLI. | Low | Reuse InstallCommands component from landing page on login page, below the sign-in form. |
+| **Feature cards section** | 3-column grid below terminal demo highlighting key value props: "Minimal Context (50 tokens vs 5000)", "One-Time Auth", "Composable Actions". Gives visitors quick value understanding. | Low | Static React components with Lucide icons. No data fetching. |
+| **Landing page footer** | Links to Docs, GitHub, Dashboard. Standard marketing page element. | Low | Static HTML/JSX. |
+| **Terminal demo replay button** | After the terminal animation finishes, show a "Replay" button so visitors can watch again. | Low | Reset `currentIndex` state in useTerminalSequence hook. |
+| **macOS-style terminal chrome** | Three colored circles (red/yellow/green) on the terminal frame. Every CLI-tool landing page uses this pattern. | Low | Three `div` circles + dark background + monospace font. Rounded corners, subtle border. |
+
+---
 
 ## Anti-Features
 
-Features commonly associated with deployment that should be explicitly avoided for this project.
+Features to explicitly NOT build in this milestone.
 
-| Anti-Feature | Why Tempting | Why Problematic | What to Do Instead |
-|--------------|-------------|-----------------|-------------------|
-| Kubernetes / container orchestration | "We have multiple containers, we need Kubernetes" | This is a 3-service app with a single developer. Kubernetes adds massive operational overhead (cluster management, YAML sprawl, networking complexity) for zero benefit at this scale. Azure App Service is already a managed container platform. | Use Azure App Service for Containers (managed PaaS). If scaling needs increase dramatically, evaluate Azure Container Apps (serverless containers) before ever considering Kubernetes. |
-| Multi-region deployment in v1 | "Edge workers should be multi-region for low latency" | Cloudflare Workers are ALREADY globally distributed by default. Azure multi-region adds complexity (data replication, traffic routing, cost multiplication) for a dashboard that does not need global presence. | Workers are inherently global. Azure stays single-region. Add Azure Front Door or Traffic Manager only when usage data shows latency problems in specific regions. |
-| Infrastructure as Code (Terraform/Pulumi) in v1 | "Everything should be declarative and reproducible" | For a solo developer with 3 services, Terraform adds a state management burden, learning curve, and maintenance overhead that exceeds the benefit. The infrastructure is simple enough to manage via CLI + GitHub Actions. | Use wrangler.toml for Workers config (already declarative), Azure CLI or portal for App Service setup (one-time), and GitHub Actions for deployment automation. Document manual setup steps in the runbook. Move to IaC only if infrastructure grows significantly. |
-| Blue-green deployment for all services | "Zero-downtime requires blue-green everywhere" | Workers deployment is inherently zero-downtime (traffic shifts atomically). Azure deployment slots already provide swap-based zero-downtime. Implementing a separate blue-green system on top adds complexity for a problem already solved. | Use Workers' built-in deployment model. Use Azure deployment slots for swap-based zero-downtime. Do not layer additional blue-green infrastructure. |
-| Canary analysis automation (Kayenta, Flagger) | "Automated canary analysis catches regressions" | These tools require significant metrics infrastructure (Prometheus, custom dashboards, SLO definitions) and are designed for teams with dedicated SRE resources. Overkill for a solo developer. | Use Workers gradual rollouts with manual monitoring. Check error rates in Cloudflare dashboard after deploying to 10%, then promote to 100%. Automate only after manual canary process is well-established. |
-| Separate CI/CD tool (ArgoCD, Flux, Jenkins) | "GitHub Actions is limited, we need a real CD tool" | GitHub Actions is fully capable for this use case. Adding a second CI/CD tool doubles the configuration surface, creates tool-switching friction, and adds another system to maintain. | GitHub Actions for everything. It handles CI, CD, environment protection, and secret management in one place. |
-| Production database migrations in CI | "Migrations should run automatically on deploy" | D1 migrations via `wrangler d1 migrations apply` in CI risks running destructive migrations against production data without human review. KV has no schema. DO uses SQLite embedded in the class. | Run D1 migrations manually using `wrangler d1 migrations apply --env production` with explicit human confirmation. Document migration procedure in the runbook. CI can run migrations against staging automatically. |
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| **Interactive terminal on landing page** | An interactive terminal where visitors type real CLI commands requires either a backend (sandbox environment) or complex command parser. Massively increases scope for marginal value over scripted demo. | Scripted terminal demo showing the same commands every time. Visitors see the product in action without needing to know commands. |
+| **Demo mode with real API calls** | Creating a shared "demo" API key hitting a sandbox gateway requires backend infrastructure (sandbox environment, rate limiting, data isolation). | Mock data in the client. Zero backend cost. Same visual experience. |
+| **Onboarding wizard** | A guided post-login setup flow (generate key, install CLI, run first command) is valuable but depends on stable sign-in flow and gateway availability. Adds scope to a marketing-focused milestone. | Defer to a separate milestone. The install commands on the landing page and login page serve as lightweight onboarding for now. |
+| **User accounts / sign-up flow** | Feelr uses admin token auth (from `feelr init`), not email/password accounts. Adding sign-up is a product direction change, not a marketing feature. | Keep token-based auth. Landing page directs users to install CLI and run `feelr init`. |
+| **A/B testing on landing page** | Premature optimization. Zero visitors today. Build the page, ship it, iterate based on feedback. | Ship one version. Add analytics later if needed. |
+| **Pricing page** | Pricing is documented in the strategy doc but billing system is not built (Stripe integration is Phase 7 in roadmap). A pricing page with no purchase flow is misleading. | Mention tiers briefly on landing page if desired. Dedicated pricing page waits for billing. |
+| **Heavy animation libraries** | Installing Motion/Framer Motion, GSAP, or MagicUI for the terminal typing animation. Adds 20-50KB for features achievable with `setInterval` + CSS. | Custom `useTypingAnimation` hook (~30 lines) + CSS cursor animation. ~2KB total. |
+| **Video tutorial in hero section** | Videos require play-button interaction (friction), become stale when UI changes, compete with terminal animation for attention. | Animated terminal walkthrough (auto-playing, no interaction) + link to full video in docs section later. |
+| **Demo data that simulates live updates** | Mock data with incrementing counters, new events, etc. adds complexity for marginal realism. | Static mock data with realistic-looking values. Users understand it is a demo. |
+
+---
 
 ## Feature Dependencies
 
 ```
-[DNS Configuration]
-    |
-    +-- enables --> [Workers Custom Domain (api.feelr.dev)]
-    |                   |
-    |                   +-- requires --> [Cloudflare zone active for feelr.dev]
-    |                   +-- enables --> [SSL certificate auto-provisioned]
-    |
-    +-- enables --> [Azure Custom Domains (app.feelr.dev, feelr.dev)]
-    |                   |
-    |                   +-- requires --> [CNAME + TXT verification records]
-    |                   +-- enables --> [Azure Managed SSL Certificates]
-    |
-    +-- enables --> [Staging DNS (staging-api.feelr.dev, staging-app.feelr.dev)]
+DemoContext (foundation)
+  --> AuthGuard demo bypass
+  --> SWR hook modifications (all 4)
+  --> Demo banner
+  --> Sidebar demo indicator
+  --> Demo entry page (/demo)
+  --> "Try Demo" button (landing page)
 
-[Wrangler Environment Config]
-    |
-    +-- requires --> [Separate KV namespaces for staging/production]
-    +-- requires --> [Separate D1 databases for staging/production]
-    +-- requires --> [Durable Object migrations declared per environment]
-    +-- enables --> [Gateway staging deploys (wrangler deploy --env staging)]
-    +-- enables --> [Gateway production deploys (wrangler deploy --env production)]
+Mock data fixtures (demo-data.ts)
+  --> SWR hook modifications (all 4)
 
-[Azure Dockerfiles (dashboard + docs)]
-    |
-    +-- requires --> [pnpm workspace-aware multi-stage build]
-    +-- enables --> [Azure App Service container deployment]
-    +-- enables --> [Docker image tagging strategy]
-    +-- enables --> [Azure deployment slots]
+Landing page (app/page.tsx replacement)
+  --> Terminal demo component
+  --> Install commands component
+  --> Hero section component
+  --> Feature cards component (optional)
+  --> DemoContext (for "Try Demo" button navigation)
 
-[GitHub Actions CI Workflow]
-    |
-    +-- requires --> [pnpm + Turbo cache setup]
-    +-- enables --> [PR validation (lint, typecheck, test)]
-    +-- enables --> [Path-filtered conditional builds]
+Login page enhancement
+  --> Install commands component (reuse from landing page)
 
-[GitHub Actions CD Workflow]
-    |
-    +-- requires --> [CI Workflow (tests must pass first)]
-    +-- requires --> [Wrangler Environment Config]
-    +-- requires --> [Azure Dockerfiles]
-    +-- requires --> [Repository secrets configured]
-    +-- requires --> [DNS + custom domains configured]
-    +-- enables --> [Staging deploys (on merge to main)]
-    +-- enables --> [Production deploys (on version tag)]
-    +-- enables --> [Post-deploy smoke tests]
-    +-- enables --> [Gradual rollouts for gateway]
+GoReleaser tap owner fix
+  --> (independent, no code dependency)
 
-[GitHub Environments + Protection Rules]
-    |
-    +-- enables --> [Production deploy gate (required reviewer)]
-    +-- enables --> [Environment-scoped secrets]
-    +-- enables --> [Deployment branch restrictions]
-
-[Deployment Runbook]
-    |
-    +-- requires --> [All of the above to be configured and working]
-    +-- documents --> [First-time setup, routine deploys, rollback, troubleshooting]
+CF API token permissions
+  --> (independent, ops task)
 ```
 
-### Critical Path
+---
 
-The dependency chain that blocks everything else:
+## MVP Recommendation
 
-1. **DNS + Cloudflare zone** -- Nothing works without DNS
-2. **Wrangler environments + Azure Dockerfiles** -- Cannot deploy without these
-3. **GitHub repository secrets** -- Deploys fail without auth tokens
-4. **CI workflow** -- CD workflow depends on CI passing
-5. **CD workflow** -- The actual deployment automation
-6. **Smoke tests + protection rules** -- Safety features layered on top
-7. **Deployment runbook** -- Documents the completed system
+**Prioritize (must ship together):**
+1. DemoContext + mock data -- foundation that everything depends on
+2. AuthGuard + hook modifications -- makes the actual demo dashboard work
+3. Landing page with hero + terminal demo + install commands -- first-visitor experience
+4. Demo banner + sidebar indicator -- prevents demo mode confusion
+5. GoReleaser tap owner fix -- one-line change, blocks correct install commands
 
-## Staging vs Production Feature Matrix
+**Ship alongside (low effort, high value):**
+6. Install commands on login page -- reuses existing component
+7. macOS-style terminal chrome -- 5 minutes of CSS work, big visual impact
 
-| Feature | Staging | Production | Notes |
-|---------|---------|------------|-------|
-| Wrangler environment | `--env staging` | `--env production` | Separate KV, D1, DO namespaces |
-| Workers custom domain | staging-api.feelr.dev | api.feelr.dev | Both auto-provision SSL |
-| Azure App Service | staging slot or separate app | production slot | Slot swap for zero-downtime |
-| Azure custom domain | staging-app.feelr.dev | app.feelr.dev | Separate CNAME records |
-| Deploy trigger | Push to main | Version tag (v*) | CD workflow uses branch/tag conditions |
-| Environment protection | None (auto-deploy) | Required reviewer | Prevents accidental production deploys |
-| D1 migrations | Auto-apply in CI | Manual with human review | Protects production data |
-| Gradual rollouts | No (deploy to 100%) | Yes (10% then 100%) | Staging is for verification, not canary |
-| Smoke tests | Yes (verify staging works) | Yes (verify production works) | Same test suite, different URLs |
-| Secrets | Staging-specific values | Production-specific values | GitHub environment-scoped secrets |
-| Monitoring urgency | Best-effort | Alert on failure | Production failures need immediate attention |
+**Defer to polish iteration:**
+8. Demo mode mutation feedback (toasts for create/revoke) -- nice to have, not blocking
+9. Feature cards section -- can iterate on marketing copy after initial launch
+10. Terminal demo replay button -- trivial to add later
+11. Landing page footer -- low priority
 
-## Service-Specific Deployment Features
+**Explicitly deferred to future milestone:**
+12. Onboarding wizard (post-login setup flow) -- separate milestone
+13. First-command verification -- requires gateway integration
 
-### Gateway (Cloudflare Workers)
-
-| Feature | Table Stakes? | Notes |
-|---------|---------------|-------|
-| `wrangler deploy --env <env>` | YES | Core deployment command |
-| Separate KV namespace per environment | YES | Bindings are non-inheritable; must declare per env |
-| Separate D1 database per environment | YES | Staging data must not pollute production |
-| DO migration tags per environment | YES | `[[migrations]]` applies to all envs; plan carefully |
-| Secrets set per environment | YES | `wrangler secret put KEY --env production` |
-| Custom domain per environment | YES | api.feelr.dev (prod), staging-api.feelr.dev (staging) |
-| Gradual rollouts | DIFFERENTIATOR | `wrangler versions upload` then `wrangler versions deploy` with percentage split |
-| Preview URLs for PRs | DIFFERENTIATOR | Auto-generated on `wrangler versions upload`; requires Wrangler 3.74.0+ |
-| Cron trigger configuration | YES | `[triggers] crons` for daily retention cleanup; verify works per environment |
-
-### Dashboard + Docs (Azure App Service)
-
-| Feature | Table Stakes? | Notes |
-|---------|---------------|-------|
-| Multi-stage Dockerfile | YES | Separate builder + runtime stages; pnpm workspace aware |
-| Container registry (GHCR) | YES | Push images to ghcr.io/andrewprograde/feelr-dashboard |
-| Custom domain + managed SSL | YES | CNAME + TXT verification; free auto-renewing certificates |
-| Health check endpoint | YES | Azure uses `/api/health` probe for container lifecycle |
-| Deployment slots | DIFFERENTIATOR | Requires Standard tier ($$$); manual swap for Linux containers |
-| Image tag strategy | YES | `sha-<commit>` for traceability; `v<semver>` for releases |
-| Environment variables per slot | YES | NEXT_PUBLIC_GATEWAY_URL differs between staging and production |
-| Startup command override | YES | `node server.js` or `next start` depending on build output |
-
-### CI/CD (GitHub Actions)
-
-| Feature | Table Stakes? | Notes |
-|---------|---------------|-------|
-| pnpm + Node.js setup with caching | YES | `actions/setup-node@v4` with `cache: 'pnpm'` |
-| Turbo task pipeline (typecheck, test, build) | YES | `turbo run typecheck test build` respects dependency graph |
-| Path-based filtering | YES | Only deploy changed services; `dorny/paths-filter` |
-| Concurrency controls | YES | `concurrency: group: deploy-staging, cancel-in-progress: true` |
-| Environment protection rules | YES | Production requires approval; staging auto-deploys |
-| Post-deploy smoke tests | DIFFERENTIATOR | `curl` health endpoints with retry after each deploy |
-| Matrix builds | NOT NEEDED | Only 3 services; matrix adds complexity without benefit |
-| Reusable workflows | DIFFERENTIATOR | Factor common steps (pnpm setup, Docker build) into callable workflows |
-| Turbo remote cache | DIFFERENTIATOR | TURBO_TOKEN + TURBO_TEAM for cross-run caching |
-
-## MVP Deployment Recommendation
-
-### Ship First (blocking production launch)
-
-1. Wrangler environment configuration (staging + production) with all bindings
-2. Workers custom domain for api.feelr.dev
-3. Dockerfiles for dashboard and docs apps
-4. DNS records for all three subdomains
-5. GitHub Actions CI workflow (typecheck + test on every PR)
-6. GitHub Actions CD workflow (staging on main, production on tags)
-7. GitHub repository and environment secrets
-8. Azure managed SSL certificates
-9. Health check endpoints in dashboard and docs
-10. Deployment runbook (first-time setup + routine deploys + rollback)
-
-### Add After Launch (operational improvements)
-
-1. Workers gradual rollouts (after first few manual full-deploys build confidence)
-2. Azure deployment slots (when budget allows Standard tier)
-3. Post-deploy smoke tests (after URLs are stable and health endpoints are proven)
-4. Staging DNS subdomains (after main domains work correctly)
-5. Turbo remote cache (after CI time becomes a pain point)
-6. Preview URLs as PR comments (after PR volume justifies the DX investment)
-7. Concurrency controls (after encountering a race condition, or preventively)
-
-### Never Build
-
-1. Kubernetes cluster
-2. Multi-region Azure deployment
-3. Terraform/Pulumi for 3 services
-4. Separate CI/CD tool
-5. Automated canary analysis
-6. Auto-apply production D1 migrations
+---
 
 ## Sources
 
-- [Cloudflare Workers Environments Documentation](https://developers.cloudflare.com/workers/wrangler/environments/) -- HIGH confidence, official docs
-- [Cloudflare Workers Versions & Deployments](https://developers.cloudflare.com/workers/configuration/versions-and-deployments/) -- HIGH confidence, official docs
-- [Cloudflare Workers Gradual Deployments](https://developers.cloudflare.com/workers/configuration/versions-and-deployments/gradual-deployments/) -- HIGH confidence, official docs
-- [Cloudflare Workers Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/) -- HIGH confidence, official docs
-- [Cloudflare Workers Preview URLs](https://developers.cloudflare.com/workers/configuration/previews/) -- HIGH confidence, official docs
-- [Cloudflare Workers Secrets](https://developers.cloudflare.com/workers/configuration/secrets/) -- HIGH confidence, official docs
-- [Cloudflare CNAME Flattening](https://developers.cloudflare.com/dns/cname-flattening/) -- HIGH confidence, official docs
-- [cloudflare/wrangler-action (GitHub)](https://github.com/cloudflare/wrangler-action) -- HIGH confidence, official Cloudflare action
-- [Azure App Service Deploy Staging Slots](https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots) -- HIGH confidence, official Microsoft docs
-- [Azure App Service Health Check](https://learn.microsoft.com/en-us/azure/app-service/monitor-instances-health-check) -- HIGH confidence, official Microsoft docs
-- [Azure Custom Domain Tutorial](https://learn.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-custom-domain) -- HIGH confidence, official Microsoft docs
-- [Azure App Service Container Deployment via GitHub Actions](https://learn.microsoft.com/en-us/azure/app-service/deploy-container-github-action) -- HIGH confidence, official Microsoft docs
-- [Azure Managed Certificate GA Announcement](https://azure.github.io/AppService/2021/05/25/App-Service-Managed-Certificate-GA.html) -- HIGH confidence, official Microsoft blog
-- [GitHub Actions Environments for Deployment](https://docs.github.com/actions/deployment/targeting-different-environments/using-environments-for-deployment) -- HIGH confidence, official GitHub docs
-- [GitHub Actions Reviewing Deployments](https://docs.github.com/actions/managing-workflow-runs/reviewing-deployments) -- HIGH confidence, official GitHub docs
-- [GitHub Actions Deploying Docker to Azure](https://docs.github.com/en/actions/how-tos/deploy/deploy-to-third-party-platforms/docker-to-azure-app-service) -- HIGH confidence, official GitHub docs
-- [Turborepo GitHub Actions Guide](https://turborepo.dev/docs/guides/ci-vendors/github-actions) -- HIGH confidence, official Turbo docs
-- [dorny/paths-filter GitHub Action](https://github.com/dorny/paths-filter) -- MEDIUM confidence, widely-used community action
-- [Azure App Service Health Checks and Zero Downtime](https://johnnyreilly.com/azure-app-service-health-checks-and-zero-downtime-deployments) -- MEDIUM confidence, practitioner blog with practical details
-- [Deployment Runbook Best Practices (Enov8)](https://www.enov8.com/blog/deployment-runbooks-aka-runsheets-explained/) -- MEDIUM confidence, industry practitioner resource
+- Existing codebase analysis -- all dashboard component files read and analyzed for integration points
+- [Feelr Strategy Document](../../feelr-strategy.md) -- brand colors, product positioning, pricing tiers
+- [Next.js Static Exports](https://nextjs.org/docs/app/guides/static-exports) -- server/client component behavior
+- [SWR Documentation](https://swr.vercel.app/) -- key-based caching, fetcher patterns
+- Developer tool landing page patterns: Warp, Railway, Homebrew -- terminal demos are standard for CLI-first products (MEDIUM confidence, pattern observation)
+- [MagicUI Terminal](https://magicui.design/docs/components/terminal) -- reviewed and rejected for this use case
+- [Motion Typewriter](https://motion.dev/docs/react-typewriter) -- reviewed and rejected for bundle size reasons
 
 ---
-*Deployment feature research for: Feelr production deployment & CI/CD*
-*Researched: 2026-02-09*
+*Feature landscape research for: Feelr interactive demo, dashboard demo mode, and landing page*
+*Researched: 2026-02-10*
