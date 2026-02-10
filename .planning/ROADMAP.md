@@ -111,10 +111,11 @@ Plans:
   2. Merging a PR that changes only docs code deploys the docs site to staging without triggering gateway or dashboard deploys
   3. Dashboard build uses the correct `NEXT_PUBLIC_GATEWAY_URL` for the target environment (staging vs production gateway endpoint)
   4. Three separate workflow files exist (gateway.yml, dashboard.yml, docs.yml) each with path-based triggers scoped to their service
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 15-01: TBD
+- [ ] 15-01-PLAN.md -- Set SWA secrets, update turbo.json env config, consolidate gateway workflows into gateway.yml
+- [ ] 15-02-PLAN.md -- Create dashboard.yml and docs.yml workflows for Azure SWA deployment
 
 ### Phase 16: Deployment Guides & Hardening
 **Goal**: All deployment knowledge is captured in runbooks and scripts so the developer can set up, deploy, roll back, and troubleshoot any service without tribal knowledge
