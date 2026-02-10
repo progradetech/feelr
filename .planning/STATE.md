@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 
 ## Current Position
 
-Phase: 12 of 16 (Gateway Infrastructure & Environments)
-Plan: 1 of 2 in current phase
-Status: Plan 12-01 complete, 12-02 pending
-Last activity: 2026-02-10 -- Completed 12-01 Gateway Config & D1 Migration (wrangler.toml restructured, D1 migration created)
+Phase: 12 of 16 (Gateway Infrastructure & Environments) -- COMPLETE
+Plan: 2 of 2 in current phase -- ALL COMPLETE
+Status: Phase 12 complete. Next: Phase 13
+Last activity: 2026-02-10 -- Completed 12-02 Resource Provisioning & Environment Deployment (KV, D1 provisioned, Workers deployed, api.feelr.dev live with SSL)
 
-Progress: [###########.........] 54% (54/~61 plans across v1.0 + v1.1)
+Progress: [############........] 57% (55/~61 plans across v1.0 + v1.1)
 
 ## Milestone History
 
@@ -32,9 +32,9 @@ Progress: [###########.........] 54% (54/~61 plans across v1.0 + v1.1)
 - Timeline: 5 days (2026-02-05 to 2026-02-09)
 
 **v1.1 Velocity:**
-- Total plans completed: 3
+- Total plans completed: 4
 - Average duration: 2 min
-- Total execution time: 5 min
+- Total execution time: ~7 min (excludes human checkpoint wait times)
 
 ## Accumulated Context
 
@@ -55,6 +55,9 @@ v1.1 confirmed decisions:
 - [Phase 12]: Placeholder IDs in wrangler.toml for Plan 12-02 to replace with real Cloudflare resource IDs
 - [Phase 12]: Top-level wrangler.toml reduced to inheritable settings only; all bindings in per-env sections
 - [Phase 12]: Staging uses workers_dev URL; production uses custom_domain for api.feelr.dev
+- [Phase 12]: Auto-registered feelr.workers.dev subdomain for Worker deployment
+- [Phase 12]: KV isolation verified architecturally (separate namespace IDs) rather than direct write test
+- [Phase 12]: Per-environment secrets set interactively; different values for staging vs production
 
 ### Pending Todos
 
@@ -75,5 +78,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 12-01-PLAN.md (Gateway Config & D1 Migration). Plan 12-02 next.
+Stopped at: Completed 12-02-PLAN.md (Resource Provisioning & Environment Deployment). Phase 12 complete. Phase 13 next.
 Resume file: None
