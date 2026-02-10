@@ -5,16 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Planning next milestone
+**Current focus:** v1.2.0 Marketing & Onboarding
 
 ## Current Position
 
-Phase: All complete (16 phases across 2 milestones)
-Plan: N/A
-Status: v1.1 milestone archived. Ready for next milestone via /gsd:new-milestone
-Last activity: 2026-02-10 — v1.1 Deployment & CI/CD milestone archived
-
-Progress: [####################] 100% (64/64 plans across v1.0 + v1.1)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-10 — Milestone v1.2.0 started
 
 ## Milestone History
 

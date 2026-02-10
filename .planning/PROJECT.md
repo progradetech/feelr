@@ -10,7 +10,7 @@ An AI agent can call any supported external API in one line with near-zero conte
 
 ## Current State
 
-**Version:** v1.1 Deployment & CI/CD (shipped 2026-02-10)
+**Version:** v1.2.0 Marketing & Onboarding (in progress)
 **Codebase:** ~19,600 LOC (13,580 TypeScript + 6,021 Go) across 400+ files
 **Tech stack:** Cloudflare Workers + Hono (gateway), Go + Cobra (CLI), Next.js 15.5 (dashboard), Stripe (billing), workerd (self-hosting)
 
@@ -70,7 +70,12 @@ An AI agent can call any supported external API in one line with near-zero conte
 
 ### Active
 
-(No active requirements — next milestone not yet defined)
+<!-- v1.2.0 — Marketing & Onboarding -->
+
+- [ ] Homebrew tap moved to progradetech/homebrew-feelr with correct brew install command
+- [ ] Landing page on app.feelr.dev shows install commands below sign-in button
+- [ ] Interactive demo walkthrough with embedded terminal UI and animated typing
+- [ ] Demo dashboard mode showing actual dashboard UI with fake data
 
 ### Out of Scope
 
@@ -131,5 +136,10 @@ An AI agent can call any supported external API in one line with near-zero conte
 | DNS-only (gray cloud) for Azure CNAME records | Cloudflare proxy breaks Azure SWA SSL verification | ✓ Good — permanent setting, managed SSL renewal works |
 | Consolidated gateway.yml workflow | Single file with conditional staging/production jobs | ✓ Good — cleaner than separate deploy-staging + deploy-production files |
 
+| Embedded terminal demo (not real sandboxed terminal) | Controlled experience, zero backend infra, purely frontend with animated typing | — Pending |
+| Mocked API responses for demo | Predictable, no token management, works offline, zero maintenance | — Pending |
+| Demo mode in actual dashboard (not separate page) | User sees exactly what they'd get, reuses existing UI components | — Pending |
+| Move Homebrew tap to progradetech org | Matches public org, cleaner brew install command | — Pending |
+
 ---
-*Last updated: 2026-02-10 after v1.1 milestone*
+*Last updated: 2026-02-10 after v1.2.0 milestone start*
