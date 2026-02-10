@@ -7,6 +7,5 @@ export default {
   '-- Self-Hosting': {
     title: 'Self-Hosting',
     href: 'https://github.com/andrewprograde/feelr/tree/main/self-host',
-    newWindow: true,
   },
 }
