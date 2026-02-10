@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 13 - Gateway CI/CD Pipeline
+**Current focus:** Phase 14 - Azure Static Web Apps Provisioning
 
 ## Current Position
 
-Phase: 13 of 16 (Gateway CI/CD Pipeline) -- COMPLETE
-Plan: 2 of 2 in current phase -- ALL COMPLETE
-Status: Phase 13 complete. Next: Phase 14
-Last activity: 2026-02-10 -- Completed 13-02 Deployment Workflows (staging + production deploy with gradual rollouts, smoke tests, approval gates)
+Phase: 14 of 16 (Azure Static Web Apps Provisioning)
+Plan: 1 of 2 in current phase
+Status: Completed 14-01. Next: 14-02 (custom domains)
+Last activity: 2026-02-10 -- Completed 14-01 SWA Provisioning (Azure resources created, both apps deployed to default URLs)
 
-Progress: [############........] 60% (57/~61 plans across v1.0 + v1.1)
+Progress: [############........] 62% (58/~61 plans across v1.0 + v1.1)
 
 ## Milestone History
 
@@ -32,9 +32,9 @@ Progress: [############........] 60% (57/~61 plans across v1.0 + v1.1)
 - Timeline: 5 days (2026-02-05 to 2026-02-09)
 
 **v1.1 Velocity:**
-- Total plans completed: 6
-- Average duration: 2 min
-- Total execution time: ~11 min (excludes human checkpoint wait times)
+- Total plans completed: 7
+- Average duration: 3 min
+- Total execution time: ~28 min (excludes human checkpoint wait times)
 
 ## Accumulated Context
 
@@ -64,6 +64,10 @@ v1.1 confirmed decisions:
 - [Phase 13]: Automatic gradual rollout (10% -> smoke test -> 100%) for production; manual CLI available if needed
 - [Phase 13]: versions upload + versions deploy for production (not wrangler deploy) to enable traffic splitting
 - [Phase 13]: DO migration releases must bypass gradual rollout and use wrangler deploy directly
+- [Phase 14]: Standard plan for both SWAs (required for custom domains)
+- [Phase 14]: Microsoft.Web resource provider registered before SWA creation
+- [Phase 14]: Fixed Nextra 4.6.1 docs build (strict schema, missing imports, not-found page)
+- [Phase 14]: GitHub Actions secrets deferred; tokens retrievable via az CLI
 
 ### Pending Todos
 
@@ -78,11 +82,12 @@ None.
 ### Blockers/Concerns
 
 - ~~DNS propagation after nameserver change can take up to 24 hours (Phase 11 may gate Phase 12)~~ RESOLVED: Propagation confirmed 2026-02-09
-- Cloudflare orange-cloud proxy must be disabled during Azure domain verification (Phase 14 sequencing)
+- Cloudflare orange-cloud proxy must be disabled during Azure domain verification (Phase 14-02 sequencing)
 - ~~Workers gradual rollouts may have limitations with Durable Objects (Phase 13 research needed)~~ RESOLVED: DO migration releases use wrangler deploy directly; normal code changes use gradual rollout path
+- GitHub Actions secrets (SWA_DASHBOARD_DEPLOYMENT_TOKEN, SWA_DOCS_DEPLOYMENT_TOKEN) not yet set - needed before Phase 15 CI/CD. Tokens retrievable via `az staticwebapp secrets list`
 
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 13-02-PLAN.md (Deployment Workflows). Phase 13 complete. Phase 14 next.
+Stopped at: Completed 14-01-PLAN.md (SWA Provisioning). Dashboard and docs deployed to Azure default URLs. Plan 14-02 (custom domains) next.
 Resume file: None
