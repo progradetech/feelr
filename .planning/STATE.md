@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 
 ## Current Position
 
-Phase: 13 of 16 (Gateway CI/CD Pipeline)
-Plan: 1 of 2 in current phase -- COMPLETE
-Status: Executing Phase 13. Plan 13-01 complete. Next: 13-02
-Last activity: 2026-02-10 -- Completed 13-01 PR Quality Gates & Staging Preview (CI workflow with lint/typecheck/test + staging preview deploy)
+Phase: 13 of 16 (Gateway CI/CD Pipeline) -- COMPLETE
+Plan: 2 of 2 in current phase -- ALL COMPLETE
+Status: Phase 13 complete. Next: Phase 14
+Last activity: 2026-02-10 -- Completed 13-02 Deployment Workflows (staging + production deploy with gradual rollouts, smoke tests, approval gates)
 
-Progress: [############........] 59% (56/~61 plans across v1.0 + v1.1)
+Progress: [############........] 60% (57/~61 plans across v1.0 + v1.1)
 
 ## Milestone History
 
@@ -32,9 +32,9 @@ Progress: [############........] 59% (56/~61 plans across v1.0 + v1.1)
 - Timeline: 5 days (2026-02-05 to 2026-02-09)
 
 **v1.1 Velocity:**
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: 2 min
-- Total execution time: ~9 min (excludes human checkpoint wait times)
+- Total execution time: ~11 min (excludes human checkpoint wait times)
 
 ## Accumulated Context
 
@@ -60,6 +60,10 @@ v1.1 confirmed decisions:
 - [Phase 12]: Per-environment secrets set interactively; different values for staging vs production
 - [Phase 13]: Lint aliases tsc --noEmit (lightweight, no dedicated linter yet)
 - [Phase 13]: PR staging comment updates in-place instead of creating duplicates
+- [Phase 13]: Shared deploy-staging concurrency group between ci.yml and deploy-staging.yml to prevent staging races
+- [Phase 13]: Automatic gradual rollout (10% -> smoke test -> 100%) for production; manual CLI available if needed
+- [Phase 13]: versions upload + versions deploy for production (not wrangler deploy) to enable traffic splitting
+- [Phase 13]: DO migration releases must bypass gradual rollout and use wrangler deploy directly
 
 ### Pending Todos
 
@@ -75,10 +79,10 @@ None.
 
 - ~~DNS propagation after nameserver change can take up to 24 hours (Phase 11 may gate Phase 12)~~ RESOLVED: Propagation confirmed 2026-02-09
 - Cloudflare orange-cloud proxy must be disabled during Azure domain verification (Phase 14 sequencing)
-- Workers gradual rollouts may have limitations with Durable Objects (Phase 13 research needed)
+- ~~Workers gradual rollouts may have limitations with Durable Objects (Phase 13 research needed)~~ RESOLVED: DO migration releases use wrangler deploy directly; normal code changes use gradual rollout path
 
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 13-01-PLAN.md (PR Quality Gates & Staging Preview). Next: 13-02.
+Stopped at: Completed 13-02-PLAN.md (Deployment Workflows). Phase 13 complete. Phase 14 next.
 Resume file: None
