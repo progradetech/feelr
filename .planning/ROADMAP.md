@@ -81,11 +81,11 @@ Plans:
   3. Pushing a version tag automatically deploys the gateway to production after passing a GitHub environment approval gate
   4. Developer can perform a gradual rollout (10% then 100%) for production gateway deployments
   5. Two simultaneous pushes to main do not cause deployment races (one waits or cancels)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 13-01: TBD
-- [ ] 13-02: TBD
+- [ ] 13-01-PLAN.md -- Add lint task to Turborepo and create CI workflow for PR checks with staging preview
+- [ ] 13-02-PLAN.md -- Create staging and production deploy workflows with gradual rollouts and approval gate
 
 ### Phase 14: Azure Static Web Apps Provisioning
 **Goal**: Dashboard and docs/marketing site are deployed to Azure Static Web Apps with custom domains and managed SSL, accessible at their public URLs
@@ -143,7 +143,7 @@ Note: Phase 14 depends on Phase 11 (not 13), so phases 12/13 and 14 could theore
 | 1-10 | v1.0 | 51/51 | Complete | 2026-02-09 |
 | 11. DNS & Cloudflare Zone Setup + CI/CD Audit | v1.1 | 2/2 | Complete | 2026-02-09 |
 | 12. Gateway Infrastructure & Environments | v1.1 | 2/2 | Complete | 2026-02-10 |
-| 13. Gateway CI/CD Pipeline | v1.1 | 0/TBD | Not started | - |
+| 13. Gateway CI/CD Pipeline | v1.1 | 0/2 | Planned | - |
 | 14. Azure Static Web Apps Provisioning | v1.1 | 0/TBD | Not started | - |
 | 15. Frontend CI/CD Pipelines | v1.1 | 0/TBD | Not started | - |
 | 16. Deployment Guides & Hardening | v1.1 | 0/TBD | Not started | - |
