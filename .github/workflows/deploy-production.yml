@@ -1,0 +1,84 @@
+# Deploy gateway to production on version tag push
+# Uses gradual rollout: versions upload -> 10% deploy -> smoke test -> 100% deploy
+# Requires GitHub 'production' environment approval gate (CI-07)
+#
+# NOTE: If a release includes new Durable Object migrations ([[migrations]] in wrangler.toml),
+# `versions upload` will fail. Use `wrangler deploy --env production` manually instead.
+# This is a known Cloudflare constraint (Pitfall 2 from research).
+name: Deploy Production
+
+on:
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false # Queue deploys, never cancel mid-flight
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production # Triggers GitHub environment approval gate
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+
+      # Upload version without deploying (enables gradual rollout)
+      - name: Upload new version
+        id: upload
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/gateway
+          command: versions upload --env production --tag ${{ github.ref_name }} --message "Release ${{ github.ref_name }}"
+          packageManager: pnpm
+
+      # Get the version ID from the upload for subsequent deploy steps
+      - name: Get version ID
+        id: version
+        run: |
+          VERSION_ID=$(npx wrangler versions list --env production --json --name feelr-gateway-production | jq -r '.[0].id')
+          echo "version_id=$VERSION_ID" >> "$GITHUB_OUTPUT"
+        working-directory: apps/gateway
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # Deploy at 10% -- canary phase
+      - name: Gradual deploy (10%)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/gateway
+          command: versions deploy ${{ steps.version.outputs.version_id }}@10% --env production --yes --message "Canary ${{ github.ref_name }} at 10%"
+          packageManager: pnpm
+
+      # Smoke test at 10% -- more retries since only 10% of traffic hits new version
+      - name: Smoke test production
+        uses: jtalk/url-health-check-action@v4
+        with:
+          url: https://api.feelr.dev/health
+          max-attempts: 5
+          retry-delay: 10s
+
+      # Promote to 100% -- full rollout after smoke test passes
+      - name: Full deploy (100%)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/gateway
+          command: versions deploy ${{ steps.version.outputs.version_id }}@100% --env production --yes --message "Release ${{ github.ref_name }} at 100%"
+          packageManager: pnpm
