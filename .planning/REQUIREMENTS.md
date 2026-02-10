@@ -79,32 +79,32 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CICD-01 | TBD | Pending |
-| CICD-02 | TBD | Pending |
-| CICD-03 | TBD | Pending |
-| LAND-01 | TBD | Pending |
-| LAND-02 | TBD | Pending |
-| LAND-03 | TBD | Pending |
-| LAND-04 | TBD | Pending |
-| LAND-05 | TBD | Pending |
-| DEMO-01 | TBD | Pending |
-| DEMO-02 | TBD | Pending |
-| DEMO-03 | TBD | Pending |
-| DEMO-04 | TBD | Pending |
-| DASH-01 | TBD | Pending |
-| DASH-02 | TBD | Pending |
-| DASH-03 | TBD | Pending |
-| DASH-04 | TBD | Pending |
-| DASH-05 | TBD | Pending |
-| DASH-06 | TBD | Pending |
-| DASH-07 | TBD | Pending |
-| ANLYT-01 | TBD | Pending |
+| CICD-01 | Phase 17 | Pending |
+| CICD-02 | Phase 17 | Pending |
+| CICD-03 | Phase 17 | Pending |
+| LAND-01 | Phase 20 | Pending |
+| LAND-02 | Phase 20 | Pending |
+| LAND-03 | Phase 20 | Pending |
+| LAND-04 | Phase 20 | Pending |
+| LAND-05 | Phase 20 | Pending |
+| DEMO-01 | Phase 21 | Pending |
+| DEMO-02 | Phase 21 | Pending |
+| DEMO-03 | Phase 21 | Pending |
+| DEMO-04 | Phase 21 | Pending |
+| DASH-01 | Phase 18 | Pending |
+| DASH-02 | Phase 18 | Pending |
+| DASH-03 | Phase 19 | Pending |
+| DASH-04 | Phase 19 | Pending |
+| DASH-05 | Phase 19 | Pending |
+| DASH-06 | Phase 21 | Pending |
+| DASH-07 | Phase 19 | Pending |
+| ANLYT-01 | Phase 20 | Pending |
 
 **Coverage:**
 - v1.2.0 requirements: 20 total
-- Mapped to phases: 0
-- Unmapped: 20 (awaiting roadmap)
+- Mapped to phases: 20
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-10*
-*Last updated: 2026-02-10 after initial definition*
+*Last updated: 2026-02-10 after roadmap creation*
