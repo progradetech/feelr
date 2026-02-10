@@ -1,0 +1,121 @@
+# PR quality gates: lint, typecheck, test (CI-01)
+# Plus staging preview deploy for gateway changes (GW-06)
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+concurrency:
+  group: ci-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed for turbo --affected to compare against base
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Cache Turborepo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - name: Lint, typecheck, test (affected packages)
+        run: pnpm turbo run lint typecheck test --affected
+
+  gateway-preview:
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Same concurrency group as deploy-staging.yml to prevent staging deploy races (Pitfall 4)
+    concurrency:
+      group: deploy-staging
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for gateway changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            gateway:
+              - 'apps/gateway/**'
+              - 'packages/**'
+              - 'connectors/**'
+
+      - uses: pnpm/action-setup@v4
+        if: steps.filter.outputs.gateway == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.filter.outputs.gateway == 'true'
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+        if: steps.filter.outputs.gateway == 'true'
+
+      - name: Deploy gateway to staging
+        if: steps.filter.outputs.gateway == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/gateway
+          command: deploy --env staging
+          packageManager: pnpm
+
+      - name: Comment staging URL on PR
+        if: steps.filter.outputs.gateway == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `### Staging Preview
+
+            Gateway deployed to staging for this PR.
+
+            **URL:** https://feelr-gateway-staging.feelr.workers.dev
+
+            > This preview will be overwritten by subsequent pushes to this PR or merges to main.`;
+
+            // Find and update existing comment, or create new one
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('### Staging Preview')
+            );
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
