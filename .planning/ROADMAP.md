@@ -96,11 +96,11 @@ Plans:
   2. `curl https://feelr.dev` loads the Feelr docs/marketing site with a valid SSL certificate
   3. Both apps are deployed from pre-built static output (pnpm/turbo build), not using Azure's built-in Oryx builder
   4. Azure SWA dashboard shows both apps on the Standard plan with custom domains verified and SSL certificates active
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 14-01: TBD
-- [ ] 14-02: TBD
+- [ ] 14-01-PLAN.md -- Create SWA config files, fix Turborepo caching, provision Azure resources, and deploy both apps
+- [ ] 14-02-PLAN.md -- Wire custom domains with TXT verification and managed SSL certificates
 
 ### Phase 15: Frontend CI/CD Pipelines
 **Goal**: Dashboard and docs deployments are automated with environment-aware builds, and all three services (gateway, dashboard, docs) have independent CI/CD workflows
@@ -144,6 +144,6 @@ Note: Phase 14 depends on Phase 11 (not 13), so phases 12/13 and 14 could theore
 | 11. DNS & Cloudflare Zone Setup + CI/CD Audit | v1.1 | 2/2 | Complete | 2026-02-09 |
 | 12. Gateway Infrastructure & Environments | v1.1 | 2/2 | Complete | 2026-02-10 |
 | 13. Gateway CI/CD Pipeline | v1.1 | 2/2 | Complete | 2026-02-10 |
-| 14. Azure Static Web Apps Provisioning | v1.1 | 0/TBD | Not started | - |
+| 14. Azure Static Web Apps Provisioning | v1.1 | 0/2 | Not started | - |
 | 15. Frontend CI/CD Pipelines | v1.1 | 0/TBD | Not started | - |
 | 16. Deployment Guides & Hardening | v1.1 | 0/TBD | Not started | - |
