@@ -36,12 +36,12 @@ ENVIRONMENT = "staging"
 
 [[env.staging.kv_namespaces]]
 binding = "AUTH_KV"
-id = "PLACEHOLDER_STAGING_KV"
+id = "be026de357f34093ab3c95cb587f3522"
 
 [[env.staging.d1_databases]]
 binding = "USAGE_DB"
 database_name = "feelr-usage-staging"
-database_id = "PLACEHOLDER_STAGING_D1"
+database_id = "7a385374-3a04-48e2-902f-80e164ee0590"
 
 [env.staging.durable_objects]
 bindings = [
@@ -89,12 +89,12 @@ ENVIRONMENT = "production"
 
 [[env.production.kv_namespaces]]
 binding = "AUTH_KV"
-id = "PLACEHOLDER_PRODUCTION_KV"
+id = "69c0aa3763b9467fb7f5c8dc1b7a752e"
 
 [[env.production.d1_databases]]
 binding = "USAGE_DB"
 database_name = "feelr-usage-production"
-database_id = "PLACEHOLDER_PRODUCTION_D1"
+database_id = "3395e4fc-e9e1-4115-8762-f2bc76df8438"
 
 [env.production.durable_objects]
 bindings = [
