@@ -1,0 +1,90 @@
+# Docs deploy workflow: staging (push to main) + production (tag push)
+# Deploys Next.js (Nextra) static export to Azure Static Web Apps
+#
+# Staging: pushes to main affecting docs trigger staging deploy
+# Production: v* tags trigger production deploy with GitHub environment approval gate
+#
+# NOTE: Docs is a pure content site -- no gateway URL env var injection needed
+name: Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/docs/**"
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  deploy-staging:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: deploy-docs-staging
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build docs
+        run: pnpm turbo run build --filter=@feelr/docs
+
+      - name: Copy SWA config
+        run: cp apps/docs/staticwebapp.config.json apps/docs/out/
+
+      - name: Deploy to SWA staging
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.SWA_DOCS_DEPLOYMENT_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: upload
+          app_location: apps/docs/out
+          output_location: ""
+          skip_app_build: true
+          deployment_environment: staging
+
+  deploy-production:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    concurrency:
+      group: deploy-docs-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build docs
+        run: pnpm turbo run build --filter=@feelr/docs
+
+      - name: Copy SWA config
+        run: cp apps/docs/staticwebapp.config.json apps/docs/out/
+
+      - name: Deploy to SWA production
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.SWA_DOCS_DEPLOYMENT_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: upload
+          app_location: apps/docs/out
+          output_location: ""
+          skip_app_build: true
