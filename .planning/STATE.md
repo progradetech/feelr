@@ -11,10 +11,10 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 
 Phase: 16 of 16 (Deployment Guides & Hardening)
 Plan: 3 of 3 in current phase -- COMPLETE
-Status: Phase 16 plan 03 complete. Binding isolation CI check added. Phase 16 in progress.
-Last activity: 2026-02-10 -- Completed 16-03 Binding Isolation CI Check
+Status: Phase 16 complete. All plans executed: deployment runbook, deploy scripts/secrets inventory, and binding CI check.
+Last activity: 2026-02-10 -- Completed 16-01 Deployment Runbook
 
-Progress: [################....] 72% (64/~65 plans across v1.0 + v1.1)
+Progress: [####################] 100% (65/65 plans across v1.0 + v1.1)
 
 ## Milestone History
 
@@ -32,9 +32,9 @@ Progress: [################....] 72% (64/~65 plans across v1.0 + v1.1)
 - Timeline: 5 days (2026-02-05 to 2026-02-09)
 
 **v1.1 Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: 3 min
-- Total execution time: ~33 min (excludes human checkpoint wait times)
+- Total execution time: ~35 min (excludes human checkpoint wait times)
 
 ## Accumulated Context
 
@@ -81,6 +81,9 @@ v1.1 confirmed decisions:
 - [Phase 16]: Rate limit namespace_id excluded from binding validation (policy identifier, not resource ID)
 - [Phase 16]: Binding check runs in existing CI check job before lint/typecheck/test for early failure
 - [Phase 16]: Validation step placed before lint/typecheck/test for early configuration error detection
+- [Phase 16]: Single runbook file consolidating all deployment procedures for discoverability
+- [Phase 16]: Config file paths referenced in runbook rather than hardcoding resource IDs
+- [Phase 16]: DO migration rollback constraint documented in both rollback and production deploy sections
 
 ### Pending Todos
 
@@ -102,5 +105,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 16-03-PLAN.md (Binding Isolation CI Check). scripts/check-bindings.mjs created, CI updated.
+Stopped at: Completed 16-01-PLAN.md (Deployment Runbook). All Phase 16 plans complete. v1.1 milestone complete.
 Resume file: None
