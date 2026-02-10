@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 15 - Frontend CI/CD Pipelines
+**Current focus:** Phase 16 - Deployment Guides & Hardening
 
 ## Current Position
 
-Phase: 15 of 16 (Frontend CI/CD Pipelines)
-Plan: 2 of 2 in current phase -- COMPLETE
-Status: Phase 15 complete. All frontend CI/CD workflows created. Next: Phase 16
-Last activity: 2026-02-10 -- Completed 15-02 Frontend Deploy Workflows
+Phase: 16 of 16 (Deployment Guides & Hardening)
+Plan: 3 of 3 in current phase -- COMPLETE
+Status: Phase 16 plan 03 complete. Binding isolation CI check added. Phase 16 in progress.
+Last activity: 2026-02-10 -- Completed 16-03 Binding Isolation CI Check
 
-Progress: [###############.....] 69% (61/~62 plans across v1.0 + v1.1)
+Progress: [################....] 72% (64/~65 plans across v1.0 + v1.1)
 
 ## Milestone History
 
@@ -32,9 +32,9 @@ Progress: [###############.....] 69% (61/~62 plans across v1.0 + v1.1)
 - Timeline: 5 days (2026-02-05 to 2026-02-09)
 
 **v1.1 Velocity:**
-- Total plans completed: 9
+- Total plans completed: 10
 - Average duration: 3 min
-- Total execution time: ~31 min (excludes human checkpoint wait times)
+- Total execution time: ~33 min (excludes human checkpoint wait times)
 
 ## Accumulated Context
 
@@ -78,6 +78,9 @@ v1.1 confirmed decisions:
 - [Phase 15]: Dashboard path triggers include packages/tsconfig/** (shared dependency); docs does not
 - [Phase 15]: Docs workflow has zero gateway URL references (pure content site)
 - [Phase 15]: SWA staging uses deployment_environment: staging; production omits it for default slot
+- [Phase 16]: Rate limit namespace_id excluded from binding validation (policy identifier, not resource ID)
+- [Phase 16]: Binding check runs in existing CI check job before lint/typecheck/test for early failure
+- [Phase 16]: Validation step placed before lint/typecheck/test for early configuration error detection
 
 ### Pending Todos
 
@@ -99,5 +102,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 15-02-PLAN.md (Frontend Deploy Workflows). dashboard.yml and docs.yml created. Phase 15 complete. Phase 16 next.
+Stopped at: Completed 16-03-PLAN.md (Binding Isolation CI Check). scripts/check-bindings.mjs created, CI updated.
 Resume file: None
