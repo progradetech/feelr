@@ -3,7 +3,7 @@
 ## Milestones
 
 - [x] **v1.0 MVP** - Phases 1-10 (shipped 2026-02-09) | [Archive](milestones/v1.0-ROADMAP.md)
-- [ ] **v1.1 Deployment & CI/CD** - Phases 11-16 (in progress)
+- [x] **v1.1 Deployment & CI/CD** - Phases 11-16 (shipped 2026-02-10)
 
 ## Phases
 
@@ -36,7 +36,7 @@
 - [x] **Phase 13: Gateway CI/CD Pipeline** - Automate gateway deployment with quality gates, rollouts, and environment protection (completed 2026-02-10)
 - [x] **Phase 14: Azure Static Web Apps Provisioning** - Deploy dashboard and docs to Azure SWA with custom domains and managed SSL (completed 2026-02-10)
 - [x] **Phase 15: Frontend CI/CD Pipelines** - Automate dashboard and docs deployment with environment-aware builds (completed 2026-02-10)
-- [ ] **Phase 16: Deployment Guides & Hardening** - Document operational procedures and add deployment safety checks
+- [x] **Phase 16: Deployment Guides & Hardening** - Document operational procedures and add deployment safety checks (completed 2026-02-10)
 
 ## Phase Details
 
@@ -130,9 +130,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 16-01-PLAN.md -- Deployment runbook (first-time setup, routine deploys, rollbacks, troubleshooting)
-- [ ] 16-02-PLAN.md -- Deployment scripts and secrets inventory
-- [ ] 16-03-PLAN.md -- CI binding validation check
+- [x] 16-01-PLAN.md -- Deployment runbook (first-time setup, routine deploys, rollbacks, troubleshooting)
+- [x] 16-02-PLAN.md -- Deployment scripts and secrets inventory
+- [x] 16-03-PLAN.md -- CI binding validation check
 
 ## Progress
 
@@ -148,4 +148,4 @@ Note: Phase 14 depends on Phase 11 (not 13), so phases 12/13 and 14 could theore
 | 13. Gateway CI/CD Pipeline | v1.1 | 2/2 | Complete | 2026-02-10 |
 | 14. Azure Static Web Apps Provisioning | v1.1 | 2/2 | Complete | 2026-02-10 |
 | 15. Frontend CI/CD Pipelines | v1.1 | 2/2 | Complete | 2026-02-10 |
-| 16. Deployment Guides & Hardening | v1.1 | 0/3 | Not started | - |
+| 16. Deployment Guides & Hardening | v1.1 | 3/3 | Complete | 2026-02-10 |
