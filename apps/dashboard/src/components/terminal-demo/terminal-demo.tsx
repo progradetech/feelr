@@ -122,14 +122,7 @@ export function TerminalDemo() {
             </div>
           )}
 
-          {/* Complete: show all steps statically */}
-          {isComplete && !reducedMotionActive && (
-            <>
-              {WALKTHROUGH_STEPS.map((step, i) => (
-                <StaticStep key={i} step={step} />
-              ))}
-            </>
-          )}
+          {/* Complete state: completedSteps already includes all steps via hook */}
         </TerminalShell>
 
         {/* CTA Button */}

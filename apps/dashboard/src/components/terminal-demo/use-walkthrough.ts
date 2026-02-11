@@ -51,7 +51,12 @@ export function useWalkthrough(onComplete: () => void) {
   }, [state, stepIndex]);
 
   const currentStep = stepIndex >= 0 ? WALKTHROUGH_STEPS[stepIndex] ?? null : null;
-  const completedSteps = WALKTHROUGH_STEPS.slice(0, stepIndex);
+  const completedSteps =
+    state === 'complete'
+      ? WALKTHROUGH_STEPS
+      : stepIndex > 0
+        ? WALKTHROUGH_STEPS.slice(0, stepIndex)
+        : [];
 
   return {
     state,
