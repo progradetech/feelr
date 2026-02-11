@@ -41,7 +41,7 @@
 **Milestone Goal:** First-time visitors can understand, try, and adopt Feelr without signing up or installing anything -- landing page with interactive demo, demo dashboard mode, correct Homebrew tap, and analytics.
 
 - [x] **Phase 17: CI/CD & Homebrew Migration** (3/3 plans) — completed 2026-02-10
-- [ ] **Phase 18: Demo Foundation** — DemoContext provider and mock data fixtures that power all demo features
+- [x] **Phase 18: Demo Foundation** (2/2 plans) — completed 2026-02-10
 - [ ] **Phase 19: Dashboard Demo Mode** — Existing dashboard renders fully with fake data when demo mode is active
 - [ ] **Phase 20: Landing Page** — Marketing root page with hero, features, install commands, brand typography, and SEO
 - [ ] **Phase 21: Interactive Demo & Integration** — Terminal walkthrough component wired into landing page and transitioning to demo dashboard
@@ -74,8 +74,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 18-01-PLAN.md — DemoContext provider with sessionStorage persistence + Providers wrapper in root layout
-- [ ] 18-02-PLAN.md — Mock data fixtures for all 5 dashboard data domains + ChainHistoryEntry type
+- [x] 18-01-PLAN.md — DemoContext provider with sessionStorage persistence + Providers wrapper in root layout
+- [x] 18-02-PLAN.md — Mock data fixtures for all 5 dashboard data domains + ChainHistoryEntry type
 
 ### Phase 19: Dashboard Demo Mode
 **Goal**: A visitor in demo mode sees a fully populated, interactive dashboard without any real API keys or backend connection
@@ -130,7 +130,7 @@ Phases 17-21 execute in numeric order. Phases 18 and 17 have no mutual dependenc
 | 1-10 | v1.0 | 51/51 | Complete | 2026-02-09 |
 | 11-16 | v1.1 | 13/13 | Complete | 2026-02-10 |
 | 17. CI/CD & Homebrew Migration | v1.2 | 3/3 | Complete | 2026-02-10 |
-| 18. Demo Foundation | v1.2 | 0/2 | Not started | - |
+| 18. Demo Foundation | v1.2 | 2/2 | Complete | 2026-02-10 |
 | 19. Dashboard Demo Mode | v1.2 | 0/TBD | Not started | - |
 | 20. Landing Page | v1.2 | 0/TBD | Not started | - |
 | 21. Interactive Demo & Integration | v1.2 | 0/TBD | Not started | - |
