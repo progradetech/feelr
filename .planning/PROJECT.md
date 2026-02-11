@@ -78,9 +78,29 @@ An AI agent can call any supported external API in one line with near-zero conte
 - ✓ Demo dashboard mode with mock data across 5 domains, AuthGuard bypass, and demo banner — v1.2
 - ✓ Cloudflare Web Analytics integrated across all pages — v1.2
 
+## Current Milestone: v1.3 Staging & Branding
+
+**Goal:** Add staging custom domains for all three services and integrate Feelr logo/branding assets across dashboard and docs.
+
+**Target features:**
+- Custom staging domains: staging-app.feelr.dev, staging-docs.feelr.dev, staging-api.feelr.dev
+- Favicons and apple-touch-icon using logomark SVG (both apps)
+- Feelr logo in dashboard sidebar and docs navbar
+- Feelr logo on landing page
+- Web manifest for PWA-readiness
+
 ### Active
 
-(None — next milestone requirements not yet defined)
+- [ ] Custom staging domain for dashboard (staging-app.feelr.dev)
+- [ ] Custom staging domain for docs (staging-docs.feelr.dev)
+- [ ] Custom staging domain for gateway (staging-api.feelr.dev)
+- [ ] CI/CD workflow updates for staging custom domains
+- [ ] Favicons on dashboard and docs (using logomark SVG)
+- [ ] Apple-touch-icon on both apps
+- [ ] Logo in dashboard sidebar (replacing text)
+- [ ] Logo in docs navbar (replacing bold text)
+- [ ] Logo on landing page
+- [ ] Web manifest
 
 ### Out of Scope
 
@@ -148,5 +168,7 @@ An AI agent can call any supported external API in one line with near-zero conte
 | Demo mode in actual dashboard (not separate page) | User sees exactly what they'd get, reuses existing UI components | ✓ Good — SWR null-key interception, seamless transition |
 | Move Homebrew tap to progradetech org | Matches public org, cleaner brew install command | ✓ Good — deprecation formula in old tap, clean migration |
 
+| staging-* prefix for staging domains | Consistent naming, all under feelr.dev, obvious which environment | — Pending |
+
 ---
-*Last updated: 2026-02-11 after v1.2.0 milestone*
+*Last updated: 2026-02-11 after v1.3 milestone start*
