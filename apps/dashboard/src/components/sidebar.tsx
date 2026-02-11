@@ -10,6 +10,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { clearAdminToken } from '@/lib/auth';
+import { useDemo } from '@/lib/demo-context';
 
 const navItems = [
   { label: 'Overview', href: '/overview', icon: LayoutDashboard },
@@ -21,8 +22,14 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { isDemo, exitDemo } = useDemo();
 
   function handleLogout() {
+    if (isDemo) {
+      exitDemo();
+      router.push('/login');
+      return;
+    }
     clearAdminToken();
     router.push('/login');
   }

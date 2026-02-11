@@ -3,18 +3,24 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAdminToken } from '@/lib/auth';
+import { useDemo } from '@/lib/demo-context';
 
 export default function RootPage() {
   const router = useRouter();
+  const { isDemo } = useDemo();
 
   useEffect(() => {
+    if (isDemo) {
+      router.replace('/overview');
+      return;
+    }
     const token = getAdminToken();
     if (token) {
       router.replace('/overview');
     } else {
       router.replace('/login');
     }
-  }, [router]);
+  }, [router, isDemo]);
 
   return (
     <div className="flex h-screen items-center justify-center bg-zinc-950">

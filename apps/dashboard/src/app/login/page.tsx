@@ -4,18 +4,20 @@ import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { getAdminToken, setAdminToken } from '@/lib/auth';
+import { useDemo } from '@/lib/demo-context';
 import { GATEWAY_URL } from '@/config';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { isDemo } = useDemo();
   const [token, setToken] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (getAdminToken()) {
+    if (isDemo || getAdminToken()) {
       router.replace('/overview');
     }
-  }, [router]);
+  }, [router, isDemo]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

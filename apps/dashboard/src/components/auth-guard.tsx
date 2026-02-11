@@ -3,19 +3,24 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAdminToken } from '@/lib/auth';
+import { useDemo } from '@/lib/demo-context';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const { isDemo } = useDemo();
   const [isAuthed, setIsAuthed] = useState(false);
 
   useEffect(() => {
+    if (isDemo) return;
     const token = getAdminToken();
     if (!token) {
       router.replace('/login');
     } else {
       setIsAuthed(true);
     }
-  }, [router]);
+  }, [router, isDemo]);
+
+  if (isDemo) return <>{children}</>;
 
   if (!isAuthed) {
     return (
