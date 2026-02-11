@@ -1,46 +1,34 @@
-# Feature Landscape: Interactive Demo, Demo Dashboard Mode, and Landing Page
+# Feature Landscape: Staging Custom Domains & Branding Integration
 
-**Domain:** Marketing and onboarding features for developer tool SaaS
-**Researched:** 2026-02-10
-**Confidence:** HIGH (features scoped against existing codebase, static export constraints verified)
-
----
+**Domain:** DevOps infrastructure + Frontend branding
+**Researched:** 2026-02-11
 
 ## Table Stakes
 
-Features that must ship for this milestone to deliver value. Missing any of these makes the milestone incomplete.
+Features that are expected for a professional, multi-environment web application.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| **Landing page with hero section** | First-time visitors currently see a redirect to login, which is a dead end for non-users. A landing page is the minimum viable marketing surface. | Low | Server component with static text + CTA buttons. Brand colors from strategy doc (Lobster Red `#E85D3A`, Deep Sea `#0a0a14`). |
-| **"Try Demo" button on landing page** | Visitors need a zero-friction way to explore the product without signing up. This is the primary conversion path for the demo feature. | Low | Link to `/demo` route. Styled as primary CTA. |
-| **Demo mode activation (/demo route)** | Sets demo flag in sessionStorage, redirects to dashboard. The entry point for the entire demo experience. | Low | Thin page component: call `enterDemo()`, `router.replace('/overview')`. |
-| **AuthGuard demo bypass** | Demo users have no admin token. Without this bypass, they are redirected to /login and never see the dashboard. | Low | 3-line conditional added to existing AuthGuard component. |
-| **SWR hooks return mock data in demo mode** | Without mock data, dashboard pages show loading spinners forever (no token = no gateway fetch). All 4 hooks (keys, connectors, overview, usage) must be modified. | Medium | Each hook gains ~3 lines. Mock data must conform to existing TypeScript types. Uses namespaced SWR keys (`demo-keys` vs `admin-keys`) for cache isolation. |
-| **Mock data fixtures (demo-data.ts)** | The 4 modified hooks need data to return. Fixtures must look realistic: 3 API keys, 2/4 connectors connected, usage charts with variance. | Medium | Single file, ~100 lines. Must import and satisfy types from `lib/types.ts`. |
-| **Demo mode banner** | Users must know they are viewing demo data, not their real account. Without this, demo mode is deceptive. | Low | Persistent top banner: "You're viewing demo data. Sign in to connect your own." with "Sign In" link. |
-| **Sidebar demo indicator** | Users navigating between dashboard pages need a persistent reminder they are in demo mode. | Low | "DEMO" pill badge next to "Feelr" in sidebar header. "Exit Demo" replaces "Logout" button. |
-| **"Exit Demo" flow** | Users must be able to leave demo mode cleanly. Clears sessionStorage, redirects to /login. | Low | `exitDemo()` function on DemoContext. Sidebar button and banner button call it. |
-| **Install commands on landing page** | Visitors who are convinced need to know how to install. `brew install progradetech/feelr/feelr` and `feelr init` below the hero. | Low | Static code blocks with copy-to-clipboard buttons using `navigator.clipboard`. |
-| **GoReleaser tap owner fix** | The install command references `progradetech` but `.goreleaser.yaml` has `andrewprograde`. Homebrew tap would push to wrong repo. | Low | One-line change in `.goreleaser.yaml`. |
-
----
+| Staging subdomains (staging-api, staging-app, staging-docs) | Professional multi-env setup requires predictable, memorable staging URLs. Auto-generated Azure URLs are long and impossible to share. | Medium | Requires 2 new Azure SWA instances + wrangler.toml change. |
+| favicon.ico | Every website has a favicon. Missing favicon shows browser default icon and 404 in network tab. | Low | Place file in `app/` directory. Next.js auto-detects. |
+| apple-touch-icon | iOS users adding site to home screen expect a proper icon, not a screenshot. | Low | Place `apple-icon.png` (180x180) in `app/` directory. |
+| Web manifest (manifest.webmanifest) | Required for "Add to Home Screen" prompt and proper PWA metadata. Signals professionalism. | Low | `manifest.ts` in `app/` with `force-static` export. |
+| Brand logo in docs navbar | Text-only navbar looks generic. Users expect visual branding in a docs site. | Low | Replace `<b>Feelr</b>` with SVG logo in Nextra Navbar `logo` prop. |
+| Brand logo in dashboard sidebar | Same as above. Dashboard should carry the brand mark. | Low | Add SVG logo to sidebar header component. |
+| HTTPS on staging domains | Staging must have valid SSL certificates, same as production. | None (automatic) | Azure SWA auto-provisions SSL. Cloudflare Workers auto-provisions SSL for custom domains. |
 
 ## Differentiators
 
-Features that make the demo experience memorable and drive conversion. Not blocking for launch but significantly increase value.
+Features that go beyond baseline expectations.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| **Animated terminal demo** | Shows the product in action before the user installs anything. Animated typing creates a sense of "liveness" that static code blocks lack. Terminal demos are standard for CLI tools (Warp, Fig, Railway). | Medium | Custom component, ~80 lines React + CSS. Scripted sequence: install, auth, run command, see output. No library dependency -- uses `setInterval` for typing + CSS `@keyframes` for cursor blink. |
-| **Demo mode mutation feedback** | When users click "Create Key" in demo mode, show a toast "Demo mode -- this would create an API key" and update mock data locally. This teaches the product's capabilities without dead-ending on disabled buttons. | Medium | Modify KeyCreateDialog and KeyRevokeDialog to check `isDemo` and call `toast()` instead of `gatewayMutate`. Optionally update local mock state for immediate visual feedback. |
-| **Install commands on login page** | Users who reach the login page but do not have a token need instructions. Currently the page says "Get your admin token from `feelr init`" but does not show how to install the CLI. | Low | Reuse InstallCommands component from landing page on login page, below the sign-in form. |
-| **Feature cards section** | 3-column grid below terminal demo highlighting key value props: "Minimal Context (50 tokens vs 5000)", "One-Time Auth", "Composable Actions". Gives visitors quick value understanding. | Low | Static React components with Lucide icons. No data fetching. |
-| **Landing page footer** | Links to Docs, GitHub, Dashboard. Standard marketing page element. | Low | Static HTML/JSX. |
-| **Terminal demo replay button** | After the terminal animation finishes, show a "Replay" button so visitors can watch again. | Low | Reset `currentIndex` state in useTerminalSequence hook. |
-| **macOS-style terminal chrome** | Three colored circles (red/yellow/green) on the terminal frame. Every CLI-tool landing page uses this pattern. | Low | Three `div` circles + dark background + monospace font. Rounded corners, subtle border. |
-
----
+| SVG favicon (icon.svg) | Modern browsers render SVG favicons at any resolution, avoiding pixelation. Crisp at any DPI. | Low | Copy logomark SVG to `app/icon.svg`. Next.js generates `<link rel="icon" type="image/svg+xml">`. |
+| Theme-color meta tag | Browser chrome (address bar, tab color) matches brand colors on mobile. | Low | Add `themeColor` to metadata export in layout.tsx. |
+| OG image with brand | Social sharing previews show branded image instead of generic text. | Medium | Requires creating a static OG image or using Next.js `opengraph-image.tsx`. Defer to later milestone. |
+| Staging environment indicator | Visual badge or header on staging showing "STAGING" to prevent confusion with production. | Low | Conditionally render a banner based on `NEXT_PUBLIC_GATEWAY_URL` containing "staging". |
+| Gateway smoke test URL update | After adding staging-api.feelr.dev, workflow should use custom domain for health checks. | Low | One-line change in gateway.yml. |
+| Dashboard staging GATEWAY_URL update | Staging dashboard build should use staging-api.feelr.dev instead of workers.dev URL. | Low | One-line change in dashboard.yml. |
 
 ## Anti-Features
 
@@ -48,86 +36,53 @@ Features to explicitly NOT build in this milestone.
 
 | Anti-Feature | Why Avoid | What to Do Instead |
 |--------------|-----------|-------------------|
-| **Interactive terminal on landing page** | An interactive terminal where visitors type real CLI commands requires either a backend (sandbox environment) or complex command parser. Massively increases scope for marginal value over scripted demo. | Scripted terminal demo showing the same commands every time. Visitors see the product in action without needing to know commands. |
-| **Demo mode with real API calls** | Creating a shared "demo" API key hitting a sandbox gateway requires backend infrastructure (sandbox environment, rate limiting, data isolation). | Mock data in the client. Zero backend cost. Same visual experience. |
-| **Onboarding wizard** | A guided post-login setup flow (generate key, install CLI, run first command) is valuable but depends on stable sign-in flow and gateway availability. Adds scope to a marketing-focused milestone. | Defer to a separate milestone. The install commands on the landing page and login page serve as lightweight onboarding for now. |
-| **User accounts / sign-up flow** | Feelr uses admin token auth (from `feelr init`), not email/password accounts. Adding sign-up is a product direction change, not a marketing feature. | Keep token-based auth. Landing page directs users to install CLI and run `feelr init`. |
-| **A/B testing on landing page** | Premature optimization. Zero visitors today. Build the page, ship it, iterate based on feedback. | Ship one version. Add analytics later if needed. |
-| **Pricing page** | Pricing is documented in the strategy doc but billing system is not built (Stripe integration is Phase 7 in roadmap). A pricing page with no purchase flow is misleading. | Mention tiers briefly on landing page if desired. Dedicated pricing page waits for billing. |
-| **Heavy animation libraries** | Installing Motion/Framer Motion, GSAP, or MagicUI for the terminal typing animation. Adds 20-50KB for features achievable with `setInterval` + CSS. | Custom `useTypingAnimation` hook (~30 lines) + CSS cursor animation. ~2KB total. |
-| **Video tutorial in hero section** | Videos require play-button interaction (friction), become stale when UI changes, compete with terminal animation for attention. | Animated terminal walkthrough (auto-playing, no interaction) + link to full video in docs section later. |
-| **Demo data that simulates live updates** | Mock data with incrementing counters, new events, etc. adds complexity for marginal realism. | Static mock data with realistic-looking values. Users understand it is a demo. |
-
----
+| Full PWA support (service worker, offline) | Dashboard requires live API access. Offline mode is meaningless for an API management dashboard. | Manifest exists for "Add to Home Screen" icon/name, not for offline PWA features. |
+| Dynamic OG images per page | Over-engineering for an internal dashboard and docs site. No SEO benefit (dashboard is auth-gated). | Use a single static OG image shared across all pages, or defer entirely. |
+| Multiple favicon themes (light/dark mode) | Browser support is limited. Adds complexity for minimal visual benefit. | Single favicon that works on both light and dark backgrounds. |
+| Infrastructure-as-code (Bicep/Terraform) for SWA | Only 2 resources to create. IaC setup time exceeds manual creation time. | Create SWA instances manually in Azure Portal. Document the steps. |
+| Staging auth/password protection | Staging is for developer verification, not client demos. Dashboard requires API key auth anyway. | Keep staging publicly accessible. |
+| PR preview custom domains | Azure SWA does not support custom domains on preview environments. Workarounds create fragile infrastructure for ephemeral environments. | Keep auto-generated `*.azurestaticapps.net` URLs for PR previews. |
+| Multiple favicon size variants (20+ files) | The old approach is obsolete. Modern browsers use SVG (scalable), and a single 32x32 ICO handles legacy cases. | Ship exactly: `favicon.ico` (32x32), `icon.svg` (scalable), `apple-icon.png` (180x180). |
+| Build-time favicon regeneration | Favicon files change approximately never. Running sharp on every build wastes CI time. | Generate once with script, commit results. Re-run manually when source SVG changes. |
 
 ## Feature Dependencies
 
 ```
-DemoContext (foundation)
-  --> AuthGuard demo bypass
-  --> SWR hook modifications (all 4)
-  --> Demo banner
-  --> Sidebar demo indicator
-  --> Demo entry page (/demo)
-  --> "Try Demo" button (landing page)
+Azure SWA staging instances (manual) --> Cloudflare CNAME records --> Custom domain validation
+                                          \--> GitHub Actions workflow changes
 
-Mock data fixtures (demo-data.ts)
-  --> SWR hook modifications (all 4)
+Wrangler.toml staging route change --> Gateway staging deploy --> staging-api.feelr.dev live
+                                       \--> Gateway workflow smoke test URL update
+                                       \--> Dashboard workflow NEXT_PUBLIC_GATEWAY_URL update
 
-Landing page (app/page.tsx replacement)
-  --> Terminal demo component
-  --> Install commands component
-  --> Hero section component
-  --> Feature cards component (optional)
-  --> DemoContext (for "Try Demo" button navigation)
-
-Login page enhancement
-  --> Install commands component (reuse from landing page)
-
-GoReleaser tap owner fix
-  --> (independent, no code dependency)
-
-CF API token permissions
-  --> (independent, ops task)
+Sharp icon generation script --> favicon.ico, icon.svg, apple-icon.png, icon-192.png, icon-512.png
+                                   \--> Dashboard app/ directory placement
+                                   \--> Docs app/ directory placement
+                                   \--> manifest.ts references icon paths
+                                   \--> Navbar logo uses same SVG source
+                                   \--> Sidebar logo uses same SVG source
 ```
-
----
 
 ## MVP Recommendation
 
-**Prioritize (must ship together):**
-1. DemoContext + mock data -- foundation that everything depends on
-2. AuthGuard + hook modifications -- makes the actual demo dashboard work
-3. Landing page with hero + terminal demo + install commands -- first-visitor experience
-4. Demo banner + sidebar indicator -- prevents demo mode confusion
-5. GoReleaser tap owner fix -- one-line change, blocks correct install commands
+Prioritize:
+1. **Staging custom domains** (all 3 services) -- enables verification of all future changes
+2. **favicon.ico + icon.svg** for both apps -- highest-visibility branding fix (browser tab icon)
+3. **manifest.webmanifest** for dashboard -- completes the PWA metadata (icon, name, theme)
+4. **Docs navbar logo** replacement -- brand consistency
+5. **Dashboard sidebar logo** -- brand consistency
 
-**Ship alongside (low effort, high value):**
-6. Install commands on login page -- reuses existing component
-7. macOS-style terminal chrome -- 5 minutes of CSS work, big visual impact
-
-**Defer to polish iteration:**
-8. Demo mode mutation feedback (toasts for create/revoke) -- nice to have, not blocking
-9. Feature cards section -- can iterate on marketing copy after initial launch
-10. Terminal demo replay button -- trivial to add later
-11. Landing page footer -- low priority
-
-**Explicitly deferred to future milestone:**
-12. Onboarding wizard (post-login setup flow) -- separate milestone
-13. First-command verification -- requires gateway integration
-
----
+Defer:
+- OG image: requires design work, low urgency since dashboard is auth-gated
+- Staging environment indicator banner: nice-to-have, can be added in any future phase
 
 ## Sources
 
-- Existing codebase analysis -- all dashboard component files read and analyzed for integration points
-- [Feelr Strategy Document](../../feelr-strategy.md) -- brand colors, product positioning, pricing tiers
-- [Next.js Static Exports](https://nextjs.org/docs/app/guides/static-exports) -- server/client component behavior
-- [SWR Documentation](https://swr.vercel.app/) -- key-based caching, fetcher patterns
-- Developer tool landing page patterns: Warp, Railway, Homebrew -- terminal demos are standard for CLI-first products (MEDIUM confidence, pattern observation)
-- [MagicUI Terminal](https://magicui.design/docs/components/terminal) -- reviewed and rejected for this use case
-- [Motion Typewriter](https://motion.dev/docs/react-typewriter) -- reviewed and rejected for bundle size reasons
-
----
-*Feature landscape research for: Feelr interactive demo, dashboard demo mode, and landing page*
-*Researched: 2026-02-10*
+- [Azure SWA Custom Domains](https://learn.microsoft.com/en-us/azure/static-web-apps/custom-domain) -- confirms custom domains are production-only
+- [Azure SWA Preview Environments](https://learn.microsoft.com/en-us/azure/static-web-apps/preview-environments) -- confirms custom domains not supported
+- [Azure SWA Feature Request #22](https://github.com/Azure/static-web-apps/issues/22) -- open since 2020, no resolution
+- [Next.js Metadata Files: favicon, icon, apple-icon](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/app-icons) -- file conventions, supported formats
+- [Next.js Metadata Files: manifest.json](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/manifest) -- manifest.ts with force-static
+- [Nextra Head Component](https://nextra.site/docs/built-ins/head) -- faviconGlyph behavior
+- [Cloudflare Workers Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/) -- custom_domain = true
+- Existing codebase analysis (layout.tsx, wrangler.toml, workflows, sidebar.tsx)

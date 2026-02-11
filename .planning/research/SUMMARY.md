@@ -1,74 +1,57 @@
-# Research Summary: Interactive Demo, Demo Dashboard Mode, and Landing Page Improvements
+# Research Summary: Staging Custom Domains & Branding Integration
 
-**Domain:** Marketing and onboarding features for existing Next.js static export dashboard
-**Researched:** 2026-02-10
+**Domain:** DevOps infrastructure (staging environments) + Frontend branding (favicon/manifest)
+**Researched:** 2026-02-11
 **Overall confidence:** HIGH
 
 ## Executive Summary
 
-The three new features -- interactive terminal demo, demo dashboard mode, and landing page -- integrate cleanly into the existing Next.js 15.5 static export architecture with zero infrastructure changes. The static export constraint (`output: 'export'`) is not a limitation; all features are purely client-side. The dashboard already has a clean SWR hook layer that makes demo mode injection straightforward.
+This milestone addresses two independent concerns: establishing custom staging subdomains across all three Feelr services (dashboard, docs, gateway) and integrating the existing SVG branding assets as favicons, logos, and web manifest entries across the dashboard and docs apps.
 
-The core architectural pattern is a React Context-based demo mode flag (`DemoContext`) stored in `sessionStorage`. This single mechanism controls whether SWR hooks fetch real gateway data or return hardcoded mock fixtures. The demo mode bypasses the existing `AuthGuard` without modifying the authentication system. Dashboard pages, card components, and chart components remain completely unchanged -- they consume hooks and render data regardless of its source.
+The most significant finding is that Azure Static Web Apps has a hard limitation: custom domains cannot be assigned to preview/staging environments. This has been an open feature request since May 2020 with no resolution timeline. The recommended approach, confirmed by Microsoft's own multi-stage deployment blog post and community consensus, is to create **separate SWA instances** dedicated to staging, each with its own deployment token and custom domain binding. This means 2 new Azure SWA Standard resources ($18/month total) and 2 new GitHub Actions secrets. The gateway staging domain is trivial by comparison -- Cloudflare Workers supports per-environment custom domains natively via `wrangler.toml`.
 
-The landing page replaces the current root page (`app/page.tsx`), which is currently a thin redirect. The new page is a server component that exports SEO metadata and composes client sub-components for the terminal demo and install commands. The terminal demo is a custom ~80-line component using `setInterval` for typing animation -- no external library needed. The existing codebase has zero animation library dependencies, and adding one for a single scripted terminal would be unjustified.
-
-Two non-code changes are also in scope: the `.goreleaser.yaml` tap owner needs updating from `andrewprograde` to `progradetech`, and the Cloudflare API token needs KV write permissions added for CI/CD.
+For branding, Next.js 15 App Router provides file-based favicon conventions that work out of the box with static export. Place `favicon.ico`, `icon.svg`, and `apple-icon.png` in the `app/` directory and Next.js auto-injects the correct `<link>` tags. Nextra 4 uses the same App Router, so the same conventions apply. The only new dependency is `sharp` (dev only) to convert the SVG logomark into the required PNG/ICO formats via a one-time build script.
 
 ## Key Findings
 
-**Stack:** No new dependencies required. The existing stack (React 19, SWR 2, Tailwind 4, Lucide icons) supports all features. Custom terminal animation replaces what libraries would offer at ~2KB vs 15-50KB.
-
-**Architecture:** DemoContext provider wraps the app at root layout level. Each of the 4 SWR hooks gains 3 lines of code to check the demo flag and return mock data. AuthGuard gets a 3-line demo bypass. Zero dashboard page components change.
-
-**Critical pitfall:** The root page (`app/page.tsx`) currently uses `'use client'` for redirect logic. The new landing page must be a server component to export metadata. This is a breaking change in the file's component type, not an incremental addition.
+**Stack:** 1 new dev dependency (sharp ^0.34.5), 2 new Azure SWA Standard instances, 3 new DNS CNAME records, workflow config changes only.
+**Architecture:** Separate SWA instances for staging (forced by Azure limitation), Cloudflare Workers custom_domain for gateway staging, Next.js file-based icons for branding.
+**Critical pitfall:** Azure SWA does NOT support custom domains on staging environments. Must use separate SWA instances with their own deployment tokens.
 
 ## Implications for Roadmap
 
 Based on research, suggested phase structure:
 
-1. **DemoContext + Mock Data (Foundation)** - Build the demo infrastructure first
-   - Addresses: DemoContext provider, mock data fixtures, DemoProvider in root layout, /demo entry page
-   - Avoids: Building landing page or dashboard mods that depend on context not yet existing
+1. **Staging Custom Domains** - Infrastructure setup first
+   - Addresses: staging-api.feelr.dev (gateway), staging-app.feelr.dev (dashboard), staging-docs.feelr.dev (docs)
+   - Avoids: Trying to use Azure SWA deployment_environment with custom domains (impossible)
+   - Rationale: Infrastructure changes should precede content changes. Once staging domains exist, branding work can be verified on staging before production.
 
-2. **AuthGuard + Hook Modifications (Dashboard Demo Mode)** - Make existing dashboard render in demo mode
-   - Addresses: AuthGuard demo bypass, 4 SWR hook modifications, demo banner, sidebar demo indicator
-   - Avoids: Pitfall of separate demo route group (duplicated pages)
-
-3. **Landing Page (Marketing)** - Build the new root page
-   - Addresses: Hero section, terminal demo animation, install commands, feature cards
-   - Avoids: Pitfall of using 'use client' on the page (breaks metadata)
-
-4. **Login Page Enhancement + Config Fixes** - Small improvements and ops tasks
-   - Addresses: Install commands on login page, goreleaser tap owner fix, CF API token permissions
-   - Avoids: N/A (lowest risk phase)
+2. **Branding & Favicon Integration** - Asset generation and integration
+   - Addresses: favicon.ico, icon.svg, apple-icon.png, manifest.webmanifest, navbar logo replacement
+   - Avoids: Using Next.js code-generated icons (icon.tsx) for complex SVGs with gradients (Satori rendering limitations)
+   - Rationale: Depends on working staging environments to verify branding changes before production push.
 
 **Phase ordering rationale:**
-- Phase 1 is the foundation: DemoContext must exist before any other phase can reference `isDemo` or `enterDemo()`
-- Phases 2 and 3 are parallelizable after Phase 1 -- they modify different files with no overlap
-- Phase 4 is independent and can be done anytime, placed last because it is lowest priority
+- Staging domains are pure infrastructure -- no code changes to the apps themselves (only workflow and config changes). Getting these working first provides a verification environment for all subsequent work.
+- Branding is code changes to both apps. Having staging domains means branding can be verified at staging-app.feelr.dev and staging-docs.feelr.dev before a production tag push.
+- The gateway staging domain (wrangler.toml change) can be done independently in the same phase as SWA staging, since it uses a different deployment pipeline.
 
 **Research flags for phases:**
-- Phase 2: Standard pattern (context + conditional in hooks). Low risk, no research needed during execution.
-- Phase 3: The server/client component split for the landing page requires care -- metadata export in server component, client sub-components for interactivity. Verify static export generates correct HTML at build time.
-- Phase 4: Goreleaser tap owner change is trivial. CF API token permissions is an ops task, not code.
+- Phase 1 (Staging Domains): Needs manual Azure Portal steps (create SWA resources, configure custom domains). The CNAME validation can take time to propagate.
+- Phase 2 (Branding): Standard patterns, unlikely to need additional research. File-based icons are well-documented and verified.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | No new dependencies. All patterns verified against existing codebase. |
-| Features | HIGH | Feature set is well-scoped: terminal demo, demo dashboard, landing page, install commands. No ambiguity. |
-| Architecture | HIGH | Every integration point verified by reading existing source files. DemoContext pattern is standard React. SWR hook modification pattern is minimal-diff. |
-| Pitfalls | HIGH | Pitfalls are specific to this codebase (server/client split, sessionStorage vs localStorage, mock data type safety). Not generic warnings. |
+| Stack | HIGH | Verified against official Azure docs, Next.js docs, Cloudflare docs, and existing codebase. |
+| Features | HIGH | Feature set is well-defined: 3 staging subdomains + branding across 2 apps. No ambiguity. |
+| Architecture | HIGH | Azure SWA limitation is confirmed by official docs and community. Separate instances is the standard workaround. |
+| Pitfalls | HIGH | Azure SWA custom domain limitation is thoroughly documented. manifest.ts force-static requirement verified in multiple sources. |
 
 ## Gaps to Address
 
-- **Demo mode mutation handling:** ARCHITECTURE.md recommends letting buttons work in demo mode with toast feedback ("Demo mode -- this would create an API key"). The exact behavior of KeyCreateDialog, KeyRevokeDialog in demo mode needs implementation decisions during Phase 2. Options: (a) toast only, (b) toast + local mock data update, (c) open dialog but disable submit. Recommend option (b) for the most engaging demo experience.
-
-- **Terminal demo script content:** The exact CLI commands and outputs shown in the terminal demo should be finalized during Phase 3 implementation. ARCHITECTURE.md provides a starting script but the marketing copy needs review.
-
-- **Brand typography on landing page:** The strategy doc specifies Space Grotesk for headings, JetBrains Mono for code, and Inter for body text. The existing dashboard uses system fonts via Tailwind defaults. The landing page may need web font imports, which affects LCP. Decide during Phase 3 whether to add fonts or keep system defaults.
-
----
-*Research completed: 2026-02-10*
-*Ready for roadmap: yes*
+- Exact SWA default hostnames for staging instances (only known after Azure Portal creation)
+- Azure SWA custom domain CNAME validation timing (can take minutes to days depending on DNS propagation)
+- Whether `sharp` handles the Feelr logomark SVG gradients correctly at 32x32 (should be tested during icon generation script development)

@@ -1,110 +1,182 @@
-# Technology Stack: Interactive Demo, Demo Dashboard Mode, and Landing Page
+# Technology Stack: Staging Custom Domains & Branding Integration
 
-**Project:** Feelr -- Terminal Demo, Dashboard Demo Mode, Landing Page, GoReleaser Fix, CF Token Fix
-**Researched:** 2026-02-10
-**Confidence:** HIGH (verified against existing codebase, official docs, npm registry)
+**Project:** Feelr -- Staging subdomains (staging-app, staging-docs, staging-api) and branding assets (favicon, logo, manifest) across dashboard and docs
+**Researched:** 2026-02-11
+**Confidence:** HIGH (verified against Azure docs, Next.js 15 docs, Cloudflare docs, existing codebase)
 
 ---
 
 ## Executive Summary
 
-This milestone requires **zero new npm dependencies**. The existing stack (Next.js 15.3, React 19, SWR 2.3, Tailwind 4, Lucide React, Sonner) already provides everything needed for the terminal demo animation, demo dashboard mode, and landing page. The terminal typing animation is a custom ~80-line component using `setInterval` and CSS `@keyframes` -- lighter, simpler, and more controllable than any library alternative. Demo mode uses a React Context provider backed by `sessionStorage`, with per-hook mock data injection. No infrastructure changes are needed; all features are purely client-side and compatible with the existing `output: 'export'` static build.
+This milestone has two independent workstreams: (1) staging custom domains and (2) branding/favicon integration. They share no dependencies and can be phased in any order.
 
-Two non-code changes are in scope: the `.goreleaser.yaml` tap `owner` field changes from `andrewprograde` to `progradetech` (one-line fix), and the Cloudflare API token needs "Workers KV Storage: Edit" permission added in the CF dashboard.
+**Staging custom domains** requires a critical architecture decision. Azure Static Web Apps does NOT support custom domains on preview/staging environments -- this is a confirmed, longstanding limitation (feature request open since May 2020, still unresolved). The recommended workaround is to create **separate SWA instances** dedicated to staging, each with its own deployment token and custom domain. This means 2 new Azure SWA resources (one for staging-app.feelr.dev, one for staging-docs.feelr.dev), 2 new GitHub Actions secrets, and 2 new Cloudflare DNS CNAME records. The gateway staging domain (staging-api.feelr.dev) is straightforward -- Cloudflare Workers natively supports per-environment custom domains via `wrangler.toml` route configuration.
+
+**Branding integration** requires one new dev dependency: `sharp` (v0.34.x) as a build-time script to convert the existing SVG logomark into PNG/ICO favicon assets. Next.js 15 App Router supports file-based favicon conventions (place `favicon.ico` in `app/`, place `icon.svg` in `app/`) and a `manifest.ts` file that generates `manifest.webmanifest` at build time. Nextra 4, being App Router-based, supports the same file conventions. The Nextra `<Head>` component's `faviconGlyph` prop must be removed/replaced with standard Next.js file-based icons.
+
+Total new npm dependencies: **1 (sharp, dev only)**. Total new Azure resources: **2 (SWA Standard instances)**. Total new DNS records: **3 (CNAME for staging-app, staging-docs, staging-api)**.
 
 ---
 
 ## Recommended Stack
 
-### Core Framework (No Changes)
+### Staging Domains -- Azure SWA (Dashboard + Docs)
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| Next.js | ^15.3.0 | App Router, static export | Already in use. `output: 'export'` generates static HTML/JS. All new features are client-side components or server components with static metadata. |
-| React | ^19.0.0 | UI framework | Already in use. React Context for DemoContext, useState/useEffect for terminal animation. |
-| TypeScript | ^5.7.0 | Type safety | Already in use. Mock data fixtures must satisfy existing types from `lib/types.ts`. |
+| Azure Static Web Apps (Standard) | N/A (Azure resource) | Separate SWA instances for staging dashboard and staging docs | Azure SWA does NOT support custom domains on preview environments. The only way to get `staging-app.feelr.dev` and `staging-docs.feelr.dev` is to create dedicated SWA resources with production-slot custom domains. Standard plan required for custom domains ($9/month/app). |
+| Azure/static-web-apps-deploy | v1 | GitHub Actions deployment | Already in use. New staging workflows use the same action with new deployment tokens (`SWA_DASHBOARD_STAGING_TOKEN`, `SWA_DOCS_STAGING_TOKEN`). No `deployment_environment` parameter needed because staging SWA instances treat their deploy as "production" (the custom domain slot). |
+| Cloudflare DNS | N/A | CNAME records for staging subdomains | Already the DNS authority for `feelr.dev`. Add DNS-only (gray cloud) CNAME records pointing `staging-app.feelr.dev` and `staging-docs.feelr.dev` to the respective SWA default hostnames. Same pattern as existing `app.feelr.dev` and `feelr.dev` records. |
 
-### Data Layer (No Changes)
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| SWR | ^2.3.0 | Data fetching hooks | Already in use. Each of the 4 hooks (`use-keys`, `use-connectors`, `use-overview`, `use-usage`) gains ~3 lines to check `isDemo` from DemoContext and return mock data with namespaced cache keys. No SWR middleware needed. |
-
-### Styling (No Changes)
+### Staging Domains -- Cloudflare Workers (Gateway)
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| Tailwind CSS | ^4.0.0 | Utility-first CSS | Already in use. Terminal chrome, landing page layout, demo banner all use Tailwind classes. |
-| CSS @keyframes | N/A | Cursor blink animation | Native CSS. No library needed. |
+| Wrangler | 4.63.0 (already installed) | Deploy staging Worker with custom domain | Add `[[env.staging.routes]]` with `pattern = "staging-api.feelr.dev"` and `custom_domain = true` to `wrangler.toml`. Cloudflare Workers natively supports per-environment custom domains. Set `workers_dev = false` on staging after custom domain is verified (or keep `true` for redundancy). |
+| Cloudflare DNS | N/A | DNS record for staging-api subdomain | Cloudflare Workers custom domains auto-create DNS records when `custom_domain = true` is set. No manual CNAME creation needed -- Cloudflare handles this internally since it controls both Workers and DNS for `feelr.dev`. |
 
-### UI Components (No Changes)
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Lucide React | ^0.469.0 | Icons | Already in use. Feature cards on landing page use existing icon set (Shield, Zap, Layers, etc.). |
-| Sonner | ^1.7.0 | Toast notifications | Already in use. Demo mode mutation feedback uses existing `toast()` from Sonner. |
-
-### Build & Deploy (No Changes)
+### Branding -- Favicon/Icon Generation (Build-Time)
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| pnpm | 9.15.0 | Package manager | Already in use. |
-| Turborepo | (existing) | Monorepo orchestration | Already in use. |
-| GoReleaser | v2 (via goreleaser-action@v6) | CLI binary release | Already in use. Only the `.goreleaser.yaml` config changes (tap owner field). |
-| wrangler-action | v3 | Cloudflare Workers deploy | Already in use. No workflow changes needed -- only the CF API token permissions change in the dashboard. |
+| sharp | ^0.34.5 | SVG-to-PNG/ICO conversion at build time | The industry standard for Node.js image processing. Converts `feelr-logomark.svg` to `favicon.ico` (32x32), `icon-192.png`, `icon-512.png`, and `apple-icon.png` (180x180). Installed as root devDependency. Used in a one-time generation script, not at runtime. |
 
-### New Components (Built In-House, Zero Dependencies)
+### Branding -- Next.js Dashboard (File-Based Icons + Manifest)
 
-| Component | Purpose | Complexity | Why Not a Library |
-|-----------|---------|------------|-------------------|
-| `DemoContext` provider | Manages demo mode state via `sessionStorage` | ~40 lines | A single boolean flag with enter/exit functions. Adding Zustand or Jotai for this would be absurd. React Context is the right tool. |
-| `useTypingAnimation` hook | Drives character-by-character typing in terminal demo | ~30 lines | Uses `setInterval` with configurable speed and callback on completion. Handles the full lifecycle: idle -> typing -> pausing -> next line. |
-| `<TerminalDemo>` component | Renders macOS-style terminal chrome with animated output | ~80 lines | Three colored circles + dark background + monospace font. Every CLI-tool landing page builds this custom. Terminal emulator libraries (react-terminal-ui, react-terminal) are designed for interactive input, not scripted playback. |
-| `<InstallCommands>` component | Renders install code blocks with copy buttons | ~40 lines | Static JSX with `navigator.clipboard.writeText()` on button click. Reused on both landing page and login page. |
-| `<DemoBanner>` component | Persistent banner showing "You're viewing demo data" | ~15 lines | Fixed-position bar with text and "Sign In" link. |
-| Mock data fixtures (`demo-data.ts`) | Hardcoded demo data for all 4 SWR hooks | ~100 lines | Must satisfy TypeScript types from `lib/types.ts`. Hand-crafted to tell a coherent story (3 API keys, 2/4 connectors connected, usage with realistic variance). |
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| Next.js file-based icons | 15.3+ (already installed) | favicon.ico, icon.svg, apple-icon.png | Next.js App Router automatically detects `favicon.ico` in `app/`, `icon.svg` in `app/`, and `apple-icon.png` in `app/`, then injects the correct `<link>` tags into `<head>`. Zero configuration. Works with `output: 'export'`. |
+| Next.js manifest.ts | 15.3+ (already installed) | Web app manifest generation | A `manifest.ts` file in `app/` exports a function returning a `MetadataRoute.Manifest` object. Generates `/manifest.webmanifest` at build time. Must include `export const dynamic = 'force-static'` for compatibility with `output: 'export'`. |
+| Next.js metadata API | 15.3+ (already installed) | OpenGraph images, theme-color | Extend existing `metadata` export in `layout.tsx` with `icons` and `manifest` fields. The `metadataBase` (already set to `https://app.feelr.dev`) ensures absolute URLs for OG images. |
+
+### Branding -- Nextra Docs (File-Based Icons)
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| Next.js file-based icons | 15.3+ (via Nextra 4) | favicon.ico, icon.svg, apple-icon.png | Nextra 4 uses Next.js App Router. The same file-based conventions work: place `favicon.ico` and `icon.svg` in the `app/` directory. Remove the `faviconGlyph` prop from `<Head>` if currently set. |
+| Nextra `<Head>` component | 4.2+ (already installed) | Custom head tags | The `<Head>` component accepts children for static head tags. Use it to add `<link rel="manifest">` and theme-color meta tags if not handled by Next.js metadata API. Alternatively, export `metadata` from `layout.tsx` with `icons` configuration (preferred -- standard Next.js approach). |
+| Nextra Navbar `logo` prop | 4.2+ (already installed) | Logo in docs navigation | Replace `<b>Feelr</b>` text logo with `<Image>` component rendering `feelr-logo.svg` (or inline SVG). The Navbar accepts any ReactNode for `logo`. |
 
 ---
 
-## Why Zero New Dependencies
+## Critical Architecture Decision: Separate SWA Instances for Staging
 
-The existing dashboard has an intentionally minimal dependency footprint. Every UI component is hand-built with Tailwind. There is no component library (no shadcn, no Radix, no MUI). Adding a dependency for the terminal typing animation would break this pattern for marginal benefit.
+### Why NOT use Azure SWA `deployment_environment: staging`
 
-**Custom animation vs react-type-animation:**
+The existing workflows already deploy to `deployment_environment: staging` within a single SWA instance per app. This gives a URL like:
 
-| Criterion | Custom `setInterval` + CSS | react-type-animation (~9KB) |
-|-----------|---------------------------|----------------------------|
-| Bundle size | ~2KB (hook + component) | ~9KB gzipped |
-| Behavior control | Full control over timing, pausing between lines, output blocks | Sequence-based API -- less control over multi-line terminal output |
-| Terminal output simulation | Can render entire output blocks instantly (realistic terminal behavior) | Character-by-character only -- output blocks would type out letter by letter (unrealistic) |
-| Maintenance | Zero external dependency risk | Last release 2024, single maintainer |
-| Consistency | Matches existing codebase pattern (hand-built everything) | Introduces new pattern (external component for simple UI) |
+```
+<default-hostname>-staging.<location>.azurestaticapps.net
+```
 
-The terminal demo needs to: (1) type a command character by character, (2) pause, (3) show the output block all at once, (4) repeat for the next command. `react-type-animation` cannot render output blocks instantly -- it would type out JSON responses character by character, which looks wrong. The custom hook handles this naturally by distinguishing "typed" lines from "output" lines.
+**This URL cannot have a custom domain.** Azure explicitly does not support custom domains on preview/staging environments. This is documented, confirmed, and has been a known limitation since 2020 (GitHub issue #22 on Azure/static-web-apps, still open with no timeline).
 
-**Hook-level mock injection vs SWR middleware:**
+### Recommended: Dedicated Staging SWA Instances
 
-| Criterion | Hook-level (3 lines per hook) | SWR middleware + fallback |
-|-----------|-------------------------------|--------------------------|
-| Code changes | 4 hooks modified, ~3 lines each | New middleware file + SWRConfig wrapper in layout |
-| Cache isolation | Explicit: `isDemo ? 'demo-keys' : 'admin-keys'` | Implicit: fallback populates same cache keys |
-| Clarity | Each hook is self-documenting about demo behavior | Middleware is invisible -- developers must know to check middleware chain |
-| Risk | Zero risk to existing data fetching | Middleware ordering bugs can affect real data fetching |
-| SWR key collision | Impossible (different key strings) | Possible if user enters demo mode while authenticated |
+Create two new Azure SWA resources in the Azure Portal:
 
-Hook-level injection is simpler, safer, and more explicit. The 12 total lines of code across 4 hooks is trivial compared to the middleware abstraction.
+| Resource | SKU | Custom Domain | Deployment Source |
+|----------|-----|--------------|-------------------|
+| `feelr-dashboard-staging` | Standard ($9/mo) | `staging-app.feelr.dev` | Other (manual via GitHub Actions) |
+| `feelr-docs-staging` | Standard ($9/mo) | `staging-docs.feelr.dev` | Other (manual via GitHub Actions) |
 
-**sessionStorage + DemoContext vs URL query param `?demo=true`:**
+Each gets its own deployment token. GitHub Actions workflows deploy to these instances using the existing `Azure/static-web-apps-deploy@v1` action but with new tokens and NO `deployment_environment` parameter (so deploys go to the "production" slot of each staging SWA, which is where custom domains bind).
 
-| Criterion | sessionStorage + DemoContext | URL query param |
-|-----------|------------------------------|----------------|
-| Persistence | Clears on tab close (correct for demo) | Persists in URL (user might bookmark demo state) |
-| Collision with auth | Zero (sessionStorage key `feelr_demo` vs localStorage key `feelr_admin_token`) | Zero |
-| Navigation | Demo state persists across page navigations within session | Must append `?demo=true` to every navigation or strip it and lose state |
-| Static export | Works (client-side sessionStorage) | Works but requires `<Suspense>` boundary for `useSearchParams()` |
-| Entry flow | `/demo` route calls `enterDemo()`, redirects to `/overview` | Need to construct URL with query param |
+### Impact on Existing Workflows
 
-sessionStorage is cleaner because demo state is a session concern, not a URL concern. The `/demo` entry route provides a clean URL for the "Try Demo" button on the landing page.
+The current `dashboard.yml` and `docs.yml` workflows have two jobs: `deploy-staging` and `deploy-production`. The staging jobs currently deploy to the same SWA instance with `deployment_environment: staging`.
+
+**Change:** The staging jobs switch from deploying to a named environment within the production SWA to deploying to the dedicated staging SWA instance's production slot. This means:
+
+- Remove `deployment_environment: staging` from staging jobs
+- Change `azure_static_web_apps_api_token` to use the new staging-specific tokens
+- The existing production jobs remain unchanged
+
+### Cost
+
+2 additional Standard SWA instances at $9/month each = $18/month total. Both existing production SWA instances are already Standard. The Standard plan is required for custom domains.
+
+---
+
+## Branding Asset Pipeline
+
+### Source Assets
+
+| File | Location | Purpose |
+|------|----------|---------|
+| `feelr-logo.svg` | `/assets/feelr-logo.svg` | Full logo with lobster character (400x400 viewBox 120x120). Used in docs navbar, dashboard sidebar header. |
+| `feelr-logomark.svg` | `/assets/feelr-logomark.svg` | Minimal antennae mark (200x200 viewBox 40x40). Used as favicon source -- simple enough to be recognizable at 32x32. |
+
+### Generated Assets (One-Time Script)
+
+A build-time script (`scripts/generate-icons.mjs`) uses sharp to produce:
+
+| Output | Size | Format | Used By |
+|--------|------|--------|---------|
+| `favicon.ico` | 32x32 | ICO | Both apps, placed in `app/` directory |
+| `icon.svg` | Original | SVG (copy of logomark) | Both apps, placed in `app/` directory. Browsers supporting SVG favicons get the crisp vector version. |
+| `icon-192.png` | 192x192 | PNG | Web manifest (standard icon) |
+| `icon-512.png` | 512x512 | PNG | Web manifest (maskable icon) |
+| `apple-icon.png` | 180x180 | PNG | Apple touch icon |
+
+### Why sharp, Not a Dedicated Favicon Generator
+
+| Criterion | sharp (recommended) | favicons npm package | @profullstack/favicon-generator |
+|-----------|---------------------|---------------------|-------------------------------|
+| Maturity | 10+ years, 30K+ GitHub stars | Active but heavy (generates 40+ files) | New, low adoption |
+| Output control | Exact control over which sizes to generate | Generates everything (Android Chrome, iOS, Windows Tile, etc.) -- massive overkill | Reasonable but less flexible |
+| Dependencies | Single native dependency (libvips) | Multiple dependencies | Depends on sharp anyway |
+| Use case fit | Generate exactly 5 files from 1 SVG | Generate 40+ files with HTML snippet | Generate a standard set |
+
+We need exactly 5 output files. Sharp gives precise control without generating dozens of unused assets. The script is ~30 lines.
+
+### Why NOT Use Next.js Code-Generated Icons (icon.tsx)
+
+Next.js supports generating icons via code (`app/icon.tsx` using `ImageResponse` from `next/og`). This is designed for rendering simple text/shapes, NOT for converting complex SVGs with gradients and multiple paths. The Feelr logomark has linear gradients, stroke paths, and filled circles that `ImageResponse` (which uses Satori internally) may not render faithfully. Pre-generating PNGs from the source SVG using sharp guarantees pixel-perfect output.
+
+---
+
+## DNS Configuration
+
+### New CNAME Records (Cloudflare DNS)
+
+| Name | Type | Target | Proxy | Notes |
+|------|------|--------|-------|-------|
+| `staging-app` | CNAME | `<dashboard-staging-swa-hostname>.azurestaticapps.net` | DNS only (gray cloud) | Must be DNS-only for Azure SWA custom domain validation. Same pattern as existing `app.feelr.dev`. |
+| `staging-docs` | CNAME | `<docs-staging-swa-hostname>.azurestaticapps.net` | DNS only (gray cloud) | Must be DNS-only for Azure SWA custom domain validation. Same pattern as existing `feelr.dev`. |
+| `staging-api` | (auto-created) | N/A | N/A | Cloudflare Workers `custom_domain = true` auto-manages DNS when the zone is on Cloudflare. No manual record needed. |
+
+### Wrangler.toml Change for Gateway
+
+```toml
+# Add to [env.staging] section:
+[env.staging]
+workers_dev = true  # Keep workers.dev URL as fallback
+
+[[env.staging.routes]]
+pattern = "staging-api.feelr.dev"
+custom_domain = true
+```
+
+---
+
+## GitHub Actions Secrets
+
+### New Secrets Required
+
+| Secret Name | Source | Used By |
+|-------------|--------|---------|
+| `SWA_DASHBOARD_STAGING_TOKEN` | Azure Portal > `feelr-dashboard-staging` SWA > Manage deployment token | `dashboard.yml` staging job |
+| `SWA_DOCS_STAGING_TOKEN` | Azure Portal > `feelr-docs-staging` SWA > Manage deployment token | `docs.yml` staging job |
+
+### Existing Secrets (No Changes)
+
+| Secret Name | Used By |
+|-------------|---------|
+| `SWA_DASHBOARD_DEPLOYMENT_TOKEN` | `dashboard.yml` production job |
+| `SWA_DOCS_DEPLOYMENT_TOKEN` | `docs.yml` production job |
+| `CLOUDFLARE_API_TOKEN` | `gateway.yml` both jobs |
+| `CLOUDFLARE_ACCOUNT_ID` | `gateway.yml` both jobs |
 
 ---
 
@@ -112,69 +184,18 @@ sessionStorage is cleaner because demo state is a session concern, not a URL con
 
 | Category | Recommended | Alternative | Why Not |
 |----------|-------------|-------------|---------|
-| Typing animation | Custom `setInterval` + CSS (~2KB) | react-type-animation (~9KB) | Cannot render output blocks instantly. Adds external dependency for 30 lines of code. Inconsistent with hand-built codebase pattern. |
-| Typing animation | Custom `setInterval` + CSS (~2KB) | Motion/Framer Motion (~30KB) | Massive overkill. Spring physics and gesture handling for a typing effect. |
-| Typing animation | Custom `setInterval` + CSS (~2KB) | MagicUI Terminal component | Registry-based dependency pattern that does not exist in this codebase. Copy-paste components add maintenance overhead. |
-| Terminal chrome | Custom Tailwind component (~50 lines) | react-terminal-ui / react-terminal | Interactive terminal emulators designed for user input. The walkthrough is scripted. Wrong tool for the job. |
-| Demo mode data | Hook-level mock injection (3 lines/hook) | SWR middleware + fallback | More abstraction for less clarity. Middleware ordering bugs risk affecting real data. Cache key collision possible. |
-| Demo mode data | Hook-level mock injection (3 lines/hook) | MSW (Mock Service Worker) | 50KB+ dependency designed for testing, not production demo modes. Service worker registration complexity. |
-| Demo mode trigger | sessionStorage + DemoContext + `/demo` route | URL query param `?demo=true` | Query param must be propagated across navigations. sessionStorage persists naturally within a tab session. |
-| Demo mode trigger | sessionStorage + DemoContext + `/demo` route | localStorage | localStorage persists across tabs and sessions. Demo should end when the tab closes. |
-| Mock data | Hand-written fixtures (~100 lines) | @faker-js/faker (400KB+) | The demo needs 4-5 fixed, curated mock responses. Random data looks worse in a product demo. 400KB for what fits in 100 lines. |
-| State management | React Context (DemoContext) | Zustand / Jotai | A single boolean flag with two functions (enter/exit). External state management library is overkill. |
-| GoReleaser config | Change tap owner only (keep `brews`) | Migrate `brews` to `homebrew_casks` | `brews` is deprecated but functional. Migrating to `homebrew_casks` simultaneously with changing the tap owner introduces two variables. Change one thing at a time. Migrate to `homebrew_casks` in a future maintenance task. |
-
----
-
-## GoReleaser Configuration Change
-
-**Current problem:** The `.goreleaser.yaml` `brews` section has `repository.owner: andrewprograde`. The install command on the landing page references `progradetech/feelr/feelr`. The tap would push to the wrong repository.
-
-**Fix:** Change `owner` from `andrewprograde` to `progradetech` in `.goreleaser.yaml`. One-line change.
-
-```yaml
-# Before
-brews:
-  - name: feelr
-    repository:
-      owner: andrewprograde    # Wrong owner
-      name: homebrew-feelr
-
-# After
-brews:
-  - name: feelr
-    repository:
-      owner: progradetech      # Correct owner
-      name: homebrew-feelr
-```
-
-**Why NOT migrate to `homebrew_casks` simultaneously:** The `brews` section is deprecated since GoReleaser v2.10 but still works. Migrating to `homebrew_casks` changes the packaging format (formula to cask), the tap structure, and potentially requires a `tap_migrations.json` redirect. Doing this alongside the owner change introduces two variables. If something breaks, it is unclear which change caused it. Change the owner now. Migrate to `homebrew_casks` in a dedicated maintenance task later.
-
-**PAT token note:** The `HOMEBREW_TAP_GITHUB_TOKEN` secret in GitHub Actions must have `contents: write` permission on the `progradetech/homebrew-feelr` repository. If the existing PAT was scoped to `andrewprograde`, a new PAT with access to the `progradetech` org is needed.
-
----
-
-## Cloudflare API Token Fix
-
-**Current problem:** The Cloudflare API token used in CI/CD (`CLOUDFLARE_API_TOKEN`) is missing "Workers KV Storage: Edit" permission, causing KV operations to fail during wrangler deploy.
-
-**Required permissions:**
-
-| Permission | Scope | Access | Why Needed |
-|------------|-------|--------|------------|
-| Workers Scripts | Account | Edit | Deploy Worker code |
-| Workers KV Storage | Account | Edit | Create/write KV namespaces (AUTH_KV binding) |
-| D1 | Account | Edit | Run D1 migrations |
-| Account Settings | Account | Read | Wrangler account discovery |
-| Workers Routes | Zone | Edit | Configure custom domain routes |
-
-**Fix procedure:**
-1. Cloudflare Dashboard > My Profile > API Tokens
-2. Edit the existing token
-3. Add "Workers KV Storage: Edit" permission
-4. Save
-
-No code changes. No workflow changes. The existing workflows already pass `accountId` to wrangler-action, which is correct.
+| SWA staging custom domain | Separate SWA instances (2 new resources) | Azure SWA `deployment_environment: staging` with auto-generated URL | Auto-generated URLs cannot have custom domains. This is an Azure limitation, not a workaround. The only path to `staging-app.feelr.dev` is a dedicated SWA instance. |
+| SWA staging custom domain | Separate SWA instances | Cloudflare Workers reverse proxy to SWA staging URL | Adds an unnecessary proxy layer, introduces latency, defeats the purpose of Azure SWA edge CDN. Over-engineering a simple subdomain. |
+| SWA staging custom domain | Separate SWA instances | Azure Front Door / APIM in front of SWA | Massively over-engineered. AFD costs $35+/month, adds complexity for a simple CNAME-to-SWA mapping. |
+| SWA staging plan | Standard ($9/mo per instance) | Free plan | Free plan does not support custom domains. Standard is required. |
+| Gateway staging domain | Wrangler `custom_domain = true` | Cloudflare route + manual DNS CNAME | `custom_domain = true` is the modern approach, auto-manages DNS and SSL. Routes require manual CNAME setup and wildcard path matching. |
+| SVG-to-favicon | sharp (build script) | favicons npm package | Generates 40+ files. We need 5. Overkill. |
+| SVG-to-favicon | sharp (build script) | Online converter (realfavicongenerator.net) | Manual process, not reproducible, not in version control. |
+| SVG-to-favicon | sharp (build script) | Next.js `icon.tsx` with `ImageResponse` | Satori (underlying renderer) has limited SVG support. Cannot reliably render gradients, complex paths. Pre-generating with sharp guarantees fidelity. |
+| SVG-to-favicon | sharp (build script) | Check SVG directly into `app/` as `icon.svg` (no conversion) | This works for `icon.svg` (modern browsers), but `favicon.ico` is still needed for legacy browsers and some apps. apple-icon must be PNG. Manifest icons must be PNG. Still need sharp for 4 of 5 files. |
+| Manifest approach | `manifest.ts` (code-generated) | Static `manifest.json` file | TypeScript manifest lets us reference icon paths programmatically and gets type-checked via `MetadataRoute.Manifest`. |
+| Docs favicon | Next.js file-based (`app/favicon.ico`) | Nextra `<Head faviconGlyph="...">` | `faviconGlyph` renders an emoji as favicon. It does not support custom SVG/ICO icons. File-based is the standard Next.js approach and works with Nextra 4. |
+| Docs logo | SVG `<Image>` or inline SVG in Navbar | Keep text `<b>Feelr</b>` | Text logo looks generic. The SVG logo with the lobster/antenna mark is the brand identity. The Navbar `logo` prop accepts any ReactNode. |
 
 ---
 
@@ -183,24 +204,30 @@ No code changes. No workflow changes. The existing workflows already pass `accou
 ### New npm Dependencies
 
 ```bash
-# None. Zero new dependencies for this entire milestone.
+# None at runtime.
 ```
 
-### New Dev Dependencies
+### New Dev Dependencies (Root)
+
+```bash
+# Install sharp as root devDependency for icon generation script
+pnpm add -D sharp -w
+```
+
+**Why root, not per-app:** The icon generation script runs once and copies output to both `apps/dashboard/src/app/` and `apps/docs/app/`. It is a monorepo-level build tool, not an app-level dependency.
+
+### New Go Dependencies
 
 ```bash
 # None.
 ```
 
-### New Go Dependencies
-
-```bash
-# None. GoReleaser config change only.
-```
-
 ### New Infrastructure
 
-None. All features use existing infrastructure (Next.js on Azure SWA, Cloudflare Workers, GitHub Actions, GoReleaser).
+| Resource | Type | Cost | How to Create |
+|----------|------|------|---------------|
+| `feelr-dashboard-staging` | Azure Static Web App (Standard) | $9/month | Azure Portal > Create resource > Static Web App. Deployment source: "Other". |
+| `feelr-docs-staging` | Azure Static Web App (Standard) | $9/month | Azure Portal > Create resource > Static Web App. Deployment source: "Other". |
 
 ---
 
@@ -208,61 +235,73 @@ None. All features use existing infrastructure (Next.js on Azure SWA, Cloudflare
 
 | Tool | Current in Project | Required for Milestone | Change Needed? |
 |------|-------------------|----------------------|----------------|
-| Next.js | ^15.3.0 | ^15.3.0 | No |
+| Next.js | ^15.3.0 (resolves 15.5.12) | ^15.3.0 | No |
 | React | ^19.0.0 | ^19.0.0 | No |
-| SWR | ^2.3.0 | ^2.3.0 | No |
-| Tailwind CSS | ^4.0.0 | ^4.0.0 | No |
-| Lucide React | ^0.469.0 | ^0.469.0 | No |
-| Sonner | ^1.7.0 | ^1.7.0 | No |
+| Nextra | ^4.2.0 | ^4.2.0 | No |
+| nextra-theme-docs | ^4.2.0 | ^4.2.0 | No |
 | TypeScript | ^5.7.0 | ^5.7.0 | No |
-| GoReleaser | v2 (via action@v6) | v2 | No |
-| wrangler-action | v3 | v3 | No |
-| Cloudflare API Token | Existing | Existing (add KV permission) | **Reconfigure** |
-| Node.js (CI) | 20 | 20 | No |
+| Tailwind CSS | ^4.0.0 | ^4.0.0 | No |
 | pnpm | 9.15.0 | 9.15.0 | No |
+| Turborepo | latest | latest | No |
+| Node.js (CI) | 20 | 20 | No |
+| Wrangler | 4.63.0 | 4.63.0 | No (config change only) |
+| Azure/static-web-apps-deploy | v1 | v1 | No (new tokens + workflow changes) |
+| cloudflare/wrangler-action | v3 | v3 | No |
+| sharp | N/A (new) | ^0.34.5 | **Add as root devDependency** |
 
 ---
 
-## Installation
+## Manifest.ts Compatibility Note
 
-```bash
-# No installation steps. Zero new dependencies.
-# All new functionality is built using the existing stack.
+When using `manifest.ts` with `output: 'export'` in Next.js 15.x, the file MUST include:
+
+```typescript
+export const dynamic = 'force-static'
 ```
+
+Without this export, the build will fail with:
+
+> `export const dynamic = "force-static"/export const revalidate not configured on route "/manifest.webmanifest"`
+
+This is a known Next.js requirement when using code-generated metadata files with static export. The `dynamic = 'force-static'` export tells Next.js to generate the manifest at build time and include it in the static output.
 
 ---
 
 ## Sources
 
 ### Official Documentation (HIGH confidence)
-- [SWR Documentation](https://swr.vercel.app/) -- hook patterns, key-based caching, conditional fetching
-- [Next.js Static Exports](https://nextjs.org/docs/app/guides/static-exports) -- server/client component behavior with `output: 'export'`
-- [Next.js Metadata API](https://nextjs.org/docs/app/api-reference/functions/generate-metadata) -- metadata must be exported from server components
-- [React Context](https://react.dev/reference/react/createContext) -- provider pattern for DemoContext
-- [Cloudflare API Token Permissions](https://developers.cloudflare.com/fundamentals/api/reference/permissions/) -- KV Storage Edit, Workers Scripts Edit
-- [GoReleaser Homebrew Formulas](https://goreleaser.com/customization/homebrew/) -- `brews` section configuration
+- [Azure SWA Custom Domains](https://learn.microsoft.com/en-us/azure/static-web-apps/custom-domain) -- confirms custom domains are production-only
+- [Azure SWA Custom Domain with External Providers](https://learn.microsoft.com/en-us/azure/static-web-apps/custom-domain-external) -- CNAME setup process for Cloudflare DNS
+- [Azure SWA Named Environments](https://learn.microsoft.com/en-us/azure/static-web-apps/named-environments) -- `deployment_environment` parameter, URL pattern
+- [Azure SWA Preview Environments](https://learn.microsoft.com/en-us/azure/static-web-apps/preview-environments) -- confirms custom domains not supported on preview envs
+- [Azure SWA Feature Request #22](https://github.com/Azure/static-web-apps/issues/22) -- custom domain for staging, open since 2020, no resolution
+- [Next.js Metadata Files: favicon, icon, apple-icon](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/app-icons) -- file conventions, supported formats, static export behavior
+- [Next.js Metadata Files: manifest.json](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/manifest) -- `manifest.ts` with `force-static` for static export
+- [Nextra Head Component](https://nextra.site/docs/built-ins/head) -- `faviconGlyph` prop, children for custom head tags
+- [Cloudflare Workers Environments](https://developers.cloudflare.com/workers/wrangler/environments/) -- per-environment routes and custom domains
+- [Cloudflare Workers Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/) -- `custom_domain = true` in routes
+- [sharp Documentation](https://sharp.pixelplumbing.com/) -- SVG input, PNG/WebP output, version 0.34.x
 
 ### Verified via Project Files (HIGH confidence)
-- `apps/dashboard/package.json` -- current deps: next ^15.3.0, react ^19.0.0, swr ^2.3.0, tailwindcss ^4.0.0
-- `apps/dashboard/next.config.ts` -- `output: 'export'`, `images: { unoptimized: true }`
-- `apps/dashboard/src/lib/hooks/use-keys.ts` -- SWR hook pattern with string keys
-- `apps/dashboard/src/lib/hooks/use-connectors.ts` -- same pattern
-- `apps/dashboard/src/lib/hooks/use-overview.ts` -- same pattern
-- `apps/dashboard/src/lib/hooks/use-usage.ts` -- same pattern
-- `apps/dashboard/src/lib/types.ts` -- TypeScript types that mock data must satisfy
-- `apps/dashboard/src/components/auth-guard.tsx` -- current auth check logic
-- `apps/dashboard/src/app/layout.tsx` -- root layout where DemoProvider wraps children
-- `.goreleaser.yaml` -- current `brews` config with `andrewprograde/homebrew-feelr`
+- `apps/dashboard/package.json` -- current deps: next ^15.3.0, react ^19.0.0
+- `apps/docs/package.json` -- current deps: next ^15.3.0, nextra ^4.2.0
+- `apps/dashboard/next.config.ts` -- `output: 'export'`
+- `apps/docs/next.config.mjs` -- `output: 'export'` via nextra wrapper
+- `apps/dashboard/src/app/layout.tsx` -- existing metadata export, no favicon configured
+- `apps/docs/app/layout.tsx` -- Nextra Head component, text-only logo, no favicon
+- `apps/gateway/wrangler.toml` -- staging env uses `workers_dev = true`, no custom domain yet
+- `.github/workflows/dashboard.yml` -- `deployment_environment: staging` with `SWA_DASHBOARD_DEPLOYMENT_TOKEN`
+- `.github/workflows/docs.yml` -- `deployment_environment: staging` with `SWA_DOCS_DEPLOYMENT_TOKEN`
+- `.github/workflows/gateway.yml` -- wrangler-action v3 with `--env staging`
+- `/assets/feelr-logo.svg` -- full logo, 400x400 with 120x120 viewBox
+- `/assets/feelr-logomark.svg` -- minimal mark, 200x200 with 40x40 viewBox
 
-### Evaluated and Rejected (MEDIUM confidence)
-- [react-type-animation npm](https://www.npmjs.com/package/react-type-animation) -- reviewed, rejected: cannot render output blocks instantly, adds dependency for 30 lines of custom code
-- [MagicUI Terminal](https://magicui.design/docs/components/terminal) -- reviewed, rejected: registry-based pattern inconsistent with codebase
-- [Motion Typewriter](https://motion.dev/docs/react-typewriter) -- reviewed, rejected: paid (Motion+ membership required)
-- [react-terminal-ui npm](https://www.npmjs.com/package/react-terminal-ui) -- reviewed, rejected: interactive-only design
-- [react-terminal npm](https://www.npmjs.com/package/react-terminal) -- reviewed, rejected: interactive-only design
-- [MSW (Mock Service Worker)](https://mswjs.io/) -- reviewed, rejected: 50KB+ dependency designed for testing, not production demo modes
+### Community/Web Sources (MEDIUM confidence)
+- [Multi-stage Azure SWA Deployments](https://techcommunity.microsoft.com/blog/appsonazureblog/multi-stage-azure-static-web-apps-deployments-with-azure-devops/3390625) -- Microsoft blog confirming separate instances as a pattern
+- [Nextra 4 Migration Guide](https://the-guild.dev/blog/nextra-4) -- confirms App Router migration, metadata API support
+- [Next.js PWA Static Export Discussion](https://github.com/vercel/next.js/discussions/72221) -- `force-static` requirement for manifest.ts with output: 'export'
 
 ---
 
-*Stack research for: Feelr -- Interactive Demo, Dashboard Demo Mode, and Landing Page*
-*Researched: 2026-02-10*
+*Stack research for: Feelr -- Staging Custom Domains & Branding Integration*
+*Researched: 2026-02-11*
