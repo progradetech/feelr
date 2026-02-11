@@ -2,6 +2,8 @@
 
 import useSWR from 'swr';
 import { gatewayFetch } from '@/lib/api';
+import { useDemo } from '@/lib/demo-context';
+import { DEMO_CONNECTORS } from '@/lib/demo-data';
 import type { ConnectorStatus } from '@/lib/types';
 
 /**
@@ -36,7 +38,8 @@ interface CredentialEntry {
  * 'connected' and 'not_connected' are derived.
  */
 export function useConnectors() {
-  return useSWR('admin-connectors', async () => {
+  const { isDemo } = useDemo();
+  const swr = useSWR(isDemo ? null : 'admin-connectors', async () => {
     const credentials = await gatewayFetch<CredentialEntry[]>('/admin/credentials');
     const connectedSet = new Set(credentials.map((c) => c.connector));
 
@@ -47,4 +50,7 @@ export function useConnectors() {
 
     return statuses;
   });
+  return isDemo
+    ? { ...swr, data: DEMO_CONNECTORS as ConnectorStatus[], isLoading: false }
+    : swr;
 }

@@ -2,6 +2,8 @@
 
 import useSWR from 'swr';
 import { gatewayFetch } from '@/lib/api';
+import { useDemo } from '@/lib/demo-context';
+import { DEMO_OVERVIEW } from '@/lib/demo-data';
 import type { OverviewData } from '@/lib/types';
 
 /**
@@ -11,7 +13,11 @@ import type { OverviewData } from '@/lib/types';
  * recent usage data (24h total + hourly sparkline).
  */
 export function useOverview() {
-  return useSWR('internal-overview', () =>
+  const { isDemo } = useDemo();
+  const swr = useSWR(isDemo ? null : 'internal-overview', () =>
     gatewayFetch<OverviewData>('/internal/overview'),
   );
+  return isDemo
+    ? { ...swr, data: DEMO_OVERVIEW as OverviewData, isLoading: false }
+    : swr;
 }
