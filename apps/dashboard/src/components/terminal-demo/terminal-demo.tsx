@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Play, ArrowRight } from 'lucide-react';
 import { useDemo } from '@/lib/demo-context';
@@ -39,26 +39,14 @@ export function TerminalDemo() {
   const reducedMotion = useReducedMotion();
   const [reducedMotionActive, setReducedMotionActive] = useState(false);
 
-  const handleComplete = useCallback(() => {
+  const handleGoToDashboard = useCallback(() => {
     enterDemo();
     router.push('/overview');
   }, [enterDemo, router]);
 
+  const noop = useCallback(() => {}, []);
   const { state, currentStep, completedSteps, start, markStepDone } =
-    useWalkthrough(handleComplete);
-
-  // Reduced motion: auto-transition after brief delay
-  useEffect(() => {
-    if (!reducedMotionActive) return;
-
-    const timeout = setTimeout(() => {
-      handleComplete();
-    }, 1500);
-
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [reducedMotionActive, handleComplete]);
+    useWalkthrough(noop);
 
   const handleStart = () => {
     if (reducedMotion) {
@@ -111,7 +99,7 @@ export function TerminalDemo() {
               {WALKTHROUGH_STEPS.map((step, i) => (
                 <StaticStep key={i} step={step} />
               ))}
-              <div className="mt-2 text-zinc-500">Entering demo...</div>
+              <div className="mt-2 text-zinc-500">Demo ready — explore the dashboard below.</div>
             </>
           )}
 
@@ -146,10 +134,10 @@ export function TerminalDemo() {
               Watching...
             </button>
           )}
-          {isComplete && !reducedMotionActive && (
+          {(isComplete || reducedMotionActive) && (
             <button
               type="button"
-              onClick={handleComplete}
+              onClick={handleGoToDashboard}
               className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white transition-colors hover:bg-emerald-500"
             >
               Explore Dashboard
