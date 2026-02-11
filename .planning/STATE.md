@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 18 — Demo Foundation
+**Current focus:** Phase 19 — Dashboard Demo Mode
 
 ## Current Position
 
-Phase: 18 of 21 (Demo Foundation)
+Phase: 19 of 21 (Dashboard Demo Mode)
 Plan: 2 of 2 in current phase
-Status: Phase 18 complete, awaiting Phase 19 planning
-Last activity: 2026-02-11 — Completed 18-02 (Demo Data Fixtures)
+Status: Phase 19 complete, awaiting Phase 20 planning
+Last activity: 2026-02-11 — Completed 19-02 (Demo Banner & Mutation Interception)
 
-Progress: [████░░░░░░] 40% (v1.2)
+Progress: [█████░░░░░] 50% (v1.2)
 
 ## Milestone History
 
@@ -60,6 +60,9 @@ Recent decisions affecting current work:
 - satisfies assertions for fixture type safety (compile-time validation with narrow literal types)
 - Cross-domain fixture consistency (overview counts match keys/connectors lengths, usage totals match)
 - ChainHistoryEntry type in types.ts (future-proofed for chain history page)
+- DemoBanner flex-col wrapper in layout (sits above sidebar+main without disrupting existing styles)
+- Fake demo key uses fk_demo_ prefix with base36 timestamp (uniqueness without collision)
+- Demo mutation interception pattern: useDemo() + early return with toast before API call
 
 ### Pending Todos
 
@@ -79,5 +82,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 18-02-PLAN.md (Demo Data Fixtures). Phase 18 complete. Next: /gsd:plan-phase 19
+Stopped at: Completed 19-02-PLAN.md (Demo Banner & Mutation Interception). Phase 19 complete. Next: /gsd:plan-phase 20
 Resume file: None
