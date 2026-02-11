@@ -63,6 +63,7 @@ Recent decisions affecting current work:
 - DemoBanner flex-col wrapper in layout (sits above sidebar+main without disrupting existing styles)
 - Fake demo key uses fk_demo_ prefix with base36 timestamp (uniqueness without collision)
 - Demo mutation interception pattern: useDemo() + early return with toast before API call
+- [Phase 19]: SWR null-key pattern for demo data interception (useSWR always called unconditionally, null key prevents fetch)
 
 ### Pending Todos
 
@@ -82,5 +83,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 19-02-PLAN.md (Demo Banner & Mutation Interception). Phase 19 complete. Next: /gsd:plan-phase 20
+Stopped at: Completed 19-01-PLAN.md (Demo Mode Wiring). Phase 19 fully complete. Next: /gsd:plan-phase 20
 Resume file: None
