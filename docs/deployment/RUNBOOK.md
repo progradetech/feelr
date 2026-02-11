@@ -291,36 +291,19 @@ cd apps/gateway && npx wrangler deploy --env staging
 | **Trigger** | Push of `v*` tag |
 | **Workflow** | `.github/workflows/gateway.yml` (deploy-production job) |
 | **Approval** | GitHub environment approval gate on `production` environment |
-| **Rollout** | `versions upload` -> 10% canary -> smoke test -> 100% rollout |
+| **Rollout** | Direct deploy via `wrangler deploy --env production` + smoke test |
 
 **Process:**
 
-1. CI uploads a new version via `wrangler versions upload --env production`
-2. Deploys at 10% traffic (canary)
-3. Runs smoke test against `https://api.feelr.dev/health`
-4. Promotes to 100% traffic on success
+1. CI runs `wrangler deploy --env production`
+2. Runs smoke test against `https://api.feelr.dev/health`
 
-> **WARNING:** If the release includes new `[[migrations]]` in `apps/gateway/wrangler.toml` (e.g., a new Durable Object class), `versions upload` will fail. Use `npx wrangler deploy --env production` directly for DO migration releases. This bypasses the gradual rollout but is the only option for migration changes.
-
-**Manual deploy (gradual rollout):**
+**Manual deploy:**
 
 ```bash
 cd apps/gateway
-
-# Upload version
-npx wrangler versions upload --env production --tag v1.x.x --message "Release v1.x.x"
-
-# Get the version ID
-VERSION_ID=$(npx wrangler versions list --env production --json --name feelr-gateway-production | jq -r '.[0].id')
-
-# Deploy at 10%
-npx wrangler versions deploy "${VERSION_ID}@10%" --env production --yes --message "Canary at 10%"
-
-# Verify health
+npx wrangler deploy --env production
 curl https://api.feelr.dev/health
-
-# Promote to 100%
-npx wrangler versions deploy "${VERSION_ID}@100%" --env production --yes --message "Full rollout"
 ```
 
 ### 2.3 Dashboard & Docs (automatic on push to main / tag push)
@@ -437,10 +420,6 @@ Each entry follows the pattern: **Symptom** -> **Cause** -> **Fix**.
   npx wrangler kv namespace list
   npx wrangler d1 list
   ```
-
-**`versions upload` fails with migration error**
-- **Cause:** New `[[migrations]]` tag present in `apps/gateway/wrangler.toml`. The `versions upload` command does not support Durable Object migrations.
-- **Fix:** Use `npx wrangler deploy --env production` directly. This bypasses the gradual rollout but is required for DO migration releases.
 
 **Health check returns 500 after deploy**
 - **Cause:** Missing or expired Worker secrets (`ENCRYPTION_KEY`, `ADMIN_TOKEN`).
