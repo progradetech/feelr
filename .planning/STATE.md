@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 21 of 21 (Interactive Demo Integration)
-Plan: 1 of 2 in current phase (COMPLETE)
-Status: Executing Phase 21
-Last activity: 2026-02-11 — Completed 21-01 (Terminal Demo Foundation)
+Plan: 2 of 2 in current phase (COMPLETE)
+Status: Phase 21 Complete — v1.2 Milestone Complete
+Last activity: 2026-02-11 — Completed 21-02 (Interactive Demo Integration)
 
-Progress: [█████████░] 90% (v1.2)
+Progress: [██████████] 100% (v1.2)
 
 ## Milestone History
 
@@ -22,7 +22,7 @@ Progress: [█████████░] 90% (v1.2)
 |-----------|--------|-------|---------|
 | v1.0 MVP | 1-10 | 51 | 2026-02-09 |
 | v1.1 Deployment & CI/CD | 11-16 | 13 | 2026-02-10 |
-| v1.2 Marketing & Onboarding | 17-21 | TBD | In progress |
+| v1.2 Marketing & Onboarding | 17-21 | 11 | 2026-02-11 |
 
 ## Performance Metrics
 
@@ -72,6 +72,8 @@ Recent decisions affecting current work:
 - [Phase 21]: Template literal concatenation over cn() utility for className merging (no cn utility in project)
 - [Phase 21]: Stable callback refs (onCompleteRef) to prevent stale closure bugs in setInterval/setTimeout
 - [Phase 21]: SSR-safe useReducedMotion with false initial state (avoids hydration mismatch)
+- [Phase 21]: Noop callback to useWalkthrough with separate handleGoToDashboard (decoupled animation completion from navigation)
+- [Phase 21]: Explicit Explore Dashboard button instead of auto-redirect (user controls when to leave landing page)
 
 ### Pending Todos
 
@@ -91,5 +93,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 21-01-PLAN.md (Terminal Demo Foundation)
+Stopped at: Completed 21-02-PLAN.md (Interactive Demo Integration) — Phase 21 complete, v1.2 milestone complete
 Resume file: None
