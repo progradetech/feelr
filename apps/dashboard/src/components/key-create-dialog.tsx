@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { gatewayMutate } from '@/lib/api';
+import { useDemo } from '@/lib/demo-context';
 
 interface KeyCreateDialogProps {
   open: boolean;
@@ -24,10 +25,19 @@ export function KeyCreateDialog({
 }: KeyCreateDialogProps) {
   const [label, setLabel] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const { isDemo } = useDemo();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsCreating(true);
+
+    if (isDemo) {
+      toast.success('Demo: API key created successfully');
+      onCreated('fk_demo_' + Date.now().toString(36));
+      setLabel('');
+      setIsCreating(false);
+      return;
+    }
 
     try {
       const response = await gatewayMutate<CreateKeyResponse>(

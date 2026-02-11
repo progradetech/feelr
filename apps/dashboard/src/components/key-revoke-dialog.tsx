@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { gatewayMutate } from '@/lib/api';
+import { useDemo } from '@/lib/demo-context';
 
 interface KeyRevokeDialogProps {
   keyLabel: string | null;
@@ -22,6 +23,7 @@ export function KeyRevokeDialog({
 }: KeyRevokeDialogProps) {
   const [confirmInput, setConfirmInput] = useState('');
   const [isRevoking, setIsRevoking] = useState(false);
+  const { isDemo } = useDemo();
 
   const confirmText = keyLabel || shortToken;
   const isConfirmed = confirmInput === confirmText;
@@ -35,6 +37,13 @@ export function KeyRevokeDialog({
 
   async function handleRevoke() {
     if (!isConfirmed) return;
+
+    if (isDemo) {
+      toast.success('Demo: API key revoked successfully');
+      onConfirm();
+      return;
+    }
+
     setIsRevoking(true);
 
     try {
