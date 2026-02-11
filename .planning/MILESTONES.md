@@ -41,3 +41,23 @@
 
 ---
 
+
+## v1.2 Marketing & Onboarding (Shipped: 2026-02-11)
+
+**Phases:** 17-21 | **Plans:** 11 | **Tasks:** 25 | **Timeline:** 2 days (2026-02-10 to 2026-02-11)
+**Files modified:** 71 | **Lines changed:** +7,877 / -73 | **Total codebase:** ~21,253 LOC
+
+**Delivered:** Marketing and onboarding experience — landing page with brand typography, interactive terminal demo, demo dashboard mode with mock data, Homebrew tap migration, and Cloudflare Web Analytics.
+
+**Key accomplishments:**
+- Migrated Homebrew tap to progradetech/homebrew-feelr with deprecation formula in old andrewprograde tap
+- Built DemoContext provider + typed mock data fixtures for 5 dashboard data domains
+- SWR null-key demo interception across 6 hooks with AuthGuard bypass for zero-auth demo mode
+- Landing page with hero, install commands, 4 connector cards, brand typography, and SEO metadata
+- Interactive terminal demo with animated typing walkthrough and seamless dashboard transition
+- Cloudflare Web Analytics integrated across all pages
+
+**Archive:** [v1.2-ROADMAP.md](milestones/v1.2-ROADMAP.md) | [v1.2-REQUIREMENTS.md](milestones/v1.2-REQUIREMENTS.md)
+
+---
+

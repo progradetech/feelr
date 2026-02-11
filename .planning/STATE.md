@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-10)
+See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 21 — Interactive Demo Integration
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 21 of 21 (Interactive Demo Integration)
-Plan: 2 of 2 in current phase (COMPLETE)
-Status: Phase 21 Complete — v1.2 Milestone Complete
-Last activity: 2026-02-11 — Completed 21-02 (Interactive Demo Integration)
+Phase: All complete (21 phases across 3 milestones)
+Plan: N/A
+Status: v1.2 Milestone Archived — Ready for next milestone
+Last activity: 2026-02-11 — Archived v1.2 Marketing & Onboarding milestone
 
-Progress: [██████████] 100% (v1.2)
+Progress: [██████████] 100% (all milestones)
 
 ## Milestone History
 
@@ -38,42 +38,16 @@ Progress: [██████████] 100% (v1.2)
 - Total execution time: ~41 min (excludes human checkpoint wait times)
 - Timeline: 2 days (2026-02-09 to 2026-02-10)
 
+**v1.2 Velocity:**
+- Total plans completed: 11
+- Tasks: 25
+- Timeline: 2 days (2026-02-10 to 2026-02-11)
+
 ## Accumulated Context
 
 ### Decisions
 
 All decisions logged in PROJECT.md Key Decisions table with outcomes.
-Recent decisions affecting current work:
-
-- Embedded terminal demo (not real sandboxed terminal) — controlled experience, zero backend infra
-- Mocked API responses for demo — predictable, no token management, works offline
-- Demo mode in actual dashboard (not separate page) — user sees exactly what they would get
-- Move Homebrew tap to progradetech org — matches public org, cleaner brew install
-- Fine-grained PAT scoped to single repo for GoReleaser Homebrew push (least privilege)
-- CF token fix deferred verification to Plan 02 (no code change to trigger pipeline)
-- Deprecation formula uses odie install block (no prior release with real URLs existed)
-- CF token fix verification deferred to next gateway deploy (no code change in 17-02 triggers pipeline)
-- API verification accepted for Homebrew tap discovery (programmatic check confirmed Formula/feelr.rb path)
-- React 19 direct context rendering for DemoContext (not deprecated .Provider pattern)
-- sessionStorage for demo flag (auto-clears on tab close, no persistent leakage)
-- Providers wrapper pattern for composing client context providers in server layout
-- satisfies assertions for fixture type safety (compile-time validation with narrow literal types)
-- Cross-domain fixture consistency (overview counts match keys/connectors lengths, usage totals match)
-- ChainHistoryEntry type in types.ts (future-proofed for chain history page)
-- DemoBanner flex-col wrapper in layout (sits above sidebar+main without disrupting existing styles)
-- Fake demo key uses fk_demo_ prefix with base36 timestamp (uniqueness without collision)
-- Demo mutation interception pattern: useDemo() + early return with toast before API call
-- [Phase 19]: SWR null-key pattern for demo data interception (useSWR always called unconditionally, null key prevents fetch)
-- [Phase 20]: @theme inline (not @theme) for next/font CSS variable resolution in Tailwind v4
-- [Phase 20]: JSON.stringify for data-cf-beacon attribute (safe serialization vs template literal)
-- [Phase 20]: Sign In CTA only on landing page (no Try Demo) — server component cannot call enterDemo(), Phase 21 handles demo entry
-- [Phase 20]: absolute title in metadata to override layout %s | Feelr template (avoids "Feelr | Feelr")
-- [Phase 20]: Lucide proxy icons for Slack (MessageSquare) and Discord (Gamepad2) — no brand icons in lucide-react
-- [Phase 21]: Template literal concatenation over cn() utility for className merging (no cn utility in project)
-- [Phase 21]: Stable callback refs (onCompleteRef) to prevent stale closure bugs in setInterval/setTimeout
-- [Phase 21]: SSR-safe useReducedMotion with false initial state (avoids hydration mismatch)
-- [Phase 21]: Noop callback to useWalkthrough with separate handleGoToDashboard (decoupled animation completion from navigation)
-- [Phase 21]: Explicit Explore Dashboard button instead of auto-redirect (user controls when to leave landing page)
 
 ### Pending Todos
 
@@ -87,11 +61,10 @@ None.
 
 ### Blockers/Concerns
 
-- Phase 17: CF token fix deferred verification to next gateway deploy (token updated, but no code change has triggered pipeline yet)
-- Phase 20: Landing page root page.tsx rewrite COMPLETE — now a server component with full landing content
+- CF token fix deferred verification to next gateway deploy (token updated, but no code change has triggered pipeline yet)
 
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 21-02-PLAN.md (Interactive Demo Integration) — Phase 21 complete, v1.2 milestone complete
+Stopped at: Archived v1.2 milestone — ready for /gsd:new-milestone
 Resume file: None

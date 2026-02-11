@@ -10,8 +10,8 @@ An AI agent can call any supported external API in one line with near-zero conte
 
 ## Current State
 
-**Version:** v1.2.0 Marketing & Onboarding (in progress)
-**Codebase:** ~19,600 LOC (13,580 TypeScript + 6,021 Go) across 400+ files
+**Version:** v1.2.0 Marketing & Onboarding (shipped 2026-02-11)
+**Codebase:** ~21,253 LOC (15,232 TypeScript + 6,021 Go) across 470+ files
 **Tech stack:** Cloudflare Workers + Hono (gateway), Go + Cobra (CLI), Next.js 15.5 (dashboard), Stripe (billing), workerd (self-hosting)
 
 **Live services:**
@@ -20,7 +20,7 @@ An AI agent can call any supported external API in one line with near-zero conte
 - **feelr.dev** — Docs/marketing on Azure Static Web Apps
 - **CI/CD** — 3 independent GitHub Actions workflows (gateway.yml, dashboard.yml, docs.yml)
 
-**Shipped capabilities (v1.0 + v1.1):**
+**Shipped capabilities (v1.0 + v1.1 + v1.2):**
 - Edge gateway with 4 connectors (GitHub 10 actions, Slack 6, Stripe 8, Discord 7)
 - Encrypted auth vault with Durable Objects token coordinator
 - Go CLI with progressive discovery, 3 output modes, shell completion, composable chains
@@ -31,6 +31,11 @@ An AI agent can call any supported external API in one line with near-zero conte
 - DNS on Cloudflare, multi-environment Workers (staging/production), Azure SWA
 - CI/CD with PR quality gates, staging preview deploys, production gradual rollout
 - Deployment runbook, scripts, secrets inventory, binding isolation checks
+- Landing page with brand typography, connector feature cards, SEO metadata
+- Interactive terminal demo with animated walkthrough and dashboard transition
+- Demo dashboard mode with mock data, AuthGuard bypass, and demo banner
+- Homebrew tap at progradetech/homebrew-feelr with deprecation formula in old tap
+- Cloudflare Web Analytics on all pages
 
 ## Requirements
 
@@ -67,15 +72,15 @@ An AI agent can call any supported external API in one line with near-zero conte
 - ✓ Production gradual rollout (10% → 100%) for gateway — v1.1
 - ✓ Deployment runbook, scripts, secrets inventory — v1.1
 - ✓ CI binding isolation checks (staging/production resource separation) — v1.1
+- ✓ Homebrew tap moved to progradetech/homebrew-feelr with correct brew install command — v1.2
+- ✓ Landing page on app.feelr.dev with hero, install commands, connector cards, and brand typography — v1.2
+- ✓ Interactive terminal demo with animated typing walkthrough and dashboard transition — v1.2
+- ✓ Demo dashboard mode with mock data across 5 domains, AuthGuard bypass, and demo banner — v1.2
+- ✓ Cloudflare Web Analytics integrated across all pages — v1.2
 
 ### Active
 
-<!-- v1.2.0 — Marketing & Onboarding -->
-
-- [ ] Homebrew tap moved to progradetech/homebrew-feelr with correct brew install command
-- [ ] Landing page on app.feelr.dev shows install commands below sign-in button
-- [ ] Interactive demo walkthrough with embedded terminal UI and animated typing
-- [ ] Demo dashboard mode showing actual dashboard UI with fake data
+(None — next milestone requirements not yet defined)
 
 ### Out of Scope
 
@@ -101,7 +106,9 @@ An AI agent can call any supported external API in one line with near-zero conte
 - Deployment model: fully open-source and self-hostable (minus billing), plus managed cloud at api.feelr.dev with billing enabled
 - v1.0 shipped in 5 days (154 min execution time across 51 plans)
 - v1.1 shipped in 2 days (13 plans) — all services now live and deployed with CI/CD
+- v1.2 shipped in 2 days (11 plans) — marketing, onboarding, and demo experience complete
 - Deferred operational improvements: Turborepo remote cache, env drift detection, SWA preview environments, automated D1 migration verification
+- Deferred: CF token fix verification (token updated but no deploy triggered yet to confirm)
 
 ## Constraints
 
@@ -136,10 +143,10 @@ An AI agent can call any supported external API in one line with near-zero conte
 | DNS-only (gray cloud) for Azure CNAME records | Cloudflare proxy breaks Azure SWA SSL verification | ✓ Good — permanent setting, managed SSL renewal works |
 | Consolidated gateway.yml workflow | Single file with conditional staging/production jobs | ✓ Good — cleaner than separate deploy-staging + deploy-production files |
 
-| Embedded terminal demo (not real sandboxed terminal) | Controlled experience, zero backend infra, purely frontend with animated typing | — Pending |
-| Mocked API responses for demo | Predictable, no token management, works offline, zero maintenance | — Pending |
-| Demo mode in actual dashboard (not separate page) | User sees exactly what they'd get, reuses existing UI components | — Pending |
-| Move Homebrew tap to progradetech org | Matches public org, cleaner brew install command | — Pending |
+| Embedded terminal demo (not real sandboxed terminal) | Controlled experience, zero backend infra, purely frontend with animated typing | ✓ Good — CSS animations + state machine, completes in ~20s |
+| Mocked API responses for demo | Predictable, no token management, works offline, zero maintenance | ✓ Good — 5 fixture domains, cross-domain consistency |
+| Demo mode in actual dashboard (not separate page) | User sees exactly what they'd get, reuses existing UI components | ✓ Good — SWR null-key interception, seamless transition |
+| Move Homebrew tap to progradetech org | Matches public org, cleaner brew install command | ✓ Good — deprecation formula in old tap, clean migration |
 
 ---
-*Last updated: 2026-02-10 after v1.2.0 milestone start*
+*Last updated: 2026-02-11 after v1.2.0 milestone*
