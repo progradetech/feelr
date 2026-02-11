@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 17 of 21 (CI/CD & Homebrew Migration)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-02-10 — Roadmap created for v1.2.0 Marketing & Onboarding (phases 17-21)
+Plan: 1 of 2 in current phase
+Status: Executing
+Last activity: 2026-02-11 — Completed 17-01 infrastructure prerequisites
 
-Progress: [░░░░░░░░░░] 0% (v1.2)
+Progress: [█░░░░░░░░░] 10% (v1.2)
 
 ## Milestone History
 
@@ -49,6 +49,8 @@ Recent decisions affecting current work:
 - Mocked API responses for demo — predictable, no token management, works offline
 - Demo mode in actual dashboard (not separate page) — user sees exactly what they would get
 - Move Homebrew tap to progradetech org — matches public org, cleaner brew install
+- Fine-grained PAT scoped to single repo for GoReleaser Homebrew push (least privilege)
+- CF token fix deferred verification to Plan 02 (no code change to trigger pipeline)
 
 ### Pending Todos
 
@@ -62,11 +64,11 @@ None.
 
 ### Blockers/Concerns
 
-- Phase 17: CICD-01 requires Cloudflare dashboard access to update API token permissions (ops task, not code)
+- Phase 17: CICD-01 CF token fix deferred verification to Plan 02 (no code change to trigger new deploy yet)
 - Phase 20: Landing page root page.tsx requires full rewrite from 'use client' redirect to server component (breaking change in file type)
 
 ## Session Continuity
 
-Last session: 2026-02-10
-Stopped at: Roadmap v1.2.0 created. Next: /gsd:plan-phase 17
+Last session: 2026-02-11
+Stopped at: Completed 17-01-PLAN.md. Next: /gsd:execute-phase 17 (Plan 02)
 Resume file: None
