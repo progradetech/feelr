@@ -39,6 +39,7 @@ jobs:
         run: pnpm turbo run build --filter=@feelr/dashboard
         env:
           NEXT_PUBLIC_GATEWAY_URL: https://feelr-gateway-staging.feelr.workers.dev
+          NEXT_PUBLIC_CF_ANALYTICS_TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN_STAGING }}
 
       - name: Copy SWA config
         run: cp apps/dashboard/staticwebapp.config.json apps/dashboard/out/
@@ -78,6 +79,7 @@ jobs:
         run: pnpm turbo run build --filter=@feelr/dashboard
         env:
           NEXT_PUBLIC_GATEWAY_URL: https://api.feelr.dev
+          NEXT_PUBLIC_CF_ANALYTICS_TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN_PRODUCTION }}
 
       - name: Copy SWA config
         run: cp apps/dashboard/staticwebapp.config.json apps/dashboard/out/

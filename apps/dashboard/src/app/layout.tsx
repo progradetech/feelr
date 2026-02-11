@@ -1,11 +1,23 @@
 import type { Metadata } from 'next';
 import { Toaster } from 'sonner';
 import { Providers } from '@/components/providers';
+import { CfAnalytics } from '@/components/cf-analytics';
+import { inter, spaceGrotesk, jetbrainsMono } from './fonts';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Feelr Dashboard',
-  description: 'Manage your Feelr gateway',
+  metadataBase: new URL('https://app.feelr.dev'),
+  title: {
+    default: 'Feelr',
+    template: '%s | Feelr',
+  },
+  description:
+    'Agent-friendly API simplification. One CLI, one API key, every integration.',
+  openGraph: {
+    siteName: 'Feelr',
+    locale: 'en_US',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({
@@ -14,10 +26,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="bg-zinc-950 text-zinc-50 antialiased">
+    <html
+      lang="en"
+      className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} dark`}
+    >
+      <body className="bg-zinc-950 font-sans text-zinc-50 antialiased">
         <Providers>{children}</Providers>
         <Toaster theme="dark" />
+        {process.env.NEXT_PUBLIC_CF_ANALYTICS_TOKEN && (
+          <CfAnalytics token={process.env.NEXT_PUBLIC_CF_ANALYTICS_TOKEN} />
+        )}
       </body>
     </html>
   );
