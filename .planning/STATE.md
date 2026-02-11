@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 19 — Dashboard Demo Mode
+**Current focus:** Phase 20 — Landing Page
 
 ## Current Position
 
-Phase: 19 of 21 (Dashboard Demo Mode)
-Plan: 2 of 2 in current phase
-Status: Phase 19 complete, awaiting Phase 20 planning
-Last activity: 2026-02-11 — Completed 19-02 (Demo Banner & Mutation Interception)
+Phase: 20 of 21 (Landing Page)
+Plan: 1 of 2 in current phase
+Status: Executing Phase 20
+Last activity: 2026-02-11 — Completed 20-01 (Typography, Metadata & Analytics Foundation)
 
 Progress: [█████░░░░░] 50% (v1.2)
 
@@ -64,6 +64,8 @@ Recent decisions affecting current work:
 - Fake demo key uses fk_demo_ prefix with base36 timestamp (uniqueness without collision)
 - Demo mutation interception pattern: useDemo() + early return with toast before API call
 - [Phase 19]: SWR null-key pattern for demo data interception (useSWR always called unconditionally, null key prevents fetch)
+- [Phase 20]: @theme inline (not @theme) for next/font CSS variable resolution in Tailwind v4
+- [Phase 20]: JSON.stringify for data-cf-beacon attribute (safe serialization vs template literal)
 
 ### Pending Todos
 
@@ -83,5 +85,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 19-01-PLAN.md (Demo Mode Wiring). Phase 19 fully complete. Next: /gsd:plan-phase 20
+Stopped at: Completed 20-01-PLAN.md (Typography, Metadata & Analytics Foundation)
 Resume file: None
