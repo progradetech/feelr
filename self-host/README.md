@@ -2,7 +2,7 @@
 
 Run Feelr on your own infrastructure with Docker. Full feature parity with the hosted service -- all connectors, composable actions, dashboard, and API.
 
-## Current Version: v1.2.0
+## Current Version: v1.2.1
 
 ## Quick Start
 
