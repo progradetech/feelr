@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { LandingRedirect } from '@/components/landing-redirect';
 import { CopyButton } from '@/components/copy-button';
+import { TerminalDemo } from '@/components/terminal-demo/terminal-demo';
 
 export const metadata: Metadata = {
   title: { absolute: 'Feelr - Agent-Friendly API Simplification' },
@@ -125,6 +126,9 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Interactive Demo */}
+      <TerminalDemo />
 
       {/* Connectors */}
       <section className="px-4 py-16 md:px-6">
