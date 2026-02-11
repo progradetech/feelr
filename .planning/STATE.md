@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 20 — Landing Page
+**Current focus:** Phase 21 — Interactive Demo Integration
 
 ## Current Position
 
-Phase: 20 of 21 (Landing Page)
-Plan: 2 of 2 in current phase (COMPLETE)
-Status: Phase 20 Complete
-Last activity: 2026-02-11 — Completed 20-02 (Landing Page Content & SEO)
+Phase: 21 of 21 (Interactive Demo Integration)
+Plan: 1 of 2 in current phase (COMPLETE)
+Status: Executing Phase 21
+Last activity: 2026-02-11 — Completed 21-01 (Terminal Demo Foundation)
 
-Progress: [████████░░] 80% (v1.2)
+Progress: [█████████░] 90% (v1.2)
 
 ## Milestone History
 
@@ -69,6 +69,9 @@ Recent decisions affecting current work:
 - [Phase 20]: Sign In CTA only on landing page (no Try Demo) — server component cannot call enterDemo(), Phase 21 handles demo entry
 - [Phase 20]: absolute title in metadata to override layout %s | Feelr template (avoids "Feelr | Feelr")
 - [Phase 20]: Lucide proxy icons for Slack (MessageSquare) and Discord (Gamepad2) — no brand icons in lucide-react
+- [Phase 21]: Template literal concatenation over cn() utility for className merging (no cn utility in project)
+- [Phase 21]: Stable callback refs (onCompleteRef) to prevent stale closure bugs in setInterval/setTimeout
+- [Phase 21]: SSR-safe useReducedMotion with false initial state (avoids hydration mismatch)
 
 ### Pending Todos
 
@@ -88,5 +91,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 20-02-PLAN.md (Landing Page Content & SEO)
+Stopped at: Completed 21-01-PLAN.md (Terminal Demo Foundation)
 Resume file: None
