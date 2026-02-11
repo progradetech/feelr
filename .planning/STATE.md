@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 18 of 21 (Demo Foundation)
-Plan: 0 of TBD in current phase
-Status: Phase 17 fully complete (incl. gap closure), awaiting Phase 18 planning
-Last activity: 2026-02-11 — Completed 17-03 gap closure (deprecation formula path fix)
+Plan: 1 of 2 in current phase
+Status: Executing Phase 18 plans
+Last activity: 2026-02-11 — Completed 18-01 (Demo Context Provider)
 
 Progress: [██░░░░░░░░] 20% (v1.2)
 
@@ -54,6 +54,9 @@ Recent decisions affecting current work:
 - Deprecation formula uses odie install block (no prior release with real URLs existed)
 - CF token fix verification deferred to next gateway deploy (no code change in 17-02 triggers pipeline)
 - API verification accepted for Homebrew tap discovery (programmatic check confirmed Formula/feelr.rb path)
+- React 19 direct context rendering for DemoContext (not deprecated .Provider pattern)
+- sessionStorage for demo flag (auto-clears on tab close, no persistent leakage)
+- Providers wrapper pattern for composing client context providers in server layout
 
 ### Pending Todos
 
@@ -73,5 +76,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 17-03-PLAN.md (gap closure). Phase 17 fully complete. Next: /gsd:plan-phase 18
+Stopped at: Completed 18-01-PLAN.md (Demo Context Provider). Next: 18-02-PLAN.md
 Resume file: None
