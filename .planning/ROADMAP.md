@@ -40,7 +40,7 @@
 
 **Milestone Goal:** First-time visitors can understand, try, and adopt Feelr without signing up or installing anything -- landing page with interactive demo, demo dashboard mode, correct Homebrew tap, and analytics.
 
-- [ ] **Phase 17: CI/CD & Homebrew Migration** (2/3 plans) — gap closure in progress
+- [x] **Phase 17: CI/CD & Homebrew Migration** (3/3 plans) — completed 2026-02-10
 - [ ] **Phase 18: Demo Foundation** — DemoContext provider and mock data fixtures that power all demo features
 - [ ] **Phase 19: Dashboard Demo Mode** — Existing dashboard renders fully with fake data when demo mode is active
 - [ ] **Phase 20: Landing Page** — Marketing root page with hero, features, install commands, brand typography, and SEO
@@ -61,7 +61,7 @@
 Plans:
 - [x] 17-01-PLAN.md — Infrastructure prerequisites: create new tap repo, fix CF token, configure PAT
 - [x] 17-02-PLAN.md — GoReleaser config migration and old tap deprecation formula
-- [ ] 17-03-PLAN.md — Gap closure: fix deprecation formula path (Formula/feelr.rb)
+- [x] 17-03-PLAN.md — Gap closure: fix deprecation formula path (Formula/feelr.rb)
 
 ### Phase 18: Demo Foundation
 **Goal**: Demo infrastructure exists so that dashboard and terminal features can activate demo mode and receive realistic fake data
@@ -128,7 +128,7 @@ Phases 17-21 execute in numeric order. Phases 18 and 17 have no mutual dependenc
 |-------|-----------|----------------|--------|-----------|
 | 1-10 | v1.0 | 51/51 | Complete | 2026-02-09 |
 | 11-16 | v1.1 | 13/13 | Complete | 2026-02-10 |
-| 17. CI/CD & Homebrew Migration | v1.2 | 2/3 | Gap closure | - |
+| 17. CI/CD & Homebrew Migration | v1.2 | 3/3 | Complete | 2026-02-10 |
 | 18. Demo Foundation | v1.2 | 0/TBD | Not started | - |
 | 19. Dashboard Demo Mode | v1.2 | 0/TBD | Not started | - |
 | 20. Landing Page | v1.2 | 0/TBD | Not started | - |
