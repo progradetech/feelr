@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 20 of 21 (Landing Page)
-Plan: 1 of 2 in current phase
-Status: Executing Phase 20
-Last activity: 2026-02-11 — Completed 20-01 (Typography, Metadata & Analytics Foundation)
+Plan: 2 of 2 in current phase (COMPLETE)
+Status: Phase 20 Complete
+Last activity: 2026-02-11 — Completed 20-02 (Landing Page Content & SEO)
 
 Progress: [█████░░░░░] 50% (v1.2)
 
@@ -66,6 +66,9 @@ Recent decisions affecting current work:
 - [Phase 19]: SWR null-key pattern for demo data interception (useSWR always called unconditionally, null key prevents fetch)
 - [Phase 20]: @theme inline (not @theme) for next/font CSS variable resolution in Tailwind v4
 - [Phase 20]: JSON.stringify for data-cf-beacon attribute (safe serialization vs template literal)
+- [Phase 20]: Sign In CTA only on landing page (no Try Demo) — server component cannot call enterDemo(), Phase 21 handles demo entry
+- [Phase 20]: absolute title in metadata to override layout %s | Feelr template (avoids "Feelr | Feelr")
+- [Phase 20]: Lucide proxy icons for Slack (MessageSquare) and Discord (Gamepad2) — no brand icons in lucide-react
 
 ### Pending Todos
 
@@ -80,10 +83,10 @@ None.
 ### Blockers/Concerns
 
 - Phase 17: CF token fix deferred verification to next gateway deploy (token updated, but no code change has triggered pipeline yet)
-- Phase 20: Landing page root page.tsx requires full rewrite from 'use client' redirect to server component (breaking change in file type)
+- Phase 20: Landing page root page.tsx rewrite COMPLETE — now a server component with full landing content
 
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 20-01-PLAN.md (Typography, Metadata & Analytics Foundation)
+Stopped at: Completed 20-02-PLAN.md (Landing Page Content & SEO)
 Resume file: None
