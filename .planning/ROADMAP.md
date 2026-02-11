@@ -117,10 +117,11 @@ Plans:
   2. Clicking the demo button plays an animated walkthrough sequence (feelr init, feelr run github.list-repos, JSON response) with realistic typing effects
   3. The terminal walkthrough completes its full sequence in under 30 seconds
   4. After the terminal walkthrough completes, the user is transitioned into the demo dashboard view with demo mode active
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 21-01: TBD
+- [ ] 21-01-PLAN.md — Terminal demo foundation: walkthrough script, CSS animations, TypingLine/OutputBlock/TerminalShell components
+- [ ] 21-02-PLAN.md — Walkthrough orchestrator, TerminalDemo component, landing page integration + human verify
 
 ## Progress
 
@@ -135,6 +136,6 @@ Phases 17-21 execute in numeric order. Phases 18 and 17 have no mutual dependenc
 | 18. Demo Foundation | v1.2 | 2/2 | Complete | 2026-02-10 |
 | 19. Dashboard Demo Mode | v1.2 | 2/2 | Complete | 2026-02-11 |
 | 20. Landing Page | v1.2 | 2/2 | Complete | 2026-02-11 |
-| 21. Interactive Demo & Integration | v1.2 | 0/TBD | Not started | - |
+| 21. Interactive Demo & Integration | v1.2 | 0/2 | Not started | - |
 
-**Total:** 21 phases, 68+ plans across 3 milestones.
+**Total:** 21 phases, 70 plans across 3 milestones.
