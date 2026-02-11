@@ -36,6 +36,23 @@ export interface OverviewData {
   };
 }
 
+// Chain history types (derived from gateway ChainExecutionResult)
+export interface ChainHistoryEntry {
+  id: string;
+  chain_name: string;
+  success: boolean;
+  steps_executed: number;
+  steps_total: number;
+  total_duration_ms: number;
+  executed_at: string;
+  steps: Array<{
+    step_id: string;
+    skipped: boolean;
+    error: string | null;
+    duration_ms: number;
+  }>;
+}
+
 // Gateway envelope
 export interface GatewayResponse<T> {
   ok: boolean;
