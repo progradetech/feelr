@@ -43,7 +43,7 @@
 - [x] **Phase 17: CI/CD & Homebrew Migration** (3/3 plans) — completed 2026-02-10
 - [x] **Phase 18: Demo Foundation** (2/2 plans) — completed 2026-02-10
 - [x] **Phase 19: Dashboard Demo Mode** (2/2 plans) — completed 2026-02-11
-- [ ] **Phase 20: Landing Page** — Marketing root page with hero, features, install commands, brand typography, and SEO
+- [x] **Phase 20: Landing Page** (2/2 plans) — completed 2026-02-11
 - [ ] **Phase 21: Interactive Demo & Integration** — Terminal walkthrough component wired into landing page and transitioning to demo dashboard
 
 ## Phase Details
@@ -105,8 +105,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 20-01-PLAN.md — Typography, root layout metadata, and Cloudflare Web Analytics integration
-- [ ] 20-02-PLAN.md — Landing page content: hero, install commands, connector cards, and SEO metadata
+- [x] 20-01-PLAN.md — Typography, root layout metadata, and Cloudflare Web Analytics integration
+- [x] 20-02-PLAN.md — Landing page content: hero, install commands, connector cards, and SEO metadata
 
 ### Phase 21: Interactive Demo & Integration
 **Goal**: A visitor can watch an animated terminal demo from the landing page and seamlessly transition into exploring the demo dashboard
@@ -134,7 +134,7 @@ Phases 17-21 execute in numeric order. Phases 18 and 17 have no mutual dependenc
 | 17. CI/CD & Homebrew Migration | v1.2 | 3/3 | Complete | 2026-02-10 |
 | 18. Demo Foundation | v1.2 | 2/2 | Complete | 2026-02-10 |
 | 19. Dashboard Demo Mode | v1.2 | 2/2 | Complete | 2026-02-11 |
-| 20. Landing Page | v1.2 | 0/2 | Not started | - |
+| 20. Landing Page | v1.2 | 2/2 | Complete | 2026-02-11 |
 | 21. Interactive Demo & Integration | v1.2 | 0/TBD | Not started | - |
 
 **Total:** 21 phases, 68+ plans across 3 milestones.
