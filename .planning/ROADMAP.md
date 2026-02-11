@@ -71,10 +71,11 @@ Plans:
   1. A DemoContext React provider is available app-wide, with `isDemo` flag persisted in sessionStorage across page navigations
   2. Mock data fixtures exist for all 4 dashboard data domains (API keys, connectors, usage stats, chain history) and conform to existing TypeScript types
   3. Calling `enterDemo()` from any component sets demo mode; closing the tab or calling `exitDemo()` clears it
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 18-01: TBD
+- [ ] 18-01-PLAN.md — DemoContext provider with sessionStorage persistence + Providers wrapper in root layout
+- [ ] 18-02-PLAN.md — Mock data fixtures for all 5 dashboard data domains + ChainHistoryEntry type
 
 ### Phase 19: Dashboard Demo Mode
 **Goal**: A visitor in demo mode sees a fully populated, interactive dashboard without any real API keys or backend connection
@@ -129,7 +130,7 @@ Phases 17-21 execute in numeric order. Phases 18 and 17 have no mutual dependenc
 | 1-10 | v1.0 | 51/51 | Complete | 2026-02-09 |
 | 11-16 | v1.1 | 13/13 | Complete | 2026-02-10 |
 | 17. CI/CD & Homebrew Migration | v1.2 | 3/3 | Complete | 2026-02-10 |
-| 18. Demo Foundation | v1.2 | 0/TBD | Not started | - |
+| 18. Demo Foundation | v1.2 | 0/2 | Not started | - |
 | 19. Dashboard Demo Mode | v1.2 | 0/TBD | Not started | - |
 | 20. Landing Page | v1.2 | 0/TBD | Not started | - |
 | 21. Interactive Demo & Integration | v1.2 | 0/TBD | Not started | - |
