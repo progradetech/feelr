@@ -102,10 +102,11 @@ Plans:
   3. Feature cards for all 4 connectors (GitHub, Slack, Stripe, Discord) and key capabilities are visible on the page
   4. Page uses brand typography (Space Grotesk headings, JetBrains Mono code blocks, Inter body text)
   5. Viewing page source or social share preview shows correct title, description, and Open Graph tags
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 20-01: TBD
+- [ ] 20-01-PLAN.md — Typography, root layout metadata, and Cloudflare Web Analytics integration
+- [ ] 20-02-PLAN.md — Landing page content: hero, install commands, connector cards, and SEO metadata
 
 ### Phase 21: Interactive Demo & Integration
 **Goal**: A visitor can watch an animated terminal demo from the landing page and seamlessly transition into exploring the demo dashboard
@@ -133,7 +134,7 @@ Phases 17-21 execute in numeric order. Phases 18 and 17 have no mutual dependenc
 | 17. CI/CD & Homebrew Migration | v1.2 | 3/3 | Complete | 2026-02-10 |
 | 18. Demo Foundation | v1.2 | 2/2 | Complete | 2026-02-10 |
 | 19. Dashboard Demo Mode | v1.2 | 2/2 | Complete | 2026-02-11 |
-| 20. Landing Page | v1.2 | 0/TBD | Not started | - |
+| 20. Landing Page | v1.2 | 0/2 | Not started | - |
 | 21. Interactive Demo & Integration | v1.2 | 0/TBD | Not started | - |
 
-**Total:** 21 phases, 66+ plans across 3 milestones.
+**Total:** 21 phases, 68+ plans across 3 milestones.
