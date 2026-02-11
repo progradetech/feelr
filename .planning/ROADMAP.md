@@ -4,7 +4,7 @@
 
 - ✅ **v1.0 MVP** — Phases 1-10 (shipped 2026-02-09) | [Archive](milestones/v1.0-ROADMAP.md)
 - ✅ **v1.1 Deployment & CI/CD** — Phases 11-16 (shipped 2026-02-10) | [Archive](milestones/v1.1-ROADMAP.md)
-- 🚧 **v1.2 Marketing & Onboarding** — Phases 17-21 (in progress)
+- ✅ **v1.2 Marketing & Onboarding** — Phases 17-21 (shipped 2026-02-11) | [Archive](milestones/v1.2-ROADMAP.md)
 
 ## Phases
 
@@ -36,7 +36,7 @@
 
 </details>
 
-### 🚧 v1.2 Marketing & Onboarding (In Progress)
+### ✅ v1.2 Marketing & Onboarding — SHIPPED 2026-02-11
 
 **Milestone Goal:** First-time visitors can understand, try, and adopt Feelr without signing up or installing anything -- landing page with interactive demo, demo dashboard mode, correct Homebrew tap, and analytics.
 
@@ -44,7 +44,7 @@
 - [x] **Phase 18: Demo Foundation** (2/2 plans) — completed 2026-02-10
 - [x] **Phase 19: Dashboard Demo Mode** (2/2 plans) — completed 2026-02-11
 - [x] **Phase 20: Landing Page** (2/2 plans) — completed 2026-02-11
-- [ ] **Phase 21: Interactive Demo & Integration** — Terminal walkthrough component wired into landing page and transitioning to demo dashboard
+- [x] **Phase 21: Interactive Demo & Integration** (2/2 plans) — completed 2026-02-11
 
 ## Phase Details
 
@@ -120,8 +120,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 21-01-PLAN.md — Terminal demo foundation: walkthrough script, CSS animations, TypingLine/OutputBlock/TerminalShell components
-- [ ] 21-02-PLAN.md — Walkthrough orchestrator, TerminalDemo component, landing page integration + human verify
+- [x] 21-01-PLAN.md — Terminal demo foundation: walkthrough script, CSS animations, TypingLine/OutputBlock/TerminalShell components
+- [x] 21-02-PLAN.md — Walkthrough orchestrator, TerminalDemo component, landing page integration + human verify
 
 ## Progress
 
@@ -136,6 +136,6 @@ Phases 17-21 execute in numeric order. Phases 18 and 17 have no mutual dependenc
 | 18. Demo Foundation | v1.2 | 2/2 | Complete | 2026-02-10 |
 | 19. Dashboard Demo Mode | v1.2 | 2/2 | Complete | 2026-02-11 |
 | 20. Landing Page | v1.2 | 2/2 | Complete | 2026-02-11 |
-| 21. Interactive Demo & Integration | v1.2 | 0/2 | Not started | - |
+| 21. Interactive Demo & Integration | v1.2 | 2/2 | Complete | 2026-02-11 |
 
-**Total:** 21 phases, 70 plans across 3 milestones.
+**Total:** 21 phases, 75 plans across 3 milestones.
