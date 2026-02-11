@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Phase 17 — CI/CD & Homebrew Migration
+**Current focus:** Phase 18 — Demo Foundation
 
 ## Current Position
 
-Phase: 17 of 21 (CI/CD & Homebrew Migration)
-Plan: 1 of 2 in current phase
-Status: Executing
-Last activity: 2026-02-11 — Completed 17-01 infrastructure prerequisites
+Phase: 18 of 21 (Demo Foundation)
+Plan: 0 of TBD in current phase
+Status: Phase 17 complete, awaiting Phase 18 planning
+Last activity: 2026-02-11 — Completed 17-02 GoReleaser config & tap deprecation (Phase 17 complete)
 
-Progress: [█░░░░░░░░░] 10% (v1.2)
+Progress: [██░░░░░░░░] 20% (v1.2)
 
 ## Milestone History
 
@@ -51,6 +51,8 @@ Recent decisions affecting current work:
 - Move Homebrew tap to progradetech org — matches public org, cleaner brew install
 - Fine-grained PAT scoped to single repo for GoReleaser Homebrew push (least privilege)
 - CF token fix deferred verification to Plan 02 (no code change to trigger pipeline)
+- Deprecation formula uses odie install block (no prior release with real URLs existed)
+- CF token fix verification deferred to next gateway deploy (no code change in 17-02 triggers pipeline)
 
 ### Pending Todos
 
@@ -64,11 +66,11 @@ None.
 
 ### Blockers/Concerns
 
-- Phase 17: CICD-01 CF token fix deferred verification to Plan 02 (no code change to trigger new deploy yet)
+- Phase 17: CF token fix deferred verification to next gateway deploy (token updated, but no code change has triggered pipeline yet)
 - Phase 20: Landing page root page.tsx requires full rewrite from 'use client' redirect to server component (breaking change in file type)
 
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 17-01-PLAN.md. Next: /gsd:execute-phase 17 (Plan 02)
+Stopped at: Completed 17-02-PLAN.md. Phase 17 complete. Next: /gsd:plan-phase 18
 Resume file: None
