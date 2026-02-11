@@ -86,10 +86,11 @@ Plans:
   2. All 4 dashboard pages (overview, keys, connectors, usage) display realistic mock data from fixtures
   3. A persistent demo banner is visible on every dashboard page indicating the user is in demo mode
   4. Clicking interactive buttons (create key, revoke key) in demo mode shows a toast confirmation and updates local state without API calls
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 19-01: TBD
+- [ ] 19-01-PLAN.md — SWR hook demo interception + AuthGuard bypass + navigation redirects
+- [ ] 19-02-PLAN.md — DemoBanner component + demo mutation interception in key dialogs
 
 ### Phase 20: Landing Page
 **Goal**: Visitors arriving at app.feelr.dev see a polished marketing page that communicates what Feelr does, how to install it, and what connectors are available
@@ -131,7 +132,7 @@ Phases 17-21 execute in numeric order. Phases 18 and 17 have no mutual dependenc
 | 11-16 | v1.1 | 13/13 | Complete | 2026-02-10 |
 | 17. CI/CD & Homebrew Migration | v1.2 | 3/3 | Complete | 2026-02-10 |
 | 18. Demo Foundation | v1.2 | 2/2 | Complete | 2026-02-10 |
-| 19. Dashboard Demo Mode | v1.2 | 0/TBD | Not started | - |
+| 19. Dashboard Demo Mode | v1.2 | 0/2 | Not started | - |
 | 20. Landing Page | v1.2 | 0/TBD | Not started | - |
 | 21. Interactive Demo & Integration | v1.2 | 0/TBD | Not started | - |
 
