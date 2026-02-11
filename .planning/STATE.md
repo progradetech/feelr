@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 18 of 21 (Demo Foundation)
-Plan: 1 of 2 in current phase
-Status: Executing Phase 18 plans
-Last activity: 2026-02-11 — Completed 18-01 (Demo Context Provider)
+Plan: 2 of 2 in current phase
+Status: Phase 18 complete, awaiting Phase 19 planning
+Last activity: 2026-02-11 — Completed 18-02 (Demo Data Fixtures)
 
-Progress: [██░░░░░░░░] 20% (v1.2)
+Progress: [████░░░░░░] 40% (v1.2)
 
 ## Milestone History
 
@@ -57,6 +57,9 @@ Recent decisions affecting current work:
 - React 19 direct context rendering for DemoContext (not deprecated .Provider pattern)
 - sessionStorage for demo flag (auto-clears on tab close, no persistent leakage)
 - Providers wrapper pattern for composing client context providers in server layout
+- satisfies assertions for fixture type safety (compile-time validation with narrow literal types)
+- Cross-domain fixture consistency (overview counts match keys/connectors lengths, usage totals match)
+- ChainHistoryEntry type in types.ts (future-proofed for chain history page)
 
 ### Pending Todos
 
@@ -76,5 +79,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 18-01-PLAN.md (Demo Context Provider). Next: 18-02-PLAN.md
+Stopped at: Completed 18-02-PLAN.md (Demo Data Fixtures). Phase 18 complete. Next: /gsd:plan-phase 19
 Resume file: None
