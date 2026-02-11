@@ -52,28 +52,28 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STAGE-01 | — | Pending |
-| STAGE-02 | — | Pending |
-| STAGE-03 | — | Pending |
-| STAGE-04 | — | Pending |
-| STAGE-05 | — | Pending |
-| STAGE-06 | — | Pending |
-| STAGE-07 | — | Pending |
-| ICON-01 | — | Pending |
-| ICON-02 | — | Pending |
-| ICON-03 | — | Pending |
-| ICON-04 | — | Pending |
-| ICON-05 | — | Pending |
-| LOGO-01 | — | Pending |
-| LOGO-02 | — | Pending |
-| LOGO-03 | — | Pending |
-| LOGO-04 | — | Pending |
+| STAGE-01 | Phase 22 | Pending |
+| STAGE-02 | Phase 22 | Pending |
+| STAGE-03 | Phase 22 | Pending |
+| STAGE-04 | Phase 22 | Pending |
+| STAGE-05 | Phase 22 | Pending |
+| STAGE-06 | Phase 22 | Pending |
+| STAGE-07 | Phase 22 | Pending |
+| ICON-01 | Phase 23 | Pending |
+| ICON-02 | Phase 23 | Pending |
+| ICON-03 | Phase 23 | Pending |
+| ICON-04 | Phase 23 | Pending |
+| ICON-05 | Phase 23 | Pending |
+| LOGO-01 | Phase 24 | Pending |
+| LOGO-02 | Phase 24 | Pending |
+| LOGO-03 | Phase 24 | Pending |
+| LOGO-04 | Phase 23 | Pending |
 
 **Coverage:**
 - v1.3 requirements: 16 total
-- Mapped to phases: 0
-- Unmapped: 16
+- Mapped to phases: 16
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-11*
-*Last updated: 2026-02-11 after initial definition*
+*Last updated: 2026-02-11 after roadmap creation*

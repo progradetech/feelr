@@ -5,14 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Planning next milestone
+**Current focus:** Phase 22 — Staging Custom Domains
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 22 of 24 (Staging Custom Domains)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-02-11 — Milestone v1.3 started
+Status: Ready to plan
+Last activity: 2026-02-11 — Roadmap created for v1.3 Staging & Branding
+
+Progress: [██████████████████████████████░░░░░░░░░░] 75/~80 plans (~94% overall)
 
 ## Milestone History
 
@@ -21,6 +23,7 @@ Last activity: 2026-02-11 — Milestone v1.3 started
 | v1.0 MVP | 1-10 | 51 | 2026-02-09 |
 | v1.1 Deployment & CI/CD | 11-16 | 13 | 2026-02-10 |
 | v1.2 Marketing & Onboarding | 17-21 | 11 | 2026-02-11 |
+| v1.3 Staging & Branding | 22-24 | TBD | — |
 
 ## Performance Metrics
 
@@ -46,6 +49,10 @@ Last activity: 2026-02-11 — Milestone v1.3 started
 ### Decisions
 
 All decisions logged in PROJECT.md Key Decisions table with outcomes.
+Recent for v1.3:
+- staging-* prefix for staging domains (consistent naming under feelr.dev)
+- Separate Azure SWA instances for staging (Azure does NOT support custom domains on staging environments)
+- sharp (dev dep) for SVG-to-ICO/PNG icon conversion
 
 ### Pending Todos
 
@@ -60,9 +67,10 @@ None.
 ### Blockers/Concerns
 
 - CF token fix deferred verification to next gateway deploy (token updated, but no code change has triggered pipeline yet)
+- Azure SWA staging instances require manual Azure Portal creation before CI/CD can deploy (Phase 22 human checkpoint)
 
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Milestone v1.3 — defining requirements
+Stopped at: Roadmap created for v1.3 — ready to plan Phase 22
 Resume file: None
