@@ -5,7 +5,7 @@
 - ✅ **v1.0 MVP** — Phases 1-10 (shipped 2026-02-09) | [Archive](milestones/v1.0-ROADMAP.md)
 - ✅ **v1.1 Deployment & CI/CD** — Phases 11-16 (shipped 2026-02-10) | [Archive](milestones/v1.1-ROADMAP.md)
 - ✅ **v1.2 Marketing & Onboarding** — Phases 17-21 (shipped 2026-02-11) | [Archive](milestones/v1.2-ROADMAP.md)
-- 🚧 **v1.3 Staging & Branding** — Phases 22-24 (in progress)
+- ✅ **v1.3 Staging & Branding** — Phases 22-24 (shipped 2026-02-12) | [Archive](milestones/v1.3-ROADMAP.md)
 
 ## Phases
 
@@ -48,13 +48,13 @@
 
 </details>
 
-### 🚧 v1.3 Staging & Branding (In Progress)
+### ✅ v1.3 Staging & Branding — SHIPPED 2026-02-12
 
 **Milestone Goal:** Add staging custom domains for all three services and integrate Feelr logo/branding assets across dashboard and docs.
 
 - [x] **Phase 22: Staging Custom Domains** — All three services accessible via staging-*.feelr.dev with CI/CD automation — completed 2026-02-12
 - [x] **Phase 23: Favicon & Manifest** — Browser tabs, home screens, and web manifest show Feelr branding — completed 2026-02-12
-- [ ] **Phase 24: Logo Integration** — Feelr logomark replaces text in dashboard sidebar, docs navbar, and landing page
+- [x] **Phase 24: Logo Integration** — Feelr logomark replaces text in dashboard sidebar, docs navbar, and landing page — completed 2026-02-12
 
 ## Phase Details
 
@@ -103,7 +103,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 24-01-PLAN.md — Copy SVG assets and integrate logo in sidebar, hero, and docs navbar
+- [x] 24-01-PLAN.md — Copy SVG assets and integrate logo in sidebar, hero, and docs navbar
 
 ## Progress
 
@@ -117,6 +117,6 @@ Phases execute in numeric order: 22 → 23 → 24
 | 17-21 | v1.2 | 11/11 | Complete | 2026-02-11 |
 | 22. Staging Custom Domains | v1.3 | 4/4 | Complete | 2026-02-12 |
 | 23. Favicon & Manifest | v1.3 | 2/2 | Complete | 2026-02-12 |
-| 24. Logo Integration | v1.3 | 0/1 | Not started | - |
+| 24. Logo Integration | v1.3 | 1/1 | Complete | 2026-02-12 |
 
 **Total:** 24 phases, 75+ plans across 4 milestones.
