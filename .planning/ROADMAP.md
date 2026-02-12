@@ -48,75 +48,22 @@
 
 </details>
 
-### ✅ v1.3 Staging & Branding — SHIPPED 2026-02-12
+<details>
+<summary>✅ v1.3 Staging & Branding (Phases 22-24) — SHIPPED 2026-02-12</summary>
 
-**Milestone Goal:** Add staging custom domains for all three services and integrate Feelr logo/branding assets across dashboard and docs.
+- [x] Phase 22: Staging Custom Domains (4/4 plans) — completed 2026-02-12
+- [x] Phase 23: Favicon & Manifest (2/2 plans) — completed 2026-02-12
+- [x] Phase 24: Logo Integration (1/1 plan) — completed 2026-02-12
 
-- [x] **Phase 22: Staging Custom Domains** — All three services accessible via staging-*.feelr.dev with CI/CD automation — completed 2026-02-12
-- [x] **Phase 23: Favicon & Manifest** — Browser tabs, home screens, and web manifest show Feelr branding — completed 2026-02-12
-- [x] **Phase 24: Logo Integration** — Feelr logomark replaces text in dashboard sidebar, docs navbar, and landing page — completed 2026-02-12
-
-## Phase Details
-
-### Phase 22: Staging Custom Domains
-**Goal**: Developers can access all three staging services via custom subdomains under feelr.dev
-**Depends on**: Phase 21 (v1.2 complete — existing CI/CD and Azure SWA infrastructure)
-**Requirements**: STAGE-01, STAGE-02, STAGE-03, STAGE-04, STAGE-05, STAGE-06, STAGE-07
-**Success Criteria** (what must be TRUE):
-  1. Visiting staging-api.feelr.dev returns a response from the staging gateway (not production)
-  2. Visiting staging-app.feelr.dev loads the dashboard connected to the staging gateway
-  3. Visiting staging-docs.feelr.dev loads the docs site
-  4. Pushing to main branch triggers CI/CD that deploys all three services to their staging custom domains
-  5. Staging and production services remain fully isolated (different SWA instances, different Worker environments)
-**Plans**: 4 plans
-
-Plans:
-- [x] 22-01-PLAN.md — Gateway staging custom domain + verbose error responses
-- [x] 22-02-PLAN.md — Staging banner + health check pages
-- [x] 22-03-PLAN.md — CI/CD workflow updates for staging custom domains
-- [x] 22-04-PLAN.md — Infrastructure provisioning + end-to-end verification
-
-### Phase 23: Favicon & Manifest
-**Goal**: Both apps display the Feelr logomark in browser tabs, home screens, and metadata
-**Depends on**: Phase 22 (staging domains available for verifying branding changes before production)
-**Requirements**: ICON-01, ICON-02, ICON-03, ICON-04, ICON-05, LOGO-04
-**Success Criteria** (what must be TRUE):
-  1. Browser tab shows the Feelr logomark as favicon on both dashboard and docs site
-  2. Adding the dashboard or docs to a mobile home screen shows the Feelr apple-touch-icon
-  3. SVG favicon renders correctly in both light and dark browser themes
-  4. Web manifest at /manifest.webmanifest provides app name "Feelr", Lobster Red theme color, and multiple icon sizes
-  5. metadataBase resolves to the correct URL for the current environment (staging-app vs app, staging-docs vs feelr.dev)
-**Plans**: 2 plans
-
-Plans:
-- [x] 23-01-PLAN.md — Icon asset generation script + adaptive SVG favicon
-- [x] 23-02-PLAN.md — Web manifests, metadataBase, viewport themeColor, CI env vars
-
-### Phase 24: Logo Integration
-**Goal**: Feelr logomark is visually present in the key navigation and marketing surfaces of both apps
-**Depends on**: Phase 23 (icon assets generated and available in the codebase)
-**Requirements**: LOGO-01, LOGO-02, LOGO-03
-**Success Criteria** (what must be TRUE):
-  1. Dashboard sidebar displays the Feelr logomark image instead of the "Feelr" text
-  2. Docs site navbar displays the Feelr logo instead of bold "Feelr" text
-  3. Landing page hero section includes the Feelr logo above or alongside the headline
-**Plans**: 1 plan
-
-Plans:
-- [x] 24-01-PLAN.md — Copy SVG assets and integrate logo in sidebar, hero, and docs navbar
+</details>
 
 ## Progress
-
-**Execution Order:**
-Phases execute in numeric order: 22 → 23 → 24
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1-10 | v1.0 | 51/51 | Complete | 2026-02-09 |
 | 11-16 | v1.1 | 13/13 | Complete | 2026-02-10 |
 | 17-21 | v1.2 | 11/11 | Complete | 2026-02-11 |
-| 22. Staging Custom Domains | v1.3 | 4/4 | Complete | 2026-02-12 |
-| 23. Favicon & Manifest | v1.3 | 2/2 | Complete | 2026-02-12 |
-| 24. Logo Integration | v1.3 | 1/1 | Complete | 2026-02-12 |
+| 22-24 | v1.3 | 7/7 | Complete | 2026-02-12 |
 
-**Total:** 24 phases, 75+ plans across 4 milestones.
+**Total:** 24 phases, 82 plans across 4 milestones.

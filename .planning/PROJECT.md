@@ -10,17 +10,20 @@ An AI agent can call any supported external API in one line with near-zero conte
 
 ## Current State
 
-**Version:** v1.2.0 Marketing & Onboarding (shipped 2026-02-11)
-**Codebase:** ~21,253 LOC (15,232 TypeScript + 6,021 Go) across 470+ files
+**Version:** v1.3.0 Staging & Branding (shipped 2026-02-12)
+**Codebase:** ~21,442 LOC (15,421 TypeScript + 6,021 Go) across 470+ files
 **Tech stack:** Cloudflare Workers + Hono (gateway), Go + Cobra (CLI), Next.js 15.5 (dashboard), Stripe (billing), workerd (self-hosting)
 
 **Live services:**
 - **api.feelr.dev** — Edge gateway on Cloudflare Workers (staging + production with isolated KV/D1/DO)
 - **app.feelr.dev** — Dashboard on Azure Static Web Apps
 - **feelr.dev** — Docs/marketing on Azure Static Web Apps
+- **staging-api.feelr.dev** — Staging gateway with CF Access protection
+- **staging-app.feelr.dev** — Staging dashboard on separate Azure SWA instance
+- **staging-docs.feelr.dev** — Staging docs on separate Azure SWA instance
 - **CI/CD** — 3 independent GitHub Actions workflows (gateway.yml, dashboard.yml, docs.yml)
 
-**Shipped capabilities (v1.0 + v1.1 + v1.2):**
+**Shipped capabilities (v1.0 + v1.1 + v1.2 + v1.3):**
 - Edge gateway with 4 connectors (GitHub 10 actions, Slack 6, Stripe 8, Discord 7)
 - Encrypted auth vault with Durable Objects token coordinator
 - Go CLI with progressive discovery, 3 output modes, shell completion, composable chains
@@ -34,8 +37,11 @@ An AI agent can call any supported external API in one line with near-zero conte
 - Landing page with brand typography, connector feature cards, SEO metadata
 - Interactive terminal demo with animated walkthrough and dashboard transition
 - Demo dashboard mode with mock data, AuthGuard bypass, and demo banner
-- Homebrew tap at progradetech/homebrew-feelr with deprecation formula in old tap
+- Homebrew tap at progradetech/homebrew-feelr
 - Cloudflare Web Analytics on all pages
+- Staging custom domains for all three services with CF Access protection
+- Feelr branding: favicons, apple-touch-icon, web manifests, adaptive SVG favicon
+- Logo integration in dashboard sidebar, docs navbar, and landing page hero
 
 ## Requirements
 
@@ -77,30 +83,21 @@ An AI agent can call any supported external API in one line with near-zero conte
 - ✓ Interactive terminal demo with animated typing walkthrough and dashboard transition — v1.2
 - ✓ Demo dashboard mode with mock data across 5 domains, AuthGuard bypass, and demo banner — v1.2
 - ✓ Cloudflare Web Analytics integrated across all pages — v1.2
-
-## Current Milestone: v1.3 Staging & Branding
-
-**Goal:** Add staging custom domains for all three services and integrate Feelr logo/branding assets across dashboard and docs.
-
-**Target features:**
-- Custom staging domains: staging-app.feelr.dev, staging-docs.feelr.dev, staging-api.feelr.dev
-- Favicons and apple-touch-icon using logomark SVG (both apps)
-- Feelr logo in dashboard sidebar and docs navbar
-- Feelr logo on landing page
-- Web manifest for PWA-readiness
+- ✓ Staging custom domain for gateway (staging-api.feelr.dev) — v1.3
+- ✓ Staging custom domain for dashboard (staging-app.feelr.dev) — v1.3
+- ✓ Staging custom domain for docs (staging-docs.feelr.dev) — v1.3
+- ✓ CI/CD workflow updates for staging custom domains — v1.3
+- ✓ Favicons on dashboard and docs (using logomark SVG) — v1.3
+- ✓ Apple-touch-icon on both apps — v1.3
+- ✓ Web manifest with app name, theme color, and icon sizes — v1.3
+- ✓ Logo in dashboard sidebar (alongside text) — v1.3
+- ✓ Logo in docs navbar (replacing bold text) — v1.3
+- ✓ Logo on landing page hero section — v1.3
+- ✓ Environment-aware metadataBase (staging vs production URL) — v1.3
 
 ### Active
 
-- [ ] Custom staging domain for dashboard (staging-app.feelr.dev)
-- [ ] Custom staging domain for docs (staging-docs.feelr.dev)
-- [ ] Custom staging domain for gateway (staging-api.feelr.dev)
-- [ ] CI/CD workflow updates for staging custom domains
-- [ ] Favicons on dashboard and docs (using logomark SVG)
-- [ ] Apple-touch-icon on both apps
-- [ ] Logo in dashboard sidebar (replacing text)
-- [ ] Logo in docs navbar (replacing bold text)
-- [ ] Logo on landing page
-- [ ] Web manifest
+(None — planning next milestone)
 
 ### Out of Scope
 
@@ -115,6 +112,9 @@ An AI agent can call any supported external API in one line with near-zero conte
 - Kubernetes / container orchestration — massive overhead for 3 services
 - Infrastructure as Code (Terraform/Pulumi) — state management burden exceeds benefit
 - Automated canary analysis — requires SRE-level metrics infrastructure
+- PWA offline support — web manifest is for branding only, not full PWA
+- Dynamic OG images — static metadata sufficient
+- Custom 404/error pages with branding — defer to future polish milestone
 
 ## Context
 
@@ -127,6 +127,7 @@ An AI agent can call any supported external API in one line with near-zero conte
 - v1.0 shipped in 5 days (154 min execution time across 51 plans)
 - v1.1 shipped in 2 days (13 plans) — all services now live and deployed with CI/CD
 - v1.2 shipped in 2 days (11 plans) — marketing, onboarding, and demo experience complete
+- v1.3 shipped in 2 days (7 plans) — staging domains and full branding integration
 - Deferred operational improvements: Turborepo remote cache, env drift detection, SWA preview environments, automated D1 migration verification
 - Deferred: CF token fix verification (token updated but no deploy triggered yet to confirm)
 
@@ -138,7 +139,7 @@ An AI agent can call any supported external API in one line with near-zero conte
 - **Tech stack (dashboard)**: Next.js 15.5 on Azure Static Web Apps (static export)
 - **Tech stack (billing)**: Stripe Billing with metered subscriptions
 - **Tech stack (self-hosting)**: workerd + s6-overlay + SQLite in Docker
-- **Infrastructure**: Cloudflare Workers Paid ($5/mo), Azure SWA Standard (2x), GitHub Actions CI/CD
+- **Infrastructure**: Cloudflare Workers Paid ($5/mo), Azure SWA Standard (2x production + 2x staging), GitHub Actions CI/CD
 - **Open-source**: Full stack is open-source (MIT); billing is a toggleable feature for cloud-hosted only
 
 ## Key Decisions
@@ -162,13 +163,19 @@ An AI agent can call any supported external API in one line with near-zero conte
 | Gradual rollout for production gateway | 10% canary → smoke test → 100% via wrangler versions | ✓ Good — safety net for production deploys; DO migrations bypass |
 | DNS-only (gray cloud) for Azure CNAME records | Cloudflare proxy breaks Azure SWA SSL verification | ✓ Good — permanent setting, managed SSL renewal works |
 | Consolidated gateway.yml workflow | Single file with conditional staging/production jobs | ✓ Good — cleaner than separate deploy-staging + deploy-production files |
-
 | Embedded terminal demo (not real sandboxed terminal) | Controlled experience, zero backend infra, purely frontend with animated typing | ✓ Good — CSS animations + state machine, completes in ~20s |
 | Mocked API responses for demo | Predictable, no token management, works offline, zero maintenance | ✓ Good — 5 fixture domains, cross-domain consistency |
 | Demo mode in actual dashboard (not separate page) | User sees exactly what they'd get, reuses existing UI components | ✓ Good — SWR null-key interception, seamless transition |
 | Move Homebrew tap to progradetech org | Matches public org, cleaner brew install command | ✓ Good — deprecation formula in old tap, clean migration |
-
-| staging-* prefix for staging domains | Consistent naming, all under feelr.dev, obvious which environment | — Pending |
+| staging-* prefix for staging domains | Consistent naming, all under feelr.dev, obvious which environment | ✓ Good — staging-api/app/docs.feelr.dev all working |
+| Separate Azure SWA instances for staging | Azure does NOT support custom domains on staging environments | ✓ Good — full isolation, separate deploy tokens |
+| CF Access email OTP for staging protection | Prevents public access to staging without complex auth | ✓ Good — /health bypassed for CI smoke tests |
+| sharp + sharp-ico for icon generation | SVG-to-ICO/PNG build script, only 32+16 in favicon.ico (1KB) | ✓ Good — dev dependency only, automated pipeline |
+| NEXT_PUBLIC_SITE_URL for env-aware metadataBase | Avoids hardcoded production URLs, works for staging and local dev | ✓ Good — CI injects per-environment, localhost fallback for dev |
+| Separate viewport export for themeColor | metadata.themeColor deprecated since Next.js 14 | ✓ Good — follows Next.js 15 API correctly |
+| dynamic = 'force-static' on manifest.ts | Required for output: 'export' compatibility in Next.js | ✓ Good — auto-detected and fixed during implementation |
+| Logomark alongside text in sidebar | Standard dashboard pattern for brand recognition at small sizes | ✓ Good — visually balanced, recognizable |
+| Inline styles in docs navbar for Nextra compatibility | Nextra CSS pipeline doesn't reliably process Tailwind utilities | ✓ Good — works reliably without build-time CSS issues |
 
 ---
-*Last updated: 2026-02-11 after v1.3 milestone start*
+*Last updated: 2026-02-12 after v1.3 milestone*

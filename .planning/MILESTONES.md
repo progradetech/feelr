@@ -61,3 +61,23 @@
 
 ---
 
+
+## v1.3 Staging & Branding (Shipped: 2026-02-12)
+
+**Phases:** 22-24 | **Plans:** 7 | **Tasks:** ~17 | **Timeline:** 2 days (2026-02-11 to 2026-02-12)
+**Commits:** 30 | **Files modified:** 54 | **Lines changed:** +4,959 / -71 | **Total codebase:** ~21,442 LOC
+
+**Delivered:** Staging infrastructure with custom domains for all three services, plus full Feelr branding — favicons, web manifests, and logo integration across dashboard, docs, and landing page.
+
+**Key accomplishments:**
+- Three staging custom domains (staging-api/app/docs.feelr.dev) with CF Access protection and health check bypasses
+- CI/CD workflows updated for staging SWA instances with separate deploy tokens and health checks
+- Sharp-based icon build script generating favicon.ico, apple-touch-icon, and manifest PNGs from source SVG
+- Adaptive dark/light SVG favicon and web manifests with Lobster Red theme color and env-aware metadataBase
+- Feelr logomark integrated in dashboard sidebar, docs navbar, and landing page hero section
+- Staging banner component with gateway URL detection for visual environment differentiation
+
+**Archive:** [v1.3-ROADMAP.md](milestones/v1.3-ROADMAP.md) | [v1.3-REQUIREMENTS.md](milestones/v1.3-REQUIREMENTS.md)
+
+---
+

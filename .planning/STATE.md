@@ -2,17 +2,17 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-11)
+See: .planning/PROJECT.md (updated 2026-02-12)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** v1.3 Milestone Complete — All phases shipped
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 24 of 24 (Logo Integration)
-Plan: 1 of 1 (complete)
-Status: Milestone Complete (v1.3 Staging & Branding)
-Last activity: 2026-02-12 — Completed Phase 24 (Logo Integration) — v1.3 complete
+Phase: 24 of 24 (all milestones complete)
+Plan: N/A
+Status: Between milestones (v1.3 shipped, next milestone not started)
+Last activity: 2026-02-12 — Archived v1.3 Staging & Branding milestone
 
 Progress: [████████████████████████████████████████] 82/82 plans (100% overall)
 
@@ -46,6 +46,9 @@ Progress: [███████████████████████
 
 **v1.3 Velocity:**
 - Total plans completed: 7
+- Tasks: ~17
+- Commits: 30
+- Files modified: 54
 - Timeline: 2 days (2026-02-11 to 2026-02-12)
 
 ## Accumulated Context
@@ -53,19 +56,6 @@ Progress: [███████████████████████
 ### Decisions
 
 All decisions logged in PROJECT.md Key Decisions table with outcomes.
-Recent for v1.3:
-- staging-* prefix for staging domains (consistent naming under feelr.dev)
-- Separate Azure SWA instances for staging (Azure does NOT support custom domains on staging environments)
-- sharp (dev dep) for SVG-to-ICO/PNG icon conversion
-- No deployment_environment for staging SWA deploys (separate instance IS the target)
-- [Phase 22-04]: Separate Azure SWA instances for staging (Azure does not support custom domains on staging environments)
-- [Phase 22-04]: CF Access email OTP with /health bypasses for all three staging services
-- [Phase 23-01]: sharp + sharp-ico for SVG-to-ICO/PNG generation; only 32+16 in favicon.ico (1KB)
-- [Phase 23-02]: NEXT_PUBLIC_SITE_URL with localhost fallback for env-aware metadataBase
-- [Phase 23-02]: Separate viewport export for themeColor (metadata.themeColor deprecated since Next.js 14)
-- [Phase 23-02]: dynamic = 'force-static' required on manifest.ts with output: 'export'
-- [Phase 24-01]: Logomark alongside text in sidebar (standard dashboard pattern for brand recognition at small sizes)
-- [Phase 24-01]: Inline styles in docs navbar for Nextra CSS pipeline compatibility
 
 ### Pending Todos
 
@@ -84,5 +74,5 @@ None
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Phase 24 complete — v1.3 Staging & Branding milestone complete
+Stopped at: v1.3 milestone archived — ready for next milestone
 Resume file: None
