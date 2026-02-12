@@ -6,6 +6,6 @@ export default {
   'cli-reference': 'CLI Reference',
   '-- Self-Hosting': {
     title: 'Self-Hosting',
-    href: 'https://github.com/andrewprograde/feelr/tree/main/self-host',
+    href: 'https://github.com/progradetech/feelr/tree/main/self-host',
   },
 }

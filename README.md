@@ -5,9 +5,9 @@
 **One line. Any API. Zero context overhead.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![GoReleaser](https://img.shields.io/github/v/release/andrewprograde/feelr?label=CLI&logo=go)](https://github.com/andrewprograde/feelr/releases)
-[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/andrewprograde/feelr/release.yml?label=Build&logo=github)](https://github.com/andrewprograde/feelr/actions)
-[![Go Report Card](https://goreportcard.com/badge/github.com/andrewprograde/feelr/cli)](https://goreportcard.com/report/github.com/andrewprograde/feelr/cli)
+[![GoReleaser](https://img.shields.io/github/v/release/progradetech/feelr?label=CLI&logo=go)](https://github.com/progradetech/feelr/releases)
+[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/progradetech/feelr/release.yml?label=Build&logo=github)](https://github.com/progradetech/feelr/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/progradetech/feelr/cli)](https://goreportcard.com/report/github.com/progradetech/feelr/cli)
 
 </div>
 
@@ -54,7 +54,7 @@ curl https://api.feelr.dev/v1/github/repos.list \
 
 ```bash
 # 1. Install (see Install section below)
-brew install andrewprograde/feelr/feelr
+brew install progradetech/feelr/feelr
 
 # 2. Configure
 feelr init
@@ -78,7 +78,7 @@ andrewprograde/ops  infra-configs     true     HCL
 ### Homebrew
 
 ```bash
-brew install andrewprograde/feelr/feelr
+brew install progradetech/feelr/feelr
 ```
 
 ### curl
@@ -90,12 +90,12 @@ curl -sSL https://feelr.dev/install.sh | sh
 ### go install
 
 ```bash
-go install github.com/andrewprograde/feelr/cli@latest
+go install github.com/progradetech/feelr/cli@latest
 ```
 
 ### GitHub Releases
 
-Download pre-built binaries for Linux, macOS, and Windows from the [Releases page](https://github.com/andrewprograde/feelr/releases).
+Download pre-built binaries for Linux, macOS, and Windows from the [Releases page](https://github.com/progradetech/feelr/releases).
 
 ## Documentation
 
@@ -112,7 +112,7 @@ Full documentation is available at [feelr.dev/docs](https://feelr.dev/docs), inc
 Feelr is fully self-hostable with Docker Compose. The self-hosted version has full feature parity with the cloud service (billing is disabled by default).
 
 ```bash
-git clone https://github.com/andrewprograde/feelr.git
+git clone https://github.com/progradetech/feelr.git
 cd feelr/self-host
 ./init.sh
 docker compose up -d
