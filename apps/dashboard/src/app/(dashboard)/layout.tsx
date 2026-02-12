@@ -2,6 +2,7 @@
 
 import { AuthGuard } from '@/components/auth-guard';
 import { DemoBanner } from '@/components/demo-banner';
+import { StagingBanner } from '@/components/staging-banner';
 import { Sidebar } from '@/components/sidebar';
 
 export default function DashboardLayout({
@@ -12,6 +13,7 @@ export default function DashboardLayout({
   return (
     <AuthGuard>
       <div className="flex h-screen flex-col">
+        <StagingBanner />
         <DemoBanner />
         <div className="flex flex-1 overflow-hidden">
           <Sidebar />
