@@ -2,6 +2,11 @@ version: 2
 
 project_name: feelr
 
+release:
+  github:
+    owner: andrewprograde
+    name: feelr
+
 builds:
   - id: feelr-cli
     dir: cli
@@ -36,7 +41,7 @@ archives:
 brews:
   - name: feelr
     repository:
-      owner: progradetech
+      owner: andrewprograde
       name: homebrew-feelr
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     homepage: "https://feelr.dev"
