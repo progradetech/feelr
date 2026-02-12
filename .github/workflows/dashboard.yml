@@ -40,6 +40,7 @@ jobs:
         env:
           NEXT_PUBLIC_GATEWAY_URL: https://staging-api.feelr.dev
           NEXT_PUBLIC_CF_ANALYTICS_TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN_STAGING }}
+          NEXT_PUBLIC_SITE_URL: https://staging-app.feelr.dev
 
       - name: Copy SWA config
         run: cp apps/dashboard/staticwebapp.config.json apps/dashboard/out/
@@ -86,6 +87,7 @@ jobs:
         env:
           NEXT_PUBLIC_GATEWAY_URL: https://api.feelr.dev
           NEXT_PUBLIC_CF_ANALYTICS_TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN_PRODUCTION }}
+          NEXT_PUBLIC_SITE_URL: https://app.feelr.dev
 
       - name: Copy SWA config
         run: cp apps/dashboard/staticwebapp.config.json apps/dashboard/out/
