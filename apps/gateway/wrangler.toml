@@ -26,10 +26,14 @@ crons = ["0 3 * * *"]
 # ============================================================
 # STAGING ENVIRONMENT
 # Deploy: npx wrangler deploy --env staging
-# Access: https://feelr-gateway-staging.<subdomain>.workers.dev
+# Access: https://staging-api.feelr.dev
 # ============================================================
 [env.staging]
-workers_dev = true  # Enable .workers.dev URL for staging access
+workers_dev = false  # Disable .workers.dev URL -- staging uses custom domain only
+
+[[env.staging.routes]]
+pattern = "staging-api.feelr.dev"
+custom_domain = true
 
 [env.staging.vars]
 ENVIRONMENT = "staging"
