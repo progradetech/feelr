@@ -52,7 +52,7 @@
 
 **Milestone Goal:** Add staging custom domains for all three services and integrate Feelr logo/branding assets across dashboard and docs.
 
-- [ ] **Phase 22: Staging Custom Domains** — All three services accessible via staging-*.feelr.dev with CI/CD automation
+- [x] **Phase 22: Staging Custom Domains** — All three services accessible via staging-*.feelr.dev with CI/CD automation — completed 2026-02-12
 - [ ] **Phase 23: Favicon & Manifest** — Browser tabs, home screens, and web manifest show Feelr branding
 - [ ] **Phase 24: Logo Integration** — Feelr logomark replaces text in dashboard sidebar, docs navbar, and landing page
 
@@ -71,10 +71,10 @@
 **Plans**: 4 plans
 
 Plans:
-- [ ] 22-01-PLAN.md — Gateway staging custom domain + verbose error responses
-- [ ] 22-02-PLAN.md — Staging banner + health check pages
-- [ ] 22-03-PLAN.md — CI/CD workflow updates for staging custom domains
-- [ ] 22-04-PLAN.md — Infrastructure provisioning + end-to-end verification
+- [x] 22-01-PLAN.md — Gateway staging custom domain + verbose error responses
+- [x] 22-02-PLAN.md — Staging banner + health check pages
+- [x] 22-03-PLAN.md — CI/CD workflow updates for staging custom domains
+- [x] 22-04-PLAN.md — Infrastructure provisioning + end-to-end verification
 
 ### Phase 23: Favicon & Manifest
 **Goal**: Both apps display the Feelr logomark in browser tabs, home screens, and metadata
@@ -114,7 +114,7 @@ Phases execute in numeric order: 22 → 23 → 24
 | 1-10 | v1.0 | 51/51 | Complete | 2026-02-09 |
 | 11-16 | v1.1 | 13/13 | Complete | 2026-02-10 |
 | 17-21 | v1.2 | 11/11 | Complete | 2026-02-11 |
-| 22. Staging Custom Domains | v1.3 | 0/4 | Planned | - |
+| 22. Staging Custom Domains | v1.3 | 4/4 | Complete | 2026-02-12 |
 | 23. Favicon & Manifest | v1.3 | 0/TBD | Not started | - |
 | 24. Logo Integration | v1.3 | 0/TBD | Not started | - |
 
