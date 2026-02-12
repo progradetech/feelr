@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 23 of 24 (Favicon & Manifest)
-Plan: 1 of 2
-Status: Executing
-Last activity: 2026-02-12 — Completed 23-01 (Icon Asset Generation)
+Plan: 2 of 2 (complete)
+Status: Phase Complete
+Last activity: 2026-02-12 — Completed 23-02 (Web Manifest & Metadata Integration)
 
-Progress: [████████████████████████████████░░░░░░░░] 80/~82 plans (~98% overall)
+Progress: [█████████████████████████████████░░░░░░░] 81/~82 plans (~99% overall)
 
 ## Milestone History
 
@@ -45,7 +45,7 @@ Progress: [███████████████████████
 - Timeline: 2 days (2026-02-10 to 2026-02-11)
 
 **v1.3 Velocity (in progress):**
-- Total plans completed: 5
+- Total plans completed: 6
 - Timeline: Started 2026-02-11
 
 ## Accumulated Context
@@ -61,6 +61,9 @@ Recent for v1.3:
 - [Phase 22-04]: Separate Azure SWA instances for staging (Azure does not support custom domains on staging environments)
 - [Phase 22-04]: CF Access email OTP with /health bypasses for all three staging services
 - [Phase 23-01]: sharp + sharp-ico for SVG-to-ICO/PNG generation; only 32+16 in favicon.ico (1KB)
+- [Phase 23-02]: NEXT_PUBLIC_SITE_URL with localhost fallback for env-aware metadataBase
+- [Phase 23-02]: Separate viewport export for themeColor (metadata.themeColor deprecated since Next.js 14)
+- [Phase 23-02]: dynamic = 'force-static' required on manifest.ts with output: 'export'
 
 ### Pending Todos
 
@@ -79,5 +82,5 @@ None
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 23-01-PLAN.md (Icon Asset Generation)
+Stopped at: Completed 23-02-PLAN.md (Web Manifest & Metadata Integration) — Phase 23 complete
 Resume file: None
