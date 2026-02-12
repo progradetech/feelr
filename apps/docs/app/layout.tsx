@@ -29,7 +29,7 @@ const navbar = (
         <b>Feelr</b>
       </span>
     }
-    projectLink="https://github.com/andrewprograde/feelr"
+    projectLink="https://github.com/progradetech/feelr"
   />
 )
 
@@ -47,7 +47,7 @@ export default async function RootLayout({
         <Layout
           navbar={navbar}
           pageMap={await getPageMap()}
-          docsRepositoryBase="https://github.com/andrewprograde/feelr/tree/main/apps/docs"
+          docsRepositoryBase="https://github.com/progradetech/feelr/tree/main/apps/docs"
           footer={footer}
         >
           {children}

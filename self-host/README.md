@@ -8,7 +8,7 @@ Run Feelr on your own infrastructure with Docker. Full feature parity with the h
 
 ```bash
 # Clone the repository
-git clone https://github.com/andrewprograde/feelr.git
+git clone https://github.com/progradetech/feelr.git
 cd feelr/self-host
 
 # Run interactive setup (generates .env and feelr.yaml)
