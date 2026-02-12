@@ -83,6 +83,13 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="px-4 py-16 md:px-6 md:py-24">
         <div className="mx-auto max-w-6xl text-center">
+          <img
+            src="/feelr-logo.svg"
+            alt="Feelr"
+            width={96}
+            height={96}
+            className="mx-auto mb-8"
+          />
           <h1 className="font-heading text-4xl font-bold text-white md:text-5xl lg:text-6xl">
             One CLI. One API key.
             <br />
