@@ -100,10 +100,10 @@ Plans:
   1. Dashboard sidebar displays the Feelr logomark image instead of the "Feelr" text
   2. Docs site navbar displays the Feelr logo instead of bold "Feelr" text
   3. Landing page hero section includes the Feelr logo above or alongside the headline
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 24-01: TBD
+- [ ] 24-01-PLAN.md — Copy SVG assets and integrate logo in sidebar, hero, and docs navbar
 
 ## Progress
 
@@ -117,6 +117,6 @@ Phases execute in numeric order: 22 → 23 → 24
 | 17-21 | v1.2 | 11/11 | Complete | 2026-02-11 |
 | 22. Staging Custom Domains | v1.3 | 4/4 | Complete | 2026-02-12 |
 | 23. Favicon & Manifest | v1.3 | 2/2 | Complete | 2026-02-12 |
-| 24. Logo Integration | v1.3 | 0/TBD | Not started | - |
+| 24. Logo Integration | v1.3 | 0/1 | Not started | - |
 
 **Total:** 24 phases, 75+ plans across 4 milestones.
