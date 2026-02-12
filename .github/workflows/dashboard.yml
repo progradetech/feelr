@@ -38,7 +38,7 @@ jobs:
       - name: Build dashboard (staging)
         run: pnpm turbo run build --filter=@feelr/dashboard
         env:
-          NEXT_PUBLIC_GATEWAY_URL: https://feelr-gateway-staging.feelr.workers.dev
+          NEXT_PUBLIC_GATEWAY_URL: https://staging-api.feelr.dev
           NEXT_PUBLIC_CF_ANALYTICS_TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN_STAGING }}
 
       - name: Copy SWA config
@@ -47,13 +47,19 @@ jobs:
       - name: Deploy to SWA staging
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.SWA_DASHBOARD_DEPLOYMENT_TOKEN }}
+          azure_static_web_apps_api_token: ${{ secrets.SWA_DASHBOARD_STAGING_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: upload
           app_location: apps/dashboard/out
           output_location: ""
           skip_app_build: true
-          deployment_environment: staging
+
+      - name: Smoke test staging dashboard
+        uses: jtalk/url-health-check-action@v4
+        with:
+          url: https://staging-app.feelr.dev/health
+          max-attempts: 3
+          retry-delay: 5s
 
   deploy-production:
     if: startsWith(github.ref, 'refs/tags/v')
