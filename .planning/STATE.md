@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 22 of 24 (Staging Custom Domains)
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Executing
-Last activity: 2026-02-12 — Completed 22-02 (Staging Banner & Health Checks)
+Last activity: 2026-02-12 — Completed 22-03 (CI/CD Workflow Updates)
 
-Progress: [██████████████████████████████░░░░░░░░░░] 77/~80 plans (~96% overall)
+Progress: [███████████████████████████████░░░░░░░░░] 78/~80 plans (~98% overall)
 
 ## Milestone History
 
@@ -53,6 +53,7 @@ Recent for v1.3:
 - staging-* prefix for staging domains (consistent naming under feelr.dev)
 - Separate Azure SWA instances for staging (Azure does NOT support custom domains on staging environments)
 - sharp (dev dep) for SVG-to-ICO/PNG icon conversion
+- No deployment_environment for staging SWA deploys (separate instance IS the target)
 
 ### Pending Todos
 
@@ -72,5 +73,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 22-02-PLAN.md (Staging Banner & Health Checks)
+Stopped at: Completed 22-03-PLAN.md (CI/CD Workflow Updates)
 Resume file: None
