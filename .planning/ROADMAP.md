@@ -68,11 +68,13 @@
   3. Visiting staging-docs.feelr.dev loads the docs site
   4. Pushing to main branch triggers CI/CD that deploys all three services to their staging custom domains
   5. Staging and production services remain fully isolated (different SWA instances, different Worker environments)
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 22-01: TBD
-- [ ] 22-02: TBD
+- [ ] 22-01-PLAN.md — Gateway staging custom domain + verbose error responses
+- [ ] 22-02-PLAN.md — Staging banner + health check pages
+- [ ] 22-03-PLAN.md — CI/CD workflow updates for staging custom domains
+- [ ] 22-04-PLAN.md — Infrastructure provisioning + end-to-end verification
 
 ### Phase 23: Favicon & Manifest
 **Goal**: Both apps display the Feelr logomark in browser tabs, home screens, and metadata
@@ -112,7 +114,7 @@ Phases execute in numeric order: 22 → 23 → 24
 | 1-10 | v1.0 | 51/51 | Complete | 2026-02-09 |
 | 11-16 | v1.1 | 13/13 | Complete | 2026-02-10 |
 | 17-21 | v1.2 | 11/11 | Complete | 2026-02-11 |
-| 22. Staging Custom Domains | v1.3 | 0/TBD | Not started | - |
+| 22. Staging Custom Domains | v1.3 | 0/4 | Planned | - |
 | 23. Favicon & Manifest | v1.3 | 0/TBD | Not started | - |
 | 24. Logo Integration | v1.3 | 0/TBD | Not started | - |
 
