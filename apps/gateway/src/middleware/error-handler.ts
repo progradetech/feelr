@@ -14,6 +14,8 @@ import { wrapError } from '../lib/envelope'
  * - Unknown errors: Logs to console.error, returns INTERNAL_ERROR with 500 status
  */
 export const errorHandler: ErrorHandler<AppEnv> = (err, c) => {
+  const isStaging = c.env.ENVIRONMENT === 'staging'
+
   if (err instanceof FeelrError) {
     const body = wrapError({
       code: err.code,
@@ -28,10 +30,10 @@ export const errorHandler: ErrorHandler<AppEnv> = (err, c) => {
   if (err instanceof HTTPException) {
     const body = wrapError({
       code: 'INTERNAL_ERROR',
-      message: 'An unexpected error occurred',
+      message: isStaging ? err.message : 'An unexpected error occurred',
       hint: 'retry',
       status: 500,
-      detail: err.message,
+      detail: isStaging ? `HTTPException: ${err.message}` : undefined,
     })
     return c.json(body, 500)
   }
@@ -40,9 +42,10 @@ export const errorHandler: ErrorHandler<AppEnv> = (err, c) => {
   console.error('Unhandled error:', err)
   const body = wrapError({
     code: 'INTERNAL_ERROR',
-    message: 'An unexpected error occurred',
+    message: isStaging && err instanceof Error ? err.message : 'An unexpected error occurred',
     hint: 'retry',
     status: 500,
+    detail: isStaging && err instanceof Error ? err.stack : undefined,
   })
   return c.json(body, 500)
 }
