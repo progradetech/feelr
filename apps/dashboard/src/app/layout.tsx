@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Toaster } from 'sonner';
 import { Providers } from '@/components/providers';
 import { CfAnalytics } from '@/components/cf-analytics';
@@ -6,7 +6,9 @@ import { inter, spaceGrotesk, jetbrainsMono } from './fonts';
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://app.feelr.dev'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
+  ),
   title: {
     default: 'Feelr',
     template: '%s | Feelr',
@@ -18,6 +20,10 @@ export const metadata: Metadata = {
     locale: 'en_US',
     type: 'website',
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#E85D3A',
 };
 
 export default function RootLayout({
