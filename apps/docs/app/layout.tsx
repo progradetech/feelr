@@ -23,7 +23,12 @@ export const viewport: Viewport = {
 
 const navbar = (
   <Navbar
-    logo={<b>Feelr</b>}
+    logo={
+      <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <img src="/feelr-logomark.svg" alt="Feelr" width={24} height={24} />
+        <b>Feelr</b>
+      </span>
+    }
     projectLink="https://github.com/andrewprograde/feelr"
   />
 )
