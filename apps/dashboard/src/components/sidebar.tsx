@@ -37,7 +37,13 @@ export function Sidebar() {
   return (
     <aside className="flex h-screen w-60 flex-col border-r border-zinc-800 bg-zinc-900">
       {/* Header */}
-      <div className="flex h-14 items-center px-5">
+      <div className="flex h-14 items-center gap-2 px-5">
+        <img
+          src="/feelr-logomark.svg"
+          alt="Feelr"
+          width={28}
+          height={28}
+        />
         <span className="text-lg font-semibold tracking-tight text-white">
           Feelr
         </span>
