@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 22 of 24 (Staging Custom Domains)
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Executing
-Last activity: 2026-02-12 — Completed 22-03 (CI/CD Workflow Updates)
+Last activity: 2026-02-12 — Completed 22-04 (Infrastructure Provisioning)
 
-Progress: [███████████████████████████████░░░░░░░░░] 78/~80 plans (~98% overall)
+Progress: [███████████████████████████████░░░░░░░░░] 79/~80 plans (~99% overall)
 
 ## Milestone History
 
@@ -44,6 +44,10 @@ Progress: [███████████████████████
 - Tasks: 25
 - Timeline: 2 days (2026-02-10 to 2026-02-11)
 
+**v1.3 Velocity (in progress):**
+- Total plans completed: 4
+- Timeline: Started 2026-02-11
+
 ## Accumulated Context
 
 ### Decisions
@@ -54,6 +58,8 @@ Recent for v1.3:
 - Separate Azure SWA instances for staging (Azure does NOT support custom domains on staging environments)
 - sharp (dev dep) for SVG-to-ICO/PNG icon conversion
 - No deployment_environment for staging SWA deploys (separate instance IS the target)
+- [Phase 22-04]: Separate Azure SWA instances for staging (Azure does not support custom domains on staging environments)
+- [Phase 22-04]: CF Access email OTP with /health bypasses for all three staging services
 
 ### Pending Todos
 
@@ -67,11 +73,10 @@ None.
 
 ### Blockers/Concerns
 
-- CF token fix deferred verification to next gateway deploy (token updated, but no code change has triggered pipeline yet)
-- Azure SWA staging instances require manual Azure Portal creation before CI/CD can deploy (Phase 22 human checkpoint)
+None - all Phase 22 blockers resolved (staging infrastructure provisioned and verified)
 
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 22-03-PLAN.md (CI/CD Workflow Updates)
+Stopped at: Completed 22-04-PLAN.md (Infrastructure Provisioning)
 Resume file: None
