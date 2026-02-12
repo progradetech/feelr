@@ -120,9 +120,9 @@ export default function LandingPage() {
           <div className="space-y-3">
             <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3">
               <code className="font-mono text-sm text-zinc-300">
-                brew install progradetech/feelr/feelr
+                brew install andrewprograde/feelr/feelr
               </code>
-              <CopyButton text="brew install progradetech/feelr/feelr" />
+              <CopyButton text="brew install andrewprograde/feelr/feelr" />
             </div>
             <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3">
               <code className="font-mono text-sm text-zinc-300">
