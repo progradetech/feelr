@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 27 of 29 (Repository Split)
-Plan: 1 of 3
+Plan: 2 of 3
 Status: Executing
-Last activity: 2026-02-13 -- Completed 27-01 (public snapshot staging)
+Last activity: 2026-02-13 -- Completed 27-02 (repository creation and subtree integration)
 
-Progress: [██████████████████████░░░░░░░░] 89/91 plans (88 prior + 1/3 Phase 27)
+Progress: [██████████████████████░░░░░░░░] 90/91 plans (88 prior + 2/3 Phase 27)
 
 ## Milestone History
 
@@ -76,6 +76,8 @@ All decisions logged in PROJECT.md Key Decisions table with outcomes.
 - [26-03] Phase 26 fully validated: 5 boundary checks pass, BILL-05 confirmed, all success criteria met
 - [27-01] Excluded pnpm-lock.yaml from snapshot so public repo generates its own lockfile on first install
 - [27-01] Combined staging/production env check into single conditional for cleaner graceful skip logic
+- [27-02] Force-pushed clean snapshot over existing private repo then changed visibility to public
+- [27-02] Used --accept-visibility-change-consequences flag for private-to-public visibility change
 
 ### Pending Todos
 
@@ -91,10 +93,10 @@ None.
 
 - v1.4 phases are strictly sequential -- no parallelization possible
 - Public repo uses fresh snapshot (no git history) to prevent secret leakage
-- Squash merge must be disabled on public repo (breaks git subtree markers)
+- Squash merge must be disabled on cloud repo (breaks git subtree markers)
 
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Completed 27-01-PLAN.md (public snapshot staging area preparation)
+Stopped at: Completed 27-02-PLAN.md (repository creation and subtree integration)
 Resume file: None
