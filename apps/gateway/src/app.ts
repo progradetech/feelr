@@ -6,7 +6,7 @@ import { wrapError } from './lib/envelope'
 import { errorHandler } from './middleware/error-handler'
 import { ipRateLimiter, keyRateLimiter } from './middleware/rate-limiter'
 import { rateLimitHeaders } from './middleware/rate-limit-headers'
-import { planEnforcer } from './billing/plan-enforcer'
+import { billingMiddleware } from './billing/middleware'
 import { apiKeyMiddleware } from './middleware/api-key'
 import { v1Routes } from './routes/v1'
 import { toolsRoutes } from './routes/tools'
@@ -50,12 +50,12 @@ app.onError(errorHandler)
 // 1. IP rate limiter   -- pre-auth defense against brute-force
 // 2. API key auth      -- validates key, populates apiKeyRecord
 // 3. Per-key limiter   -- tier-based rate limiting (requires apiKeyRecord)
-// 4. Plan enforcer     -- monthly quota check + meter event recording (no-op when billing disabled)
+// 4. Billing middleware -- monthly quota check + usage recording (no-op when billing disabled)
 // 5. Response headers  -- injects RateLimit-* headers on successful responses
 app.use('/v1/*', ipRateLimiter)
 app.use('/v1/*', apiKeyMiddleware)
 app.use('/v1/*', keyRateLimiter)
-app.use('/v1/*', planEnforcer())
+app.use('/v1/*', billingMiddleware())
 app.use('/v1/*', rateLimitHeaders)
 
 // Mount admin key management routes (/admin/keys)
