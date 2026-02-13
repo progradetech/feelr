@@ -1,182 +1,266 @@
-# Technology Stack: Staging Custom Domains & Branding Integration
+# Technology Stack: Open-Core Repo Restructuring
 
-**Project:** Feelr -- Staging subdomains (staging-app, staging-docs, staging-api) and branding assets (favicon, logo, manifest) across dashboard and docs
-**Researched:** 2026-02-11
-**Confidence:** HIGH (verified against Azure docs, Next.js 15 docs, Cloudflare docs, existing codebase)
+**Project:** Feelr -- Splitting monorepo into public `progradetech/feelr` + private `progradetech/feelr-cloud` using git subtree
+**Researched:** 2026-02-13
+**Confidence:** HIGH (verified against official git docs, GitHub Actions docs, peter-evans/repository-dispatch repo, GitLab open-core precedent)
 
 ---
 
 ## Executive Summary
 
-This milestone has two independent workstreams: (1) staging custom domains and (2) branding/favicon integration. They share no dependencies and can be phased in any order.
+The open-core split requires three technology layers: (1) git subtree for consuming the public repo inside the private cloud repo, (2) GitHub Actions with `repository_dispatch` for automated cross-repo sync when the public repo merges, and (3) pnpm workspace overlay for the cloud repo to extend the public monorepo's packages with billing/Stripe/cloud-deployment code.
 
-**Staging custom domains** requires a critical architecture decision. Azure Static Web Apps does NOT support custom domains on preview/staging environments -- this is a confirmed, longstanding limitation (feature request open since May 2020, still unresolved). The recommended workaround is to create **separate SWA instances** dedicated to staging, each with its own deployment token and custom domain. This means 2 new Azure SWA resources (one for staging-app.feelr.dev, one for staging-docs.feelr.dev), 2 new GitHub Actions secrets, and 2 new Cloudflare DNS CNAME records. The gateway staging domain (staging-api.feelr.dev) is straightforward -- Cloudflare Workers natively supports per-environment custom domains via `wrangler.toml` route configuration.
+The recommended architecture is **public-primary with private overlay**: `progradetech/feelr` is the public repo containing gateway, connectors, CLI, self-hosting, and docs. `progradetech/feelr-cloud` is the private repo that uses `git subtree add --prefix=oss` to embed the entire public repo, then adds cloud-only packages alongside it. CI in the public repo fires a `repository_dispatch` event to the cloud repo on every merge to `main`, which triggers an automated `git subtree pull` to stay in sync.
 
-**Branding integration** requires one new dev dependency: `sharp` (v0.34.x) as a build-time script to convert the existing SVG logomark into PNG/ICO favicon assets. Next.js 15 App Router supports file-based favicon conventions (place `favicon.ico` in `app/`, place `icon.svg` in `app/`) and a `manifest.ts` file that generates `manifest.webmanifest` at build time. Nextra 4, being App Router-based, supports the same file conventions. The Nextra `<Head>` component's `faviconGlyph` prop must be removed/replaced with standard Next.js file-based icons.
-
-Total new npm dependencies: **1 (sharp, dev only)**. Total new Azure resources: **2 (SWA Standard instances)**. Total new DNS records: **3 (CNAME for staging-app, staging-docs, staging-api)**.
+This follows the GitLab model (single codebase with `/ee` directory for proprietary code) but inverted: the public code is the base, and the private repo wraps it with cloud extensions. Git subtree is preferred over git submodule because contributors to the public repo never encounter submodule metadata, and the cloud repo's CI can operate on a fully materialized codebase without extra clone steps.
 
 ---
 
 ## Recommended Stack
 
-### Staging Domains -- Azure SWA (Dashboard + Docs)
+### Git Operations -- Subtree Management
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| Azure Static Web Apps (Standard) | N/A (Azure resource) | Separate SWA instances for staging dashboard and staging docs | Azure SWA does NOT support custom domains on preview environments. The only way to get `staging-app.feelr.dev` and `staging-docs.feelr.dev` is to create dedicated SWA resources with production-slot custom domains. Standard plan required for custom domains ($9/month/app). |
-| Azure/static-web-apps-deploy | v1 | GitHub Actions deployment | Already in use. New staging workflows use the same action with new deployment tokens (`SWA_DASHBOARD_STAGING_TOKEN`, `SWA_DOCS_STAGING_TOKEN`). No `deployment_environment` parameter needed because staging SWA instances treat their deploy as "production" (the custom domain slot). |
-| Cloudflare DNS | N/A | CNAME records for staging subdomains | Already the DNS authority for `feelr.dev`. Add DNS-only (gray cloud) CNAME records pointing `staging-app.feelr.dev` and `staging-docs.feelr.dev` to the respective SWA default hostnames. Same pattern as existing `app.feelr.dev` and `feelr.dev` records. |
+| `git subtree` | Built into git 2.43+ (available on system) | Embed public repo into private cloud repo at a prefix path | Subtree embeds the full codebase inline -- no `.gitmodules`, no extra clone steps for CI, contributors to the public repo are unaffected. Unlike submodules, the cloud repo is fully self-contained after clone. |
+| `--squash` flag | N/A | Condense public repo history into single merge commits | Prevents public repo's full commit history from cluttering the cloud repo log. Each sync becomes one squashed merge commit. Required for clean `git log` in cloud repo. |
+| `--prefix=oss` | N/A | Mount point for public repo inside cloud repo | All public code lives under `oss/` in the cloud repo. Cloud-only code lives at root alongside it (e.g., `cloud/`, `infra/`). Clear boundary between open-source and proprietary. |
 
-### Staging Domains -- Cloudflare Workers (Gateway)
+**Core commands:**
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Wrangler | 4.63.0 (already installed) | Deploy staging Worker with custom domain | Add `[[env.staging.routes]]` with `pattern = "staging-api.feelr.dev"` and `custom_domain = true` to `wrangler.toml`. Cloudflare Workers natively supports per-environment custom domains. Set `workers_dev = false` on staging after custom domain is verified (or keep `true` for redundancy). |
-| Cloudflare DNS | N/A | DNS record for staging-api subdomain | Cloudflare Workers custom domains auto-create DNS records when `custom_domain = true` is set. No manual CNAME creation needed -- Cloudflare handles this internally since it controls both Workers and DNS for `feelr.dev`. |
+```bash
+# Initial setup (run once in feelr-cloud repo)
+git remote add oss git@github.com:progradetech/feelr.git
+git subtree add --prefix=oss oss main --squash -m "chore: import feelr OSS at $(git -C . rev-parse --short HEAD)"
 
-### Branding -- Favicon/Icon Generation (Build-Time)
+# Sync updates (run by CI or manually)
+git fetch oss main
+git subtree pull --prefix=oss oss main --squash -m "chore: sync feelr OSS $(date +%Y-%m-%d)"
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| sharp | ^0.34.5 | SVG-to-PNG/ICO conversion at build time | The industry standard for Node.js image processing. Converts `feelr-logomark.svg` to `favicon.ico` (32x32), `icon-192.png`, `icon-512.png`, and `apple-icon.png` (180x180). Installed as root devDependency. Used in a one-time generation script, not at runtime. |
-
-### Branding -- Next.js Dashboard (File-Based Icons + Manifest)
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Next.js file-based icons | 15.3+ (already installed) | favicon.ico, icon.svg, apple-icon.png | Next.js App Router automatically detects `favicon.ico` in `app/`, `icon.svg` in `app/`, and `apple-icon.png` in `app/`, then injects the correct `<link>` tags into `<head>`. Zero configuration. Works with `output: 'export'`. |
-| Next.js manifest.ts | 15.3+ (already installed) | Web app manifest generation | A `manifest.ts` file in `app/` exports a function returning a `MetadataRoute.Manifest` object. Generates `/manifest.webmanifest` at build time. Must include `export const dynamic = 'force-static'` for compatibility with `output: 'export'`. |
-| Next.js metadata API | 15.3+ (already installed) | OpenGraph images, theme-color | Extend existing `metadata` export in `layout.tsx` with `icons` and `manifest` fields. The `metadataBase` (already set to `https://app.feelr.dev`) ensures absolute URLs for OG images. |
-
-### Branding -- Nextra Docs (File-Based Icons)
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Next.js file-based icons | 15.3+ (via Nextra 4) | favicon.ico, icon.svg, apple-icon.png | Nextra 4 uses Next.js App Router. The same file-based conventions work: place `favicon.ico` and `icon.svg` in the `app/` directory. Remove the `faviconGlyph` prop from `<Head>` if currently set. |
-| Nextra `<Head>` component | 4.2+ (already installed) | Custom head tags | The `<Head>` component accepts children for static head tags. Use it to add `<link rel="manifest">` and theme-color meta tags if not handled by Next.js metadata API. Alternatively, export `metadata` from `layout.tsx` with `icons` configuration (preferred -- standard Next.js approach). |
-| Nextra Navbar `logo` prop | 4.2+ (already installed) | Logo in docs navigation | Replace `<b>Feelr</b>` text logo with `<Image>` component rendering `feelr-logo.svg` (or inline SVG). The Navbar accepts any ReactNode for `logo`. |
-
----
-
-## Critical Architecture Decision: Separate SWA Instances for Staging
-
-### Why NOT use Azure SWA `deployment_environment: staging`
-
-The existing workflows already deploy to `deployment_environment: staging` within a single SWA instance per app. This gives a URL like:
-
-```
-<default-hostname>-staging.<location>.azurestaticapps.net
+# Push changes back to public repo (rare, for cloud-originated fixes)
+git subtree push --prefix=oss oss main
 ```
 
-**This URL cannot have a custom domain.** Azure explicitly does not support custom domains on preview/staging environments. This is documented, confirmed, and has been a known limitation since 2020 (GitHub issue #22 on Azure/static-web-apps, still open with no timeline).
+### CI Cross-Repo Sync -- GitHub Actions
 
-### Recommended: Dedicated Staging SWA Instances
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| `peter-evans/repository-dispatch` | v4.0.1 | Trigger cloud repo sync from public repo | Purpose-built action for cross-repo dispatch. Cleaner than raw `curl` or `actions/github-script`. Handles auth and payload formatting. MIT licensed, actively maintained (last release Nov 2025). |
+| `actions/github-script` | v7 | Alternative/fallback for dispatch + subtree pull script in cloud repo | Built-in GitHub action for running Octokit scripts. Useful for the receiving workflow to post status back. |
+| `actions/checkout` | v4 | Checkout repos in CI workflows | Standard checkout action. Cloud repo workflows use it with `fetch-depth: 0` for subtree operations (subtree needs full history for squash merges). |
+| Fine-grained PAT | N/A | Cross-repo authentication | Required for dispatch from public to private repo. Scope: `contents: read+write` and `metadata: read` on `progradetech/feelr-cloud`. Fine-grained PATs reached GA March 2025. |
 
-Create two new Azure SWA resources in the Azure Portal:
+**Public repo dispatch workflow (trigger):**
 
-| Resource | SKU | Custom Domain | Deployment Source |
-|----------|-----|--------------|-------------------|
-| `feelr-dashboard-staging` | Standard ($9/mo) | `staging-app.feelr.dev` | Other (manual via GitHub Actions) |
-| `feelr-docs-staging` | Standard ($9/mo) | `staging-docs.feelr.dev` | Other (manual via GitHub Actions) |
+```yaml
+# .github/workflows/sync-cloud.yml (in progradetech/feelr)
+name: Notify Cloud Repo
+on:
+  push:
+    branches: [main]
 
-Each gets its own deployment token. GitHub Actions workflows deploy to these instances using the existing `Azure/static-web-apps-deploy@v1` action but with new tokens and NO `deployment_environment` parameter (so deploys go to the "production" slot of each staging SWA, which is where custom domains bind).
-
-### Impact on Existing Workflows
-
-The current `dashboard.yml` and `docs.yml` workflows have two jobs: `deploy-staging` and `deploy-production`. The staging jobs currently deploy to the same SWA instance with `deployment_environment: staging`.
-
-**Change:** The staging jobs switch from deploying to a named environment within the production SWA to deploying to the dedicated staging SWA instance's production slot. This means:
-
-- Remove `deployment_environment: staging` from staging jobs
-- Change `azure_static_web_apps_api_token` to use the new staging-specific tokens
-- The existing production jobs remain unchanged
-
-### Cost
-
-2 additional Standard SWA instances at $9/month each = $18/month total. Both existing production SWA instances are already Standard. The Standard plan is required for custom domains.
-
----
-
-## Branding Asset Pipeline
-
-### Source Assets
-
-| File | Location | Purpose |
-|------|----------|---------|
-| `feelr-logo.svg` | `/assets/feelr-logo.svg` | Full logo with lobster character (400x400 viewBox 120x120). Used in docs navbar, dashboard sidebar header. |
-| `feelr-logomark.svg` | `/assets/feelr-logomark.svg` | Minimal antennae mark (200x200 viewBox 40x40). Used as favicon source -- simple enough to be recognizable at 32x32. |
-
-### Generated Assets (One-Time Script)
-
-A build-time script (`scripts/generate-icons.mjs`) uses sharp to produce:
-
-| Output | Size | Format | Used By |
-|--------|------|--------|---------|
-| `favicon.ico` | 32x32 | ICO | Both apps, placed in `app/` directory |
-| `icon.svg` | Original | SVG (copy of logomark) | Both apps, placed in `app/` directory. Browsers supporting SVG favicons get the crisp vector version. |
-| `icon-192.png` | 192x192 | PNG | Web manifest (standard icon) |
-| `icon-512.png` | 512x512 | PNG | Web manifest (maskable icon) |
-| `apple-icon.png` | 180x180 | PNG | Apple touch icon |
-
-### Why sharp, Not a Dedicated Favicon Generator
-
-| Criterion | sharp (recommended) | favicons npm package | @profullstack/favicon-generator |
-|-----------|---------------------|---------------------|-------------------------------|
-| Maturity | 10+ years, 30K+ GitHub stars | Active but heavy (generates 40+ files) | New, low adoption |
-| Output control | Exact control over which sizes to generate | Generates everything (Android Chrome, iOS, Windows Tile, etc.) -- massive overkill | Reasonable but less flexible |
-| Dependencies | Single native dependency (libvips) | Multiple dependencies | Depends on sharp anyway |
-| Use case fit | Generate exactly 5 files from 1 SVG | Generate 40+ files with HTML snippet | Generate a standard set |
-
-We need exactly 5 output files. Sharp gives precise control without generating dozens of unused assets. The script is ~30 lines.
-
-### Why NOT Use Next.js Code-Generated Icons (icon.tsx)
-
-Next.js supports generating icons via code (`app/icon.tsx` using `ImageResponse` from `next/og`). This is designed for rendering simple text/shapes, NOT for converting complex SVGs with gradients and multiple paths. The Feelr logomark has linear gradients, stroke paths, and filled circles that `ImageResponse` (which uses Satori internally) may not render faithfully. Pre-generating PNGs from the source SVG using sharp guarantees pixel-perfect output.
-
----
-
-## DNS Configuration
-
-### New CNAME Records (Cloudflare DNS)
-
-| Name | Type | Target | Proxy | Notes |
-|------|------|--------|-------|-------|
-| `staging-app` | CNAME | `<dashboard-staging-swa-hostname>.azurestaticapps.net` | DNS only (gray cloud) | Must be DNS-only for Azure SWA custom domain validation. Same pattern as existing `app.feelr.dev`. |
-| `staging-docs` | CNAME | `<docs-staging-swa-hostname>.azurestaticapps.net` | DNS only (gray cloud) | Must be DNS-only for Azure SWA custom domain validation. Same pattern as existing `feelr.dev`. |
-| `staging-api` | (auto-created) | N/A | N/A | Cloudflare Workers `custom_domain = true` auto-manages DNS when the zone is on Cloudflare. No manual record needed. |
-
-### Wrangler.toml Change for Gateway
-
-```toml
-# Add to [env.staging] section:
-[env.staging]
-workers_dev = true  # Keep workers.dev URL as fallback
-
-[[env.staging.routes]]
-pattern = "staging-api.feelr.dev"
-custom_domain = true
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: peter-evans/repository-dispatch@v4
+        with:
+          token: ${{ secrets.CLOUD_REPO_PAT }}
+          repository: progradetech/feelr-cloud
+          event-type: oss-updated
+          client-payload: >-
+            {
+              "sha": "${{ github.sha }}",
+              "ref": "${{ github.ref }}",
+              "actor": "${{ github.actor }}"
+            }
 ```
 
+**Cloud repo sync workflow (receiver):**
+
+```yaml
+# .github/workflows/sync-oss.yml (in progradetech/feelr-cloud)
+name: Sync OSS
+on:
+  repository_dispatch:
+    types: [oss-updated]
+  workflow_dispatch:  # Manual trigger fallback
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # REQUIRED for git subtree operations
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync OSS subtree
+        run: |
+          git remote add oss https://github.com/progradetech/feelr.git || true
+          git fetch oss main
+          git subtree pull --prefix=oss oss main --squash \
+            -m "chore: sync feelr OSS ${{ github.event.client_payload.sha || 'manual' }}"
+
+      - name: Push sync commit
+        run: git push origin main
+
+      - name: Run cloud build verification
+        run: |
+          cd oss && pnpm install --frozen-lockfile
+          pnpm turbo run build test --filter='./cloud/*'
+```
+
+### Authentication -- Fine-Grained PAT Setup
+
+| Token | Scope | Repository | Stored As | Used By |
+|-------|-------|-----------|-----------|---------|
+| Cloud Repo PAT | `contents: read+write`, `metadata: read` | `progradetech/feelr-cloud` only | `CLOUD_REPO_PAT` secret in `progradetech/feelr` | Public repo's `sync-cloud.yml` dispatch step |
+
+**Why fine-grained PAT over classic PAT:** Fine-grained PATs (GA since March 2025) can be scoped to a single repository with minimal permissions. A classic PAT with `repo` scope grants access to ALL repositories the user owns -- excessive for this use case. Fine-grained PAT with `contents: write` on only `feelr-cloud` follows least-privilege principle.
+
+**Why not a GitHub App installation token:** GitHub Apps are better for organization-wide automation, but Feelr uses a personal account (`progradetech`). A fine-grained PAT is simpler for single-owner, two-repo scenarios.
+
+### Cloud Repo Structure -- Workspace Overlay
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| pnpm workspaces | 9.15.0 (match existing) | Manage combined OSS + cloud packages | pnpm workspaces can reference packages inside `oss/` subdirectory. Cloud packages declare dependencies on `oss/packages/*` using workspace protocol. |
+| Turborepo | latest (match existing) | Task orchestration across combined workspace | Turborepo's `--filter` flag enables building only cloud packages or only OSS packages. Task graph respects cross-boundary dependencies. |
+
+**Cloud repo directory structure:**
+
+```
+feelr-cloud/
+  oss/                          # git subtree of progradetech/feelr
+    apps/
+      gateway/                  # OSS gateway
+      dashboard/                # OSS dashboard
+      docs/                     # OSS docs
+    packages/
+      connector-sdk/            # OSS connector SDK
+      tsconfig/                 # OSS shared tsconfig
+    connectors/                 # OSS connectors
+    cli/                        # OSS Go CLI
+    ...
+  cloud/                        # Cloud-only code (proprietary)
+    apps/
+      billing-worker/           # Stripe billing Worker
+    packages/
+      cloud-config/             # Cloud-specific configuration
+      stripe-connector/         # Cloud-only Stripe billing connector
+    infra/                      # Cloud deployment (Terraform, etc.)
+  pnpm-workspace.yaml           # References both oss/* and cloud/*
+  turbo.json                    # Extended config for cloud tasks
+  package.json                  # Cloud repo root
+```
+
+**Cloud repo pnpm-workspace.yaml:**
+
+```yaml
+packages:
+  - 'oss/apps/*'
+  - 'oss/packages/*'
+  - 'oss/connectors/*'
+  - 'cloud/apps/*'
+  - 'cloud/packages/*'
+```
+
+**Cloud repo turbo.json (extends OSS):**
+
+```json
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "out/**"],
+      "env": ["NEXT_PUBLIC_GATEWAY_URL", "STRIPE_SECRET_KEY"]
+    },
+    "deploy:cloud": {
+      "dependsOn": ["build", "test"],
+      "cache": false
+    }
+  }
+}
+```
+
+### Build Integration -- Cloud Overlay Pattern
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| TypeScript path aliases | 5.7+ (existing) | Cloud packages import from OSS packages | `cloud/packages/cloud-config` can import from `@feelr/connector-sdk` (which lives in `oss/packages/connector-sdk`). pnpm workspace protocol resolves these automatically. |
+| Turborepo `--filter` | latest | Selective builds | `pnpm turbo run build --filter='./cloud/*'` builds only cloud packages. `pnpm turbo run build` builds everything. CI can filter based on what changed. |
+| dorny/paths-filter | v3 | Detect which packages changed in CI | Already used in existing CI. Cloud repo CI uses it to determine whether OSS sync affected cloud packages. |
+
 ---
 
-## GitHub Actions Secrets
+## Critical Architecture Decision: Subtree Direction
 
-### New Secrets Required
+### Option A (RECOMMENDED): Private repo consumes public repo via subtree
 
-| Secret Name | Source | Used By |
-|-------------|--------|---------|
-| `SWA_DASHBOARD_STAGING_TOKEN` | Azure Portal > `feelr-dashboard-staging` SWA > Manage deployment token | `dashboard.yml` staging job |
-| `SWA_DOCS_STAGING_TOKEN` | Azure Portal > `feelr-docs-staging` SWA > Manage deployment token | `docs.yml` staging job |
+```
+feelr-cloud (private) --[subtree pull]--> feelr (public)
+```
 
-### Existing Secrets (No Changes)
+The private cloud repo pulls the public repo into an `oss/` prefix. Cloud-only code lives alongside at `cloud/`.
 
-| Secret Name | Used By |
-|-------------|---------|
-| `SWA_DASHBOARD_DEPLOYMENT_TOKEN` | `dashboard.yml` production job |
-| `SWA_DOCS_DEPLOYMENT_TOKEN` | `docs.yml` production job |
-| `CLOUDFLARE_API_TOKEN` | `gateway.yml` both jobs |
-| `CLOUDFLARE_ACCOUNT_ID` | `gateway.yml` both jobs |
+**Advantages:**
+- Public repo is clean -- zero awareness of cloud repo's existence
+- Contributors to public repo never see subtree metadata
+- Cloud repo has full materialized codebase for builds
+- CI in cloud repo can run full integration tests against OSS + cloud together
+
+**Disadvantages:**
+- Cloud repo has larger git history (mitigated by `--squash`)
+- `fetch-depth: 0` required in cloud CI for subtree operations
+
+### Option B (NOT RECOMMENDED): Public repo splits from monorepo via subtree
+
+```
+feelr (public) <--[subtree split]-- feelr-monorepo (private)
+```
+
+Keep the current monorepo as the single source of truth, use `git subtree split` to publish OSS portions to the public repo.
+
+**Why not:** This makes the private repo the development hub. Open-source contributors would submit PRs to the public repo, which then need to be manually merged back into the private monorepo. Two-way sync is error-prone. The public repo becomes a read-only mirror, which discourages community contribution.
+
+### Option C (NOT RECOMMENDED): Git submodules
+
+```
+feelr-cloud (private) --[submodule ref]--> feelr (public)
+```
+
+**Why not:** Submodules require explicit `git submodule update --init` after clone. CI needs extra steps. Contributors who clone the cloud repo get an empty `oss/` directory until they init submodules. Subtree embeds code inline -- simpler for everyone.
+
+---
+
+## Token and Secret Requirements
+
+### New Secrets for Public Repo (`progradetech/feelr`)
+
+| Secret Name | Value Source | Purpose |
+|-------------|-------------|---------|
+| `CLOUD_REPO_PAT` | Fine-grained PAT scoped to `progradetech/feelr-cloud` with `contents: read+write`, `metadata: read` | Dispatch `oss-updated` event to cloud repo on merge to main |
+
+### New Secrets for Cloud Repo (`progradetech/feelr-cloud`)
+
+| Secret Name | Value Source | Purpose |
+|-------------|-------------|---------|
+| `CLOUDFLARE_API_TOKEN` | Same as existing | Deploy cloud Workers |
+| `CLOUDFLARE_ACCOUNT_ID` | Same as existing | Deploy cloud Workers |
+| `STRIPE_SECRET_KEY` | Stripe dashboard | Billing Worker runtime |
+| `STRIPE_WEBHOOK_SECRET` | Stripe dashboard | Webhook signature verification |
+
+### Existing Secrets (Move to Public Repo)
+
+All current secrets in `progradetech/feelr` remain -- they serve the OSS CI/CD pipelines. The cloud repo gets copies of infrastructure secrets plus cloud-specific ones.
 
 ---
 
@@ -184,124 +268,190 @@ custom_domain = true
 
 | Category | Recommended | Alternative | Why Not |
 |----------|-------------|-------------|---------|
-| SWA staging custom domain | Separate SWA instances (2 new resources) | Azure SWA `deployment_environment: staging` with auto-generated URL | Auto-generated URLs cannot have custom domains. This is an Azure limitation, not a workaround. The only path to `staging-app.feelr.dev` is a dedicated SWA instance. |
-| SWA staging custom domain | Separate SWA instances | Cloudflare Workers reverse proxy to SWA staging URL | Adds an unnecessary proxy layer, introduces latency, defeats the purpose of Azure SWA edge CDN. Over-engineering a simple subdomain. |
-| SWA staging custom domain | Separate SWA instances | Azure Front Door / APIM in front of SWA | Massively over-engineered. AFD costs $35+/month, adds complexity for a simple CNAME-to-SWA mapping. |
-| SWA staging plan | Standard ($9/mo per instance) | Free plan | Free plan does not support custom domains. Standard is required. |
-| Gateway staging domain | Wrangler `custom_domain = true` | Cloudflare route + manual DNS CNAME | `custom_domain = true` is the modern approach, auto-manages DNS and SSL. Routes require manual CNAME setup and wildcard path matching. |
-| SVG-to-favicon | sharp (build script) | favicons npm package | Generates 40+ files. We need 5. Overkill. |
-| SVG-to-favicon | sharp (build script) | Online converter (realfavicongenerator.net) | Manual process, not reproducible, not in version control. |
-| SVG-to-favicon | sharp (build script) | Next.js `icon.tsx` with `ImageResponse` | Satori (underlying renderer) has limited SVG support. Cannot reliably render gradients, complex paths. Pre-generating with sharp guarantees fidelity. |
-| SVG-to-favicon | sharp (build script) | Check SVG directly into `app/` as `icon.svg` (no conversion) | This works for `icon.svg` (modern browsers), but `favicon.ico` is still needed for legacy browsers and some apps. apple-icon must be PNG. Manifest icons must be PNG. Still need sharp for 4 of 5 files. |
-| Manifest approach | `manifest.ts` (code-generated) | Static `manifest.json` file | TypeScript manifest lets us reference icon paths programmatically and gets type-checked via `MetadataRoute.Manifest`. |
-| Docs favicon | Next.js file-based (`app/favicon.ico`) | Nextra `<Head faviconGlyph="...">` | `faviconGlyph` renders an emoji as favicon. It does not support custom SVG/ICO icons. File-based is the standard Next.js approach and works with Nextra 4. |
-| Docs logo | SVG `<Image>` or inline SVG in Navbar | Keep text `<b>Feelr</b>` | Text logo looks generic. The SVG logo with the lobster/antenna mark is the brand identity. The Navbar `logo` prop accepts any ReactNode. |
-
----
-
-## Complete Dependency Changes
-
-### New npm Dependencies
-
-```bash
-# None at runtime.
-```
-
-### New Dev Dependencies (Root)
-
-```bash
-# Install sharp as root devDependency for icon generation script
-pnpm add -D sharp -w
-```
-
-**Why root, not per-app:** The icon generation script runs once and copies output to both `apps/dashboard/src/app/` and `apps/docs/app/`. It is a monorepo-level build tool, not an app-level dependency.
-
-### New Go Dependencies
-
-```bash
-# None.
-```
-
-### New Infrastructure
-
-| Resource | Type | Cost | How to Create |
-|----------|------|------|---------------|
-| `feelr-dashboard-staging` | Azure Static Web App (Standard) | $9/month | Azure Portal > Create resource > Static Web App. Deployment source: "Other". |
-| `feelr-docs-staging` | Azure Static Web App (Standard) | $9/month | Azure Portal > Create resource > Static Web App. Deployment source: "Other". |
+| Repo embedding | git subtree | git submodule | Submodules require explicit init after clone, add `.gitmodules` file to cloud repo, require extra CI steps. Subtree embeds code inline -- cloud repo is self-contained. |
+| Repo embedding | git subtree | npm package (publish OSS as npm packages, consume in cloud) | Adds build/publish latency. Cloud repo would depend on published artifacts, not source. Harder to debug, impossible to make atomic cross-boundary changes. |
+| Repo embedding | git subtree | Copy-paste / manual sync | Obviously unscalable. Divergence guaranteed. |
+| Cross-repo trigger | `peter-evans/repository-dispatch@v4` | Raw `curl` to GitHub API | repository-dispatch action handles auth headers, error handling, payload serialization. Curl works but is more code and harder to maintain. |
+| Cross-repo trigger | `peter-evans/repository-dispatch@v4` | `actions/github-script@v7` with `createDispatchEvent` | github-script is heavier (loads full Octokit). repository-dispatch is single-purpose and clearer in intent. |
+| Cross-repo trigger | `repository_dispatch` | `workflow_dispatch` | `workflow_dispatch` is designed for manual triggers with form inputs. `repository_dispatch` is designed for programmatic triggers with arbitrary JSON payloads. Better semantic fit. |
+| Cross-repo trigger | `repository_dispatch` | Polling/cron schedule | Polling wastes CI minutes and adds latency. Dispatch is instant and event-driven. |
+| Auth | Fine-grained PAT | Classic PAT with `repo` scope | Classic PAT grants access to ALL repos. Fine-grained PAT scopes to single repo with minimal permissions. |
+| Auth | Fine-grained PAT | GitHub App installation token | Over-engineered for two repos under one account. GitHub Apps are better for organization-wide automation across many repos. |
+| Cloud repo structure | `oss/` prefix with separate `cloud/` | Flat merge (OSS files at root, cloud files alongside) | No clear boundary between open-source and proprietary. Easy to accidentally leak proprietary code. `oss/` prefix makes the boundary visible in `ls`. |
+| Cloud repo structure | `oss/` prefix with separate `cloud/` | GitLab-style `/ee` directory in same repo | GitLab merged CE+EE into one repo because they had 55 engineers. Feelr is small -- separating repos keeps the public repo clean and the private repo focused. The GitLab model is for when you outgrow the two-repo approach. |
+| Sync direction | Public-primary (cloud pulls from public) | Private-primary (public is split/mirror from private) | Private-primary makes the public repo a read-only mirror, discouraging open-source contributions. Public-primary treats OSS as the real development hub. |
 
 ---
 
 ## Version Compatibility Matrix
 
-| Tool | Current in Project | Required for Milestone | Change Needed? |
+| Tool | Current in Project | Required for Open-Core | Change Needed? |
 |------|-------------------|----------------------|----------------|
-| Next.js | ^15.3.0 (resolves 15.5.12) | ^15.3.0 | No |
-| React | ^19.0.0 | ^19.0.0 | No |
-| Nextra | ^4.2.0 | ^4.2.0 | No |
-| nextra-theme-docs | ^4.2.0 | ^4.2.0 | No |
-| TypeScript | ^5.7.0 | ^5.7.0 | No |
-| Tailwind CSS | ^4.0.0 | ^4.0.0 | No |
-| pnpm | 9.15.0 | 9.15.0 | No |
-| Turborepo | latest | latest | No |
+| git | 2.43.0 | 1.7.11+ (for subtree) | No |
+| git subtree | Built-in | Built-in | No |
+| pnpm | 9.15.0 | 9.15.0 | No (same version in cloud repo) |
+| Turborepo | latest | latest | No (same version in cloud repo) |
 | Node.js (CI) | 20 | 20 | No |
-| Wrangler | 4.63.0 | 4.63.0 | No (config change only) |
-| Azure/static-web-apps-deploy | v1 | v1 | No (new tokens + workflow changes) |
-| cloudflare/wrangler-action | v3 | v3 | No |
-| sharp | N/A (new) | ^0.34.5 | **Add as root devDependency** |
+| `actions/checkout` | v4 | v4 | No (but add `fetch-depth: 0` for subtree ops) |
+| `peter-evans/repository-dispatch` | N/A (new) | v4.0.1 | **Add to public repo workflows** |
+| `actions/github-script` | v7 (existing) | v7 | No |
+| `dorny/paths-filter` | v3 (existing) | v3 | No |
+| `pnpm/action-setup` | v4 (existing) | v4 | No |
+| `actions/setup-node` | v4 (existing) | v4 | No |
+| `actions/cache` | v4 (existing) | v4 | No |
 
 ---
 
-## Manifest.ts Compatibility Note
+## Key Constraints and Limitations
 
-When using `manifest.ts` with `output: 'export'` in Next.js 15.x, the file MUST include:
+### git subtree limitations
 
-```typescript
-export const dynamic = 'force-static'
+1. **`fetch-depth: 0` required in CI** -- Subtree operations need full git history to compute the merge base. Shallow clones (`fetch-depth: 1`, the GitHub Actions default) will cause `git subtree pull` to fail. This increases checkout time but is unavoidable.
+
+2. **No native conflict resolution UI** -- If cloud repo has modified files under `oss/` (not recommended but possible), subtree pull creates merge conflicts that must be resolved manually. Prevention: never edit files under `oss/` directly in the cloud repo.
+
+3. **Squash consistency** -- If using `--squash` (recommended), you MUST always use `--squash`. Mixing squash and non-squash pulls causes history divergence and broken future pulls.
+
+4. **inode cache bug** -- Known bug in git-subtree where `.git/subtree-cache/` directory grows unbounded. In CI this is irrelevant (fresh clone each time). For local dev, occasional `rm -rf .git/subtree-cache/*` may be needed.
+
+5. **Push back is expensive** -- `git subtree push` rewrites history to extract the subtree. For large repos this is slow. For Feelr's ~21K LOC this is manageable but should be rare (most changes flow public -> cloud, not reverse).
+
+### repository_dispatch limitations
+
+1. **Default branch only** -- Repository dispatch events ONLY trigger workflows committed to the default branch. Cannot use this to trigger workflows on feature branches.
+
+2. **Payload size** -- Maximum 10 top-level properties in `client_payload`. Maximum 65,535 characters total. For passing commit SHA and actor, this is more than sufficient.
+
+3. **No built-in completion callback** -- The dispatching workflow does not wait for the receiving workflow to complete. If the cloud sync fails, the public repo workflow does not know. Mitigation: cloud repo posts failure notifications to Slack/Discord.
+
+4. **Token expiration** -- Fine-grained PATs have a maximum expiration of 1 year. Must be rotated before expiry. Set a calendar reminder.
+
+---
+
+## Installation / Setup Commands
+
+```bash
+# ============================================================
+# ONE-TIME SETUP: Create feelr-cloud repo and initialize subtree
+# ============================================================
+
+# 1. Create private repo on GitHub
+gh repo create progradetech/feelr-cloud --private --description "Feelr Cloud Platform"
+
+# 2. Clone and initialize
+git clone git@github.com:progradetech/feelr-cloud.git
+cd feelr-cloud
+
+# 3. Create initial structure
+mkdir -p cloud/apps cloud/packages cloud/infra
+
+# 4. Initialize package.json and workspace
+cat > package.json << 'EOF'
+{
+  "name": "feelr-cloud",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "sync:oss": "./scripts/sync-oss.sh"
+  },
+  "devDependencies": {
+    "turbo": "latest"
+  }
+}
+EOF
+
+cat > pnpm-workspace.yaml << 'EOF'
+packages:
+  - 'oss/apps/*'
+  - 'oss/packages/*'
+  - 'oss/connectors/*'
+  - 'cloud/apps/*'
+  - 'cloud/packages/*'
+EOF
+
+# 5. Commit initial structure
+git add -A && git commit -m "chore: initialize feelr-cloud repo structure"
+
+# 6. Add public repo as subtree
+git remote add oss git@github.com:progradetech/feelr.git
+git fetch oss main
+git subtree add --prefix=oss oss main --squash \
+  -m "chore: import feelr OSS codebase"
+
+# 7. Push
+git push -u origin main
+
+# ============================================================
+# ONGOING: Sync script (scripts/sync-oss.sh in cloud repo)
+# ============================================================
+cat > scripts/sync-oss.sh << 'SCRIPT'
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Fetching latest from progradetech/feelr..."
+git fetch oss main
+
+echo "Pulling subtree updates..."
+git subtree pull --prefix=oss oss main --squash \
+  -m "chore: sync feelr OSS $(date +%Y-%m-%d)"
+
+echo "Installing dependencies..."
+pnpm install
+
+echo "Running build verification..."
+pnpm turbo run build test
+
+echo "OSS sync complete."
+SCRIPT
+chmod +x scripts/sync-oss.sh
+
+# ============================================================
+# TOKEN SETUP
+# ============================================================
+
+# 1. Create fine-grained PAT at https://github.com/settings/personal-access-tokens/new
+#    - Token name: feelr-cloud-dispatch
+#    - Expiration: 1 year (set calendar reminder to rotate)
+#    - Repository access: Only select repositories -> progradetech/feelr-cloud
+#    - Permissions: Contents (read+write), Metadata (read)
+
+# 2. Add PAT as secret to public repo
+gh secret set CLOUD_REPO_PAT --repo progradetech/feelr -b "<paste-pat-here>"
 ```
-
-Without this export, the build will fail with:
-
-> `export const dynamic = "force-static"/export const revalidate not configured on route "/manifest.webmanifest"`
-
-This is a known Next.js requirement when using code-generated metadata files with static export. The `dynamic = 'force-static'` export tells Next.js to generate the manifest at build time and include it in the static output.
 
 ---
 
 ## Sources
 
 ### Official Documentation (HIGH confidence)
-- [Azure SWA Custom Domains](https://learn.microsoft.com/en-us/azure/static-web-apps/custom-domain) -- confirms custom domains are production-only
-- [Azure SWA Custom Domain with External Providers](https://learn.microsoft.com/en-us/azure/static-web-apps/custom-domain-external) -- CNAME setup process for Cloudflare DNS
-- [Azure SWA Named Environments](https://learn.microsoft.com/en-us/azure/static-web-apps/named-environments) -- `deployment_environment` parameter, URL pattern
-- [Azure SWA Preview Environments](https://learn.microsoft.com/en-us/azure/static-web-apps/preview-environments) -- confirms custom domains not supported on preview envs
-- [Azure SWA Feature Request #22](https://github.com/Azure/static-web-apps/issues/22) -- custom domain for staging, open since 2020, no resolution
-- [Next.js Metadata Files: favicon, icon, apple-icon](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/app-icons) -- file conventions, supported formats, static export behavior
-- [Next.js Metadata Files: manifest.json](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/manifest) -- `manifest.ts` with `force-static` for static export
-- [Nextra Head Component](https://nextra.site/docs/built-ins/head) -- `faviconGlyph` prop, children for custom head tags
-- [Cloudflare Workers Environments](https://developers.cloudflare.com/workers/wrangler/environments/) -- per-environment routes and custom domains
-- [Cloudflare Workers Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/) -- `custom_domain = true` in routes
-- [sharp Documentation](https://sharp.pixelplumbing.com/) -- SVG input, PNG/WebP output, version 0.34.x
+- [git-subtree(1) man page](https://man.archlinux.org/man/git-subtree.1) -- Complete command reference, all options, behavioral notes
+- [Atlassian Git Subtree Tutorial](https://www.atlassian.com/git/tutorials/git-subtree) -- add/pull/push commands, squash option, remote setup
+- [GitHub Docs: Triggering a workflow](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow) -- repository_dispatch, workflow_dispatch, token requirements
+- [GitHub Docs: Fine-grained PAT permissions](https://docs.github.com/en/rest/authentication/permissions-required-for-fine-grained-personal-access-tokens) -- Required scopes per API endpoint
+- [peter-evans/repository-dispatch v4.0.1](https://github.com/peter-evans/repository-dispatch) -- Action inputs, token requirements, payload limits, fine-grained PAT compatibility
+- [actions/checkout v4](https://github.com/actions/checkout) -- Multi-repo checkout, token parameter, fetch-depth
 
 ### Verified via Project Files (HIGH confidence)
-- `apps/dashboard/package.json` -- current deps: next ^15.3.0, react ^19.0.0
-- `apps/docs/package.json` -- current deps: next ^15.3.0, nextra ^4.2.0
-- `apps/dashboard/next.config.ts` -- `output: 'export'`
-- `apps/docs/next.config.mjs` -- `output: 'export'` via nextra wrapper
-- `apps/dashboard/src/app/layout.tsx` -- existing metadata export, no favicon configured
-- `apps/docs/app/layout.tsx` -- Nextra Head component, text-only logo, no favicon
-- `apps/gateway/wrangler.toml` -- staging env uses `workers_dev = true`, no custom domain yet
-- `.github/workflows/dashboard.yml` -- `deployment_environment: staging` with `SWA_DASHBOARD_DEPLOYMENT_TOKEN`
-- `.github/workflows/docs.yml` -- `deployment_environment: staging` with `SWA_DOCS_DEPLOYMENT_TOKEN`
-- `.github/workflows/gateway.yml` -- wrangler-action v3 with `--env staging`
-- `/assets/feelr-logo.svg` -- full logo, 400x400 with 120x120 viewBox
-- `/assets/feelr-logomark.svg` -- minimal mark, 200x200 with 40x40 viewBox
+- `package.json` -- pnpm 9.15.0, Turborepo latest, existing scripts
+- `pnpm-workspace.yaml` -- Current workspace glob patterns: `apps/*`, `packages/*`, `connectors/*`
+- `turbo.json` -- Current task definitions: build, dev, test, typecheck, deploy, lint
+- `.github/workflows/ci.yml` -- Current CI: checkout@v4, pnpm/action-setup@v4, dorny/paths-filter@v3, actions/github-script@v7
 
-### Community/Web Sources (MEDIUM confidence)
-- [Multi-stage Azure SWA Deployments](https://techcommunity.microsoft.com/blog/appsonazureblog/multi-stage-azure-static-web-apps-deployments-with-azure-devops/3390625) -- Microsoft blog confirming separate instances as a pattern
-- [Nextra 4 Migration Guide](https://the-guild.dev/blog/nextra-4) -- confirms App Router migration, metadata API support
-- [Next.js PWA Static Export Discussion](https://github.com/vercel/next.js/discussions/72221) -- `force-static` requirement for manifest.ts with output: 'export'
+### Community/Precedent Sources (MEDIUM confidence)
+- [GitLab: Single Codebase for CE and EE](https://about.gitlab.com/blog/a-single-codebase-for-gitlab-community-and-enterprise-edition/) -- Open-core precedent: `/ee` directory pattern, module injection for EE features
+- [GitLab: EE Features Implementation Guide](https://docs.gitlab.com/development/ee_features/) -- How EE code is separated within single codebase
+- [Cross-Repository Workflows Guide (Dec 2025)](https://oneuptime.com/blog/post/2025-12-20-cross-repository-workflows-github-actions/view) -- repository_dispatch, workflow_dispatch, reusable workflows patterns
+- [Repository Dispatch Deep Dive (Dec 2025)](https://oneuptime.com/blog/post/2025-12-20-repository-dispatch-github-actions/view) -- Payload handling, token setup, best practices
+- [peter-evans/repository-dispatch#127](https://github.com/peter-evans/repository-dispatch/issues/127) -- Fine-grained PAT permissions: `contents: write` + `metadata: read`
+- [git-subsplit](https://github.com/dflydev/git-subsplit) -- Automated subtree split tooling (evaluated, not recommended for this use case)
+- [Elio Struyf: Dispatch with github-script](https://www.eliostruyf.com/dispatch-github-action-workflow-script-action/) -- Working `createDispatchEvent` example with actions/github-script@v7
 
 ---
 
-*Stack research for: Feelr -- Staging Custom Domains & Branding Integration*
-*Researched: 2026-02-11*
+*Stack research for: Feelr -- Open-Core Repo Restructuring*
+*Researched: 2026-02-13*
