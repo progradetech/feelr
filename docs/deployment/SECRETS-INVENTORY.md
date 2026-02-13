@@ -285,3 +285,68 @@ These credentials are used for manual operations and are not stored in CI/CD. Th
 - **Access:** `gh auth login` (opens browser-based authentication)
 - **Note:** Optional -- you can also use a Personal Access Token via `GITHUB_TOKEN` env var
 - **Recovery:** GitHub account recovery; 2FA backup codes
+
+---
+
+## Section 5: Public Release Audit
+
+This section documents disposition decisions for every credential and file classification decisions for every directory/file in the repository, in preparation for the public repo split (Phase 27).
+
+### A. Credential Disposition Table
+
+Every secret from the existing inventory is assessed for public release safety.
+
+| Secret | Decision | Reason | Action Timing |
+|--------|----------|--------|---------------|
+| CLOUDFLARE_API_TOKEN | ROTATE | Was in private repo accessible to collaborators | After repo split (Phase 27) |
+| CLOUDFLARE_ACCOUNT_ID | SAFE | Not a secret; identifies account but grants no access alone | None |
+| SWA_DASHBOARD_DEPLOYMENT_TOKEN | ROTATE | Was in private repo accessible to collaborators | After repo split (Phase 27) |
+| SWA_DOCS_DEPLOYMENT_TOKEN | ROTATE | Was in private repo accessible to collaborators | After repo split (Phase 27) |
+| HOMEBREW_TAP_GITHUB_TOKEN | ROTATE | PAT with repo scope; was in private repo | After repo split (Phase 27) |
+| GITHUB_TOKEN | SAFE | Auto-generated per workflow run; expires after run | None |
+| ENCRYPTION_KEY | ROTATE | Cloudflare Worker secret; rotate as precaution | After repo split (Phase 27) |
+| ADMIN_TOKEN | ROTATE | Cloudflare Worker secret; rotate as precaution | After repo split (Phase 27) |
+| SLACK_CLIENT_ID | ROTATE | Cloudflare Worker secret; rotate as precaution | After repo split (Phase 27) |
+| SLACK_CLIENT_SECRET | ROTATE | Cloudflare Worker secret; rotate as precaution | After repo split (Phase 27) |
+| STRIPE_SECRET_KEY | ROTATE | Cloudflare Worker secret; most sensitive | After repo split (Phase 27) |
+| STRIPE_WEBHOOK_SECRET | ROTATE | Cloudflare Worker secret; rotate as precaution | After repo split (Phase 27) |
+
+**Summary:** 10 secrets require rotation after Phase 27. 2 secrets are safe (CLOUDFLARE_ACCOUNT_ID, GITHUB_TOKEN).
+
+### B. File/Directory Classification Matrix
+
+Every top-level path and notable sub-path is classified for the public repo split.
+
+| Path | Decision | Reason |
+|------|----------|--------|
+| `apps/` | PUBLIC | Application source code (gateway, dashboard, docs) |
+| `cli/` | PUBLIC | Go CLI source code |
+| `connectors/` | PUBLIC | Connector source code + template |
+| `packages/` | PUBLIC | Shared packages (tsconfig, etc.) |
+| `chains/` | PUBLIC | Example composable action chains |
+| `self-host/` | PUBLIC | Self-hosting config + Docker (minus .env which is untracked) |
+| `scripts/` | PUBLIC | Build/deploy scripts |
+| `.github/workflows/` | PARTIAL | CI workflows public; deploy workflows move to cloud repo |
+| `.goreleaser.yaml` | PUBLIC | CLI build configuration |
+| `README.md` | PUBLIC | Project readme |
+| `CONTRIBUTING.md` | PUBLIC | Contribution guide |
+| `LICENSE` | PUBLIC | MIT license |
+| `.gitignore` | PUBLIC | Git ignore rules |
+| `.gitleaks.toml` | PUBLIC | Secret scanning config |
+| `turbo.json` | PUBLIC | Turborepo config |
+| `pnpm-workspace.yaml` | PUBLIC | Workspace config |
+| `package.json` | PUBLIC | Root package.json |
+| `tsconfig.base.json` | PUBLIC | Shared TypeScript config |
+| `apps/gateway/wrangler.toml` | PUBLIC | KV/D1 IDs are safe per Cloudflare docs; production env blocks to be stripped in Phase 27 |
+| `.planning/` | EXCLUDE | 246 internal planning docs (phases, research, milestones) |
+| `feelr-strategy.md` | EXCLUDE | Competitive strategy, pricing, go-to-market |
+| `docs/deployment/SECRETS-INVENTORY.md` | EXCLUDE | Production credential metadata + rotation procedures |
+| `docs/deployment/RUNBOOK.md` | EXCLUDE | Production deployment procedures with infrastructure details |
+| `assets/` | PUBLIC | Logo SVGs (currently untracked; to be committed for public repo) |
+
+### C. Notes for Phase 27
+
+- All secrets marked ROTATE must be rotated AFTER the public repo is created
+- `.planning/` exclusion is handled by the fresh snapshot approach (not copying .planning/ to public repo)
+- `wrangler.toml` production/staging environment blocks should be stripped in the public repo snapshot
+- Deploy workflows in `.github/workflows/` that reference cloud-specific secrets move to `feelr-cloud` repo
