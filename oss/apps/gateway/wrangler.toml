@@ -1,0 +1,18 @@
+# Feelr Gateway - Development Configuration
+#
+# Production/staging config lives in the cloud repo.
+# For self-hosted deployment, see self-host/README.md.
+# For local development: use `wrangler dev` with .dev.vars for secrets
+
+name = "feelr-gateway"
+main = "src/index.ts"
+compatibility_date = "2026-02-05"
+
+keep_vars = true
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["TokenCoordinator"]
+
+[triggers]
+crons = ["0 3 * * *"]
