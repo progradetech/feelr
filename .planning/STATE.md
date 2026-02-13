@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** v1.4 Open Core -- Phase 25 COMPLETE, ready for Phase 26
+**Current focus:** v1.4 Open Core -- Phase 26 in progress (billing interface extraction)
 
 ## Current Position
 
-Phase: 25 of 29 (Pre-Split Audit & Cleanup) -- COMPLETE
-Plan: 3 of 3 -- COMPLETE
-Status: Phase complete
-Last activity: 2026-02-13 -- Completed 25-03 (final gitleaks validation + audit gate PASS)
+Phase: 26 of 29 (Billing Interface Extraction)
+Plan: 1 of 3 -- COMPLETE
+Status: Executing phase
+Last activity: 2026-02-13 -- Completed 26-01 (BillingProvider interface + billingMiddleware)
 
-Progress: [█████████████████████░░░░░░░░░] 85/85 plans (82 prior + 3/3 Phase 25)
+Progress: [█████████████████████░░░░░░░░░] 86/88 plans (85 prior + 1/3 Phase 26)
 
 ## Milestone History
 
@@ -66,6 +66,9 @@ All decisions logged in PROJECT.md Key Decisions table with outcomes.
 - [25-02] Fresh snapshot approach for public repo means .planning/ exclusion requires no git filter
 - [25-03] No .gitleaks.toml changes needed -- Plan 01 allowlist was comprehensive for zero findings
 - [25-03] Git history scan also clean (373 commits) confirming allowlist covers all false positives
+- [26-01] Used (c.env as any).BILLING_PROVIDER cast -- Plan 02 adds proper AppEnv typing
+- [26-01] Kept billing.enabled as first guard before provider for zero-cost self-hosted path
+- [26-01] plan-enforcer.ts preserved for Plan 02 extraction reference
 
 ### Pending Todos
 
@@ -86,5 +89,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Completed 25-03-PLAN.md (final gitleaks validation + audit gate) -- Phase 25 COMPLETE
+Stopped at: Completed 26-01-PLAN.md (BillingProvider interface + billingMiddleware)
 Resume file: None
