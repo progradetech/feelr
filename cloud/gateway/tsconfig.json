@@ -1,0 +1,15 @@
+{
+  "extends": "../../oss/packages/tsconfig/worker.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "paths": {
+      "~/*": ["../../oss/apps/gateway/src/*"]
+    }
+  },
+  "include": [
+    "gateway-entry.ts",
+    "../../oss/apps/gateway/src/**/*.ts"
+  ],
+  "exclude": []
+}

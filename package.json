@@ -1,0 +1,15 @@
+{
+  "name": "feelr-cloud",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "deploy:staging": "cd cloud/gateway && npx wrangler deploy -c wrangler.cloud.toml --env staging",
+    "deploy:production": "cd cloud/gateway && npx wrangler deploy -c wrangler.cloud.toml --env production"
+  },
+  "devDependencies": {
+    "turbo": "latest"
+  }
+}
