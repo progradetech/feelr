@@ -66,7 +66,7 @@
 
 - [x] **Phase 25: Pre-Split Audit & Cleanup** - Verify the codebase is safe to make public — completed 2026-02-13
 - [x] **Phase 26: Billing Interface Extraction** - Decouple billing from gateway via provider pattern — completed 2026-02-13
-- [ ] **Phase 27: Repository Split** - Create public and private repos with subtree integration
+- [x] **Phase 27: Repository Split** - Create public and private repos with subtree integration — completed 2026-02-13
 - [ ] **Phase 28: CI/CD Migration** - Establish split CI pipelines and cross-repo sync automation
 - [ ] **Phase 29: Community Contribution Infrastructure** - Enable self-service connector development by external contributors
 
@@ -115,9 +115,9 @@ Plans:
   5. Public repo builds and tests pass independently (no cloud dependency), and cloud repo builds and tests pass with the overlay (no missing imports)
 **Plans:** 3 plans
 Plans:
-- [ ] 27-01-PLAN.md -- Prepare public snapshot (rsync exclusions, strip wrangler.toml, fix GoReleaser, public CI)
-- [ ] 27-02-PLAN.md -- Create GitHub repos, push snapshot, setup git subtree
-- [ ] 27-03-PLAN.md -- Cloud overlay files (gateway-entry.ts, wrangler.cloud.toml, workspace) + build verification
+- [x] 27-01-PLAN.md -- Prepare public snapshot (rsync exclusions, strip wrangler.toml, fix GoReleaser, public CI)
+- [x] 27-02-PLAN.md -- Create GitHub repos, push snapshot, setup git subtree
+- [x] 27-03-PLAN.md -- Cloud overlay files (gateway-entry.ts, wrangler.cloud.toml, workspace) + build verification
 
 ### Phase 28: CI/CD Migration
 **Goal**: Both repositories have working CI/CD -- public repo gives contributors fast test feedback without exposing secrets, private repo handles deployment, and merges to public main automatically sync into the cloud repo
@@ -190,7 +190,7 @@ Plans:
 | 22-24 | v1.3 | 7/7 | Complete | 2026-02-12 |
 | 25 | v1.4 | 3/3 | Complete | 2026-02-13 |
 | 26 | v1.4 | 3/3 | Complete | 2026-02-13 |
-| 27 | v1.4 | 0/3 | Not started | - |
+| 27 | v1.4 | 3/3 | Complete | 2026-02-13 |
 | 28 | v1.4 | 0/TBD | Not started | - |
 | 29 | v1.4 | 0/TBD | Not started | - |
 
