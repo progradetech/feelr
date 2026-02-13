@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** v1.4 Open Core -- Phase 27 complete (repository split)
+**Current focus:** v1.4 Open Core -- Phase 28 in progress (CI/CD migration)
 
 ## Current Position
 
-Phase: 27 of 29 (Repository Split)
-Plan: 3 of 3
-Status: Complete
-Last activity: 2026-02-13 -- Completed 27-03 (cloud overlay and independent build verification)
+Phase: 28 of 29 (CI/CD Migration)
+Plan: 2 of 3
+Status: In Progress
+Last activity: 2026-02-13 -- Completed 28-02 (cloud repo CI/CD workflows)
 
-Progress: [███████████████████████░░░░░░░] 91/91 plans (88 prior + 3/3 Phase 27)
+Progress: [█████████████████████████░░░░░] 93/94 plans (91 prior + 2/3 Phase 28)
 
 ## Milestone History
 
@@ -80,6 +80,12 @@ All decisions logged in PROJECT.md Key Decisions table with outcomes.
 - [27-02] Used --accept-visibility-change-consequences flag for private-to-public visibility change
 - [27-03] Cloud tsconfig includes all OSS gateway source (no billing/stripe/ exclude) since cloud overlay needs those types
 - [27-03] Cloud gateway package has deploy scripts only (no typecheck/test) since wrangler bundles at deploy time
+- [28-01] No local commits for Task 1 -- secret/environment deletion is GitHub API only
+- [28-01] sync.yml uses CLOUD_REPO_PAT (not GITHUB_TOKEN) since cross-repo dispatch requires a PAT
+- [28-01] Workflow will silently fail until CLOUD_REPO_PAT secret is created in Plan 03
+- [28-02] Sync workflow uses pnpm install (not --frozen-lockfile) because subtree pulls may change OSS dependencies
+- [28-02] Lockfile changes folded into sync commit via git commit --amend to keep history clean
+- [28-02] Dashboard includes CF_ANALYTICS_TOKEN env vars; docs does not (pure content site)
 
 ### Pending Todos
 
@@ -100,5 +106,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Completed 27-03-PLAN.md (cloud overlay and independent build verification) -- Phase 27 complete
+Stopped at: Completed 28-01-PLAN.md (public repo cleanup -- secrets, environment, sync.yml)
 Resume file: None
