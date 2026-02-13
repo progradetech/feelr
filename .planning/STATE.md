@@ -5,16 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-12)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** Planning next milestone
+**Current focus:** v1.4 Open Core — repo split for open-source community
 
 ## Current Position
 
-Phase: 24 of 24 (all milestones complete)
-Plan: N/A
-Status: Between milestones (v1.3 shipped, next milestone not started)
-Last activity: 2026-02-12 — Archived v1.3 Staging & Branding milestone
-
-Progress: [████████████████████████████████████████] 82/82 plans (100% overall)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-12 — Milestone v1.4 started
 
 ## Milestone History
 

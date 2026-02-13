@@ -8,6 +8,17 @@ Feelr is an agent-friendly API simplification layer — a hosted service + Go CL
 
 An AI agent can call any supported external API in one line with near-zero context overhead — no schema parsing, no auth gymnastics, no pagination wrangling.
 
+## Current Milestone: v1.4 Open Core
+
+**Goal:** Restructure into open-core model — public repo for community contributions, private cloud overlay for billing/hosting
+
+**Target features:**
+- Extract billing/Stripe code from public repo into private cloud overlay
+- Make progradetech/feelr public as the open-source product
+- Create progradetech/feelr-cloud as private overlay repo using git subtree
+- Auto-sync CI pipeline — cloud repo rebuilds when public repo merges
+- Community connector contribution workflow (templates, guidelines, PR automation)
+
 ## Current State
 
 **Version:** v1.3.0 Staging & Branding (shipped 2026-02-12)
@@ -97,7 +108,11 @@ An AI agent can call any supported external API in one line with near-zero conte
 
 ### Active
 
-(None — planning next milestone)
+- [ ] Open-core repo split: public repo (gateway, connectors, CLI, self-host, docs) + private cloud overlay
+- [ ] Billing/Stripe code extraction from public repo into feelr-cloud
+- [ ] Git subtree integration for cloud repo consuming public repo
+- [ ] Auto-sync CI: public repo merges trigger cloud repo rebuild
+- [ ] Community contribution setup: connector templates, PR guidelines, contribution docs
 
 ### Out of Scope
 
@@ -177,5 +192,8 @@ An AI agent can call any supported external API in one line with near-zero conte
 | Logomark alongside text in sidebar | Standard dashboard pattern for brand recognition at small sizes | ✓ Good — visually balanced, recognizable |
 | Inline styles in docs navbar for Nextra compatibility | Nextra CSS pipeline doesn't reliably process Tailwind utilities | ✓ Good — works reliably without build-time CSS issues |
 
+| Open-core overlay model (git subtree) | Public repo is the product, private repo is thin cloud overlay combined via git subtree | — Pending |
+| Publish release assets to homebrew-feelr | Private repo can't serve public downloads; tap repo hosts binaries | ✓ Good — resolved v1.3.1→v1.3.2 |
+
 ---
-*Last updated: 2026-02-12 after v1.3 milestone*
+*Last updated: 2026-02-12 after v1.4 milestone start*
