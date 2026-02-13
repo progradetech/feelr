@@ -64,7 +64,7 @@
 
 **Phases are strictly sequential** -- each gates the next. Cannot split before billing is extracted, cannot migrate CI before repos exist, cannot build community tooling before CI works.
 
-- [ ] **Phase 25: Pre-Split Audit & Cleanup** - Verify the codebase is safe to make public
+- [x] **Phase 25: Pre-Split Audit & Cleanup** - Verify the codebase is safe to make public — completed 2026-02-13
 - [ ] **Phase 26: Billing Interface Extraction** - Decouple billing from gateway via provider pattern
 - [ ] **Phase 27: Repository Split** - Create public and private repos with subtree integration
 - [ ] **Phase 28: CI/CD Migration** - Establish split CI pipelines and cross-repo sync automation
@@ -83,9 +83,9 @@
   4. A documented secrets inventory exists identifying every credential, token, and sensitive file, with a decision recorded for each (rotate, exclude, or safe-to-publish)
 **Plans:** 3 plans
 Plans:
-- [ ] 25-01-PLAN.md -- Install Gitleaks, run initial audit scans, create allowlist config
-- [ ] 25-02-PLAN.md -- Harden .gitignore with **/.env, update secrets inventory with public release audit
-- [ ] 25-03-PLAN.md -- Final Gitleaks validation scan, verify all success criteria
+- [x] 25-01-PLAN.md -- Install Gitleaks, run initial audit scans, create allowlist config
+- [x] 25-02-PLAN.md -- Harden .gitignore with **/.env, update secrets inventory with public release audit
+- [x] 25-03-PLAN.md -- Final Gitleaks validation scan, verify all success criteria
 
 ### Phase 26: Billing Interface Extraction
 **Goal**: Billing logic is decoupled from the gateway behind a pluggable provider interface, so the gateway runs with zero Stripe dependencies when no billing provider is registered
@@ -180,7 +180,7 @@ Plans:
 | 11-16 | v1.1 | 13/13 | Complete | 2026-02-10 |
 | 17-21 | v1.2 | 11/11 | Complete | 2026-02-11 |
 | 22-24 | v1.3 | 7/7 | Complete | 2026-02-12 |
-| 25 | v1.4 | 0/3 | Planned | - |
+| 25 | v1.4 | 3/3 | Complete | 2026-02-13 |
 | 26 | v1.4 | 0/TBD | Not started | - |
 | 27 | v1.4 | 0/TBD | Not started | - |
 | 28 | v1.4 | 0/TBD | Not started | - |
