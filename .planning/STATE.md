@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** v1.4 Open Core -- Phase 27 in progress (repository split)
+**Current focus:** v1.4 Open Core -- Phase 27 complete (repository split)
 
 ## Current Position
 
 Phase: 27 of 29 (Repository Split)
-Plan: 2 of 3
-Status: Executing
-Last activity: 2026-02-13 -- Completed 27-02 (repository creation and subtree integration)
+Plan: 3 of 3
+Status: Complete
+Last activity: 2026-02-13 -- Completed 27-03 (cloud overlay and independent build verification)
 
-Progress: [██████████████████████░░░░░░░░] 90/91 plans (88 prior + 2/3 Phase 27)
+Progress: [███████████████████████░░░░░░░] 91/91 plans (88 prior + 3/3 Phase 27)
 
 ## Milestone History
 
@@ -78,6 +78,8 @@ All decisions logged in PROJECT.md Key Decisions table with outcomes.
 - [27-01] Combined staging/production env check into single conditional for cleaner graceful skip logic
 - [27-02] Force-pushed clean snapshot over existing private repo then changed visibility to public
 - [27-02] Used --accept-visibility-change-consequences flag for private-to-public visibility change
+- [27-03] Cloud tsconfig includes all OSS gateway source (no billing/stripe/ exclude) since cloud overlay needs those types
+- [27-03] Cloud gateway package has deploy scripts only (no typecheck/test) since wrangler bundles at deploy time
 
 ### Pending Todos
 
@@ -98,5 +100,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Completed 27-02-PLAN.md (repository creation and subtree integration)
+Stopped at: Completed 27-03-PLAN.md (cloud overlay and independent build verification) -- Phase 27 complete
 Resume file: None
