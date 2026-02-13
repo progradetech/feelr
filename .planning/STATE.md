@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** v1.4 Open Core -- Phase 25: Pre-Split Audit & Cleanup
+**Current focus:** v1.4 Open Core -- Phase 25 COMPLETE, ready for Phase 26
 
 ## Current Position
 
-Phase: 25 of 29 (Pre-Split Audit & Cleanup)
-Plan: 3 of 3
-Status: Executing
-Last activity: 2026-02-13 -- Completed 25-01 (gitleaks secret scan + allowlist config)
+Phase: 25 of 29 (Pre-Split Audit & Cleanup) -- COMPLETE
+Plan: 3 of 3 -- COMPLETE
+Status: Phase complete
+Last activity: 2026-02-13 -- Completed 25-03 (final gitleaks validation + audit gate PASS)
 
-Progress: [████████████████████░░░░░░░░░░] 84/85 plans (82 prior + 2/3 Phase 25)
+Progress: [█████████████████████░░░░░░░░░] 85/85 plans (82 prior + 3/3 Phase 25)
 
 ## Milestone History
 
@@ -64,6 +64,8 @@ All decisions logged in PROJECT.md Key Decisions table with outcomes.
 - [25-02] Added **/.env alongside bare .env for explicit auditability (both match at any depth in git)
 - [25-02] 10 secrets marked ROTATE after Phase 27; 2 marked SAFE (CLOUDFLARE_ACCOUNT_ID, GITHUB_TOKEN)
 - [25-02] Fresh snapshot approach for public repo means .planning/ exclusion requires no git filter
+- [25-03] No .gitleaks.toml changes needed -- Plan 01 allowlist was comprehensive for zero findings
+- [25-03] Git history scan also clean (373 commits) confirming allowlist covers all false positives
 
 ### Pending Todos
 
@@ -84,5 +86,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Completed 25-01-PLAN.md (gitleaks secret scan + allowlist config)
+Stopped at: Completed 25-03-PLAN.md (final gitleaks validation + audit gate) -- Phase 25 COMPLETE
 Resume file: None
