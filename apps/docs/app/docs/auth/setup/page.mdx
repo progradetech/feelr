@@ -1,0 +1,119 @@
+# Authentication
+
+Feelr uses two layers of authentication: **Feelr API keys** to identify your agent, and **upstream credentials** to call external services.
+
+## Feelr API Keys
+
+Every request to the gateway requires an API key in the `X-Feelr-Key` header. API keys identify your agent and determine rate limits.
+
+### Creating Keys
+
+Via the admin API:
+
+```bash
+curl -X POST https://api.feelr.dev/admin/keys \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"label": "my-agent"}'
+```
+
+Via the dashboard at `https://dashboard.feelr.dev` (navigate to API Keys).
+
+Via the CLI:
+
+```bash
+feelr auth init
+```
+
+### Key Format
+
+Keys follow the format `fk_live_*` (production) or `fk_test_*` (test). The prefix tells you which environment a key belongs to.
+
+### Key Tiers
+
+| Tier | Rate Limit | Burst |
+|------|-----------|-------|
+| free | 60 req/min | 10 |
+| pro | 600 req/min | 50 |
+| team | 6000 req/min | 200 |
+
+New keys default to the `free` tier. Upgrade via the admin API or dashboard.
+
+### Managing Keys
+
+```bash
+# List all keys
+curl https://api.feelr.dev/admin/keys \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+
+# Delete a key
+curl -X DELETE https://api.feelr.dev/admin/keys/abc123 \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+```
+
+## Upstream Credentials
+
+Upstream credentials let Feelr call external APIs on your behalf. The credential type depends on the connector.
+
+### Personal Access Tokens (PAT)
+
+Used by **GitHub** and **Discord** (bot tokens). You create the token in the upstream service and store it in Feelr:
+
+```bash
+curl -X PUT https://api.feelr.dev/admin/credentials/github \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"token": "ghp_your_pat_here"}'
+```
+
+Or via CLI:
+
+```bash
+feelr auth github
+```
+
+**GitHub**: Generate a PAT at [github.com/settings/tokens](https://github.com/settings/tokens). Select scopes matching the actions you need (e.g., `repo` for issues and PRs).
+
+**Discord**: Create a bot at [discord.com/developers](https://discord.com/developers/applications). Copy the bot token from the Bot settings page.
+
+### API Keys
+
+Used by **Stripe**. Store your Stripe secret key:
+
+```bash
+curl -X PUT https://api.feelr.dev/admin/credentials/stripe \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"token": "sk_live_your_stripe_key"}'
+```
+
+Use `sk_test_*` keys for development. Get your keys at [dashboard.stripe.com/apikeys](https://dashboard.stripe.com/apikeys).
+
+### OAuth2
+
+Used by **Slack**. OAuth tokens are exchanged through the Feelr gateway:
+
+```bash
+# Get the OAuth configuration for Slack
+curl https://api.feelr.dev/admin/oauth/slack/config \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+```
+
+This returns the authorization URL. After the user completes the OAuth flow, the token is stored automatically.
+
+Slack tokens are automatically refreshed when they expire. Feelr's token coordinator (backed by Durable Objects in cloud, or local storage in self-hosted) handles refresh coordination to prevent race conditions.
+
+## Security
+
+- **Encrypted at rest**: All credentials are encrypted using AES-256-GCM with HKDF-derived keys before storage
+- **Refresh coordination**: OAuth tokens with expiry are proactively refreshed via a Durable Object coordinator, preventing race conditions when multiple requests arrive simultaneously
+- **Key isolation**: Each API key is scoped independently. Deleting a key immediately revokes access
+- **Admin separation**: Admin routes (`/admin/*`) use Bearer token auth, separate from API key auth on `/v1/*` routes
+
+## Troubleshooting
+
+**"AUTH_REQUIRED" error**: No credential stored for the requested connector. Run `feelr auth <connector>` or store via admin API.
+
+**"UPSTREAM_AUTH_FAILED" error**: The stored credential was rejected by the upstream API. The token may have expired or been revoked. Re-store the credential.
+
+**"RATE_LIMITED" error**: You've hit rate limits. Check your key tier and consider upgrading, or reduce request frequency.

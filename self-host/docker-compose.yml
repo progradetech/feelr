@@ -1,0 +1,60 @@
+# Feelr Self-Hosted -- Docker Compose
+#
+# Usage:
+#   docker compose up              # HTTP only (port 8080)
+#   docker compose --profile tls up  # With Caddy TLS proxy (ports 80/443)
+#
+# Prerequisites:
+#   1. Copy env.template to .env and fill in secrets
+#   2. Copy feelr.yaml.template to feelr.yaml (or run init.sh)
+#
+# Volumes:
+#   feelr-data: Persistent storage for Durable Object SQLite databases
+#   caddy-data: Caddy TLS certificates and ACME state
+#   caddy-config: Caddy runtime configuration
+
+services:
+  # ---------- Feelr Gateway + Dashboard ----------
+  feelr:
+    build:
+      context: ..
+      dockerfile: self-host/Dockerfile
+    ports:
+      - "${FEELR_PORT:-8080}:8080"
+    volumes:
+      - feelr-data:/data/feelr
+      - ./feelr.yaml:/etc/feelr/feelr.yaml:ro
+    env_file:
+      - .env
+    environment:
+      - FEELR_AUTO_MIGRATE=${FEELR_AUTO_MIGRATE:-true}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # ---------- Caddy TLS Reverse Proxy (optional) ----------
+  # Activated with: docker compose --profile tls up
+  caddy:
+    image: caddy:2-alpine
+    profiles:
+      - tls
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      feelr:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  feelr-data:
+  caddy-data:
+  caddy-config:
