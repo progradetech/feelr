@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 25 of 29 (Pre-Split Audit & Cleanup)
-Plan: --
-Status: Ready to plan
-Last activity: 2026-02-13 -- Roadmap created for v1.4 Open Core (5 phases, 30 requirements)
+Plan: 2 of 3
+Status: Executing
+Last activity: 2026-02-13 -- Completed 25-02 (gitignore hardening + secrets inventory audit)
 
-Progress: [████████████████████░░░░░░░░░░] 82/82+ plans (prior milestones complete, v1.4 TBD)
+Progress: [████████████████████░░░░░░░░░░] 84/85 plans (82 prior + 2/3 Phase 25)
 
 ## Milestone History
 
@@ -58,6 +58,10 @@ Progress: [████████████████████░░░
 
 All decisions logged in PROJECT.md Key Decisions table with outcomes.
 
+- [25-02] Added **/.env alongside bare .env for explicit auditability (both match at any depth in git)
+- [25-02] 10 secrets marked ROTATE after Phase 27; 2 marked SAFE (CLOUDFLARE_ACCOUNT_ID, GITHUB_TOKEN)
+- [25-02] Fresh snapshot approach for public repo means .planning/ exclusion requires no git filter
+
 ### Pending Todos
 
 None.
@@ -77,5 +81,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: v1.4 roadmap created -- ready to plan Phase 25
+Stopped at: Completed 25-02-PLAN.md (gitignore hardening + secrets inventory audit)
 Resume file: None
