@@ -81,7 +81,11 @@
   2. `git ls-files | grep '\.env'` returns no results -- no .env files are tracked in git
   3. `.gitignore` contains `**/.env` pattern and correctly excludes env files at any depth
   4. A documented secrets inventory exists identifying every credential, token, and sensitive file, with a decision recorded for each (rotate, exclude, or safe-to-publish)
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 25-01-PLAN.md -- Install Gitleaks, run initial audit scans, create allowlist config
+- [ ] 25-02-PLAN.md -- Harden .gitignore with **/.env, update secrets inventory with public release audit
+- [ ] 25-03-PLAN.md -- Final Gitleaks validation scan, verify all success criteria
 
 ### Phase 26: Billing Interface Extraction
 **Goal**: Billing logic is decoupled from the gateway behind a pluggable provider interface, so the gateway runs with zero Stripe dependencies when no billing provider is registered
@@ -176,7 +180,7 @@
 | 11-16 | v1.1 | 13/13 | Complete | 2026-02-10 |
 | 17-21 | v1.2 | 11/11 | Complete | 2026-02-11 |
 | 22-24 | v1.3 | 7/7 | Complete | 2026-02-12 |
-| 25 | v1.4 | 0/TBD | Not started | - |
+| 25 | v1.4 | 0/3 | Planned | - |
 | 26 | v1.4 | 0/TBD | Not started | - |
 | 27 | v1.4 | 0/TBD | Not started | - |
 | 28 | v1.4 | 0/TBD | Not started | - |
