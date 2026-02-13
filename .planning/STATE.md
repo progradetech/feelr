@@ -2,17 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-12)
+See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** v1.4 Open Core — repo split for open-source community
+**Current focus:** v1.4 Open Core -- Phase 25: Pre-Split Audit & Cleanup
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-12 — Milestone v1.4 started
+Phase: 25 of 29 (Pre-Split Audit & Cleanup)
+Plan: --
+Status: Ready to plan
+Last activity: 2026-02-13 -- Roadmap created for v1.4 Open Core (5 phases, 30 requirements)
+
+Progress: [████████████████████░░░░░░░░░░] 82/82+ plans (prior milestones complete, v1.4 TBD)
 
 ## Milestone History
 
@@ -22,6 +24,7 @@ Last activity: 2026-02-12 — Milestone v1.4 started
 | v1.1 Deployment & CI/CD | 11-16 | 13 | 2026-02-10 |
 | v1.2 Marketing & Onboarding | 17-21 | 11 | 2026-02-11 |
 | v1.3 Staging & Branding | 22-24 | 7 | 2026-02-12 |
+| v1.4 Open Core | 25-29 | TBD | -- |
 
 ## Performance Metrics
 
@@ -34,7 +37,7 @@ Last activity: 2026-02-12 — Milestone v1.4 started
 **v1.1 Velocity:**
 - Total plans completed: 13
 - Average duration: 3 min
-- Total execution time: ~41 min (excludes human checkpoint wait times)
+- Total execution time: ~41 min
 - Timeline: 2 days (2026-02-09 to 2026-02-10)
 
 **v1.2 Velocity:**
@@ -67,10 +70,12 @@ None.
 
 ### Blockers/Concerns
 
-None
+- v1.4 phases are strictly sequential -- no parallelization possible
+- Public repo uses fresh snapshot (no git history) to prevent secret leakage
+- Squash merge must be disabled on public repo (breaks git subtree markers)
 
 ## Session Continuity
 
-Last session: 2026-02-12
-Stopped at: v1.3 milestone archived — ready for next milestone
+Last session: 2026-02-13
+Stopped at: v1.4 roadmap created -- ready to plan Phase 25
 Resume file: None

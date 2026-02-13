@@ -61,5 +61,40 @@
 
 ---
 
-**Total:** 26 requirements (22 MUST, 4 SHOULD)
+**Total:** 30 requirements (28 MUST, 2 SHOULD)
 **Research:** `.planning/research/SUMMARY.md`
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| AUDIT-01 | Phase 25 | Pending |
+| AUDIT-02 | Phase 25 | Pending |
+| AUDIT-03 | Phase 25 | Pending |
+| AUDIT-04 | Phase 25 | Pending |
+| BILL-01 | Phase 26 | Pending |
+| BILL-02 | Phase 26 | Pending |
+| BILL-03 | Phase 26 | Pending |
+| BILL-04 | Phase 26 | Pending |
+| BILL-05 | Phase 26 | Pending |
+| SPLIT-01 | Phase 27 | Pending |
+| SPLIT-02 | Phase 27 | Pending |
+| SPLIT-03 | Phase 27 | Pending |
+| SPLIT-04 | Phase 27 | Pending |
+| SPLIT-05 | Phase 27 | Pending |
+| SPLIT-06 | Phase 27 | Pending |
+| SPLIT-07 | Phase 27 | Pending |
+| CICD-01 | Phase 28 | Pending |
+| CICD-02 | Phase 28 | Pending |
+| CICD-03 | Phase 28 | Pending |
+| CICD-04 | Phase 28 | Pending |
+| CICD-05 | Phase 28 | Pending |
+| CICD-06 | Phase 28 | Pending |
+| COMM-01 | Phase 29 | Pending |
+| COMM-02 | Phase 29 | Pending |
+| COMM-03 | Phase 29 | Pending |
+| COMM-04 | Phase 29 | Pending |
+| COMM-05 | Phase 29 | Pending |
+| COMM-06 | Phase 29 | Pending |
+| COMM-07 | Phase 29 | Pending |
+| COMM-08 | Phase 29 | Pending |
