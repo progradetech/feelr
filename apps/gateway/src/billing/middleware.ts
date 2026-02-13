@@ -43,7 +43,7 @@ export function billingMiddleware() {
 
     // Get the billing provider (cloud entry injects StripeBillingProvider)
     const provider: BillingProvider =
-      (c.env as any).BILLING_PROVIDER ?? new NoopBillingProvider()
+      c.env.BILLING_PROVIDER ?? new NoopBillingProvider()
 
     const apiKeyRecord = c.get('apiKeyRecord')
     if (!apiKeyRecord) {
