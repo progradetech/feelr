@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 25 of 29 (Pre-Split Audit & Cleanup)
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Executing
-Last activity: 2026-02-13 -- Completed 25-02 (gitignore hardening + secrets inventory audit)
+Last activity: 2026-02-13 -- Completed 25-01 (gitleaks secret scan + allowlist config)
 
 Progress: [████████████████████░░░░░░░░░░] 84/85 plans (82 prior + 2/3 Phase 25)
 
@@ -58,6 +58,9 @@ Progress: [████████████████████░░░
 
 All decisions logged in PROJECT.md Key Decisions table with outcomes.
 
+- [25-01] Used path-based gitleaks allowlists organized by category (8 entries) for auditability
+- [25-01] Included .next/ and .turbo/ allowlist entries for dir-mode scans despite being gitignored
+- [25-01] Used zricethezav/gitleaks module path (upstream module path changed)
 - [25-02] Added **/.env alongside bare .env for explicit auditability (both match at any depth in git)
 - [25-02] 10 secrets marked ROTATE after Phase 27; 2 marked SAFE (CLOUDFLARE_ACCOUNT_ID, GITHUB_TOKEN)
 - [25-02] Fresh snapshot approach for public repo means .planning/ exclusion requires no git filter
@@ -81,5 +84,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Completed 25-02-PLAN.md (gitignore hardening + secrets inventory audit)
+Stopped at: Completed 25-01-PLAN.md (gitleaks secret scan + allowlist config)
 Resume file: None
