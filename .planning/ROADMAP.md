@@ -97,7 +97,11 @@ Plans:
   3. `package.json` for the gateway app does not list `stripe` as a dependency (direct or peer)
   4. Dashboard billing UI components (pricing page, subscription management, usage meters) are extracted into a separate package that does not exist in the public codebase
   5. A boundary check script confirms no references to `stripe`, `STRIPE_SECRET_KEY`, or billing-specific imports exist outside the designated provider module and extracted dashboard package
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 26-01-PLAN.md -- Create BillingProvider interface, NoopBillingProvider, and billing middleware
+- [ ] 26-02-PLAN.md -- Extract StripeBillingProvider, remove stripe dependency, clean AppEnv
+- [ ] 26-03-PLAN.md -- Validate dashboard, create boundary check script, final validation
 
 ### Phase 27: Repository Split
 **Goal**: Two functional repositories exist -- `progradetech/feelr` (public, MIT) contains the complete open-source product, and `progradetech/feelr-cloud` (private) layers the billing overlay via git subtree
@@ -181,9 +185,9 @@ Plans:
 | 17-21 | v1.2 | 11/11 | Complete | 2026-02-11 |
 | 22-24 | v1.3 | 7/7 | Complete | 2026-02-12 |
 | 25 | v1.4 | 3/3 | Complete | 2026-02-13 |
-| 26 | v1.4 | 0/TBD | Not started | - |
+| 26 | v1.4 | 0/3 | Not started | - |
 | 27 | v1.4 | 0/TBD | Not started | - |
 | 28 | v1.4 | 0/TBD | Not started | - |
 | 29 | v1.4 | 0/TBD | Not started | - |
 
-**Total:** 29 phases, 82+ plans across 5 milestones.
+**Total:** 29 phases, 88+ plans across 5 milestones.
