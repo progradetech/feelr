@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 26 of 29 (Billing Interface Extraction)
-Plan: 1 of 3 -- COMPLETE
+Plan: 2 of 3 -- COMPLETE
 Status: Executing phase
-Last activity: 2026-02-13 -- Completed 26-01 (BillingProvider interface + billingMiddleware)
+Last activity: 2026-02-13 -- Completed 26-02 (StripeBillingProvider extraction + stripe dependency removal)
 
-Progress: [█████████████████████░░░░░░░░░] 86/88 plans (85 prior + 1/3 Phase 26)
+Progress: [█████████████████████░░░░░░░░░] 87/88 plans (85 prior + 2/3 Phase 26)
 
 ## Milestone History
 
@@ -69,6 +69,9 @@ All decisions logged in PROJECT.md Key Decisions table with outcomes.
 - [26-01] Used (c.env as any).BILLING_PROVIDER cast -- Plan 02 adds proper AppEnv typing
 - [26-01] Kept billing.enabled as first guard before provider for zero-cost self-hosted path
 - [26-01] plan-enforcer.ts preserved for Plan 02 extraction reference
+- [26-02] Used tsconfig exclude for billing/stripe/ so gateway typechecks without stripe npm package
+- [26-02] StripeBillingProvider takes secretKey in constructor for clean dependency injection
+- [26-02] Stripped createStripeClientFromEnv from meter.ts -- provider owns env-to-client mapping
 
 ### Pending Todos
 
@@ -89,5 +92,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Completed 26-01-PLAN.md (BillingProvider interface + billingMiddleware)
+Stopped at: Completed 26-02-PLAN.md (StripeBillingProvider extraction + stripe dependency removal)
 Resume file: None
