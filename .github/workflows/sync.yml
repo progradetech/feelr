@@ -1,0 +1,55 @@
+# Receive OSS updates from public repo via repository_dispatch (CICD-04)
+# Also supports manual trigger for recovery
+name: Sync OSS
+
+on:
+  repository_dispatch:
+    types: [oss-sync]
+  workflow_dispatch:
+
+concurrency:
+  group: oss-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Add OSS remote and pull subtree
+        run: |
+          git remote add oss https://github.com/progradetech/feelr.git
+          git fetch oss main
+          git subtree pull --prefix=oss oss main --squash \
+            -m "chore: sync OSS subtree to ${{ github.event.client_payload.sha || 'manual' }}"
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install and update lockfile
+        run: |
+          pnpm install
+          if ! git diff --quiet pnpm-lock.yaml 2>/dev/null; then
+            git add pnpm-lock.yaml
+            git commit --amend --no-edit
+          fi
+
+      - name: Build and test
+        run: pnpm turbo run typecheck test
+
+      - name: Push sync commit
+        run: git push origin main
