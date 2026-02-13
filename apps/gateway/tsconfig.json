@@ -10,5 +10,6 @@
       "@feelr/connector-discord": ["../../connectors/discord/src"]
     }
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/billing/stripe/**"]
 }
