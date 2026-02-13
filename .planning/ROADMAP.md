@@ -129,7 +129,11 @@ Plans:
   3. Cloud repo CI deploys gateway (staging + production), dashboard, and docs via existing workflows -- staging deploy succeeds from cloud repo
   4. GoReleaser builds the CLI binary from `oss/cli/` path in the cloud repo -- `goreleaser build --snapshot` succeeds
   5. Fine-grained PAT scoped to `feelr-cloud` with `contents:write` + `metadata:read` is stored as `CLOUD_REPO_PAT` in the public repo secrets
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 28-01-PLAN.md -- Public repo secret cleanup and cross-repo sync dispatch workflow
+- [ ] 28-02-PLAN.md -- Cloud repo sync, deploy, and release workflows
+- [ ] 28-03-PLAN.md -- PAT and secrets configuration with end-to-end verification
 
 ### Phase 29: Community Contribution Infrastructure
 **Goal**: An external contributor can discover available connector work, scaffold a new connector from a template, develop and test it locally, and submit a PR that is automatically validated for SDK compliance
@@ -191,7 +195,7 @@ Plans:
 | 25 | v1.4 | 3/3 | Complete | 2026-02-13 |
 | 26 | v1.4 | 3/3 | Complete | 2026-02-13 |
 | 27 | v1.4 | 3/3 | Complete | 2026-02-13 |
-| 28 | v1.4 | 0/TBD | Not started | - |
+| 28 | v1.4 | 0/3 | Not started | - |
 | 29 | v1.4 | 0/TBD | Not started | - |
 
 **Total:** 29 phases, 88+ plans across 5 milestones.
