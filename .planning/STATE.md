@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 28 of 29 (CI/CD Migration)
-Plan: 2 of 3
-Status: In Progress
-Last activity: 2026-02-13 -- Completed 28-02 (cloud repo CI/CD workflows)
+Plan: 3 of 3 (COMPLETE)
+Status: Phase 28 Complete
+Last activity: 2026-02-16 -- Completed 28-03 (secrets configuration and E2E verification)
 
-Progress: [█████████████████████████░░░░░] 93/94 plans (91 prior + 2/3 Phase 28)
+Progress: [██████████████████████████████] 94/94 plans (91 prior + 3/3 Phase 28)
 
 ## Milestone History
 
@@ -86,6 +86,9 @@ All decisions logged in PROJECT.md Key Decisions table with outcomes.
 - [28-02] Sync workflow uses pnpm install (not --frozen-lockfile) because subtree pulls may change OSS dependencies
 - [28-02] Lockfile changes folded into sync commit via git commit --amend to keep history clean
 - [28-02] Dashboard includes CF_ANALYTICS_TOKEN env vars; docs does not (pure content site)
+- [28-03] User skipped CF_ANALYTICS_TOKEN_STAGING and CF_ANALYTICS_TOKEN_PRODUCTION (not yet set up in Cloudflare Web Analytics) -- 7 secrets instead of 9
+- [28-03] Dashboard builds work without CF analytics tokens -- beacon simply will not render
+- [28-03] GoReleaser verified via API config inspection since goreleaser CLI not installed locally
 
 ### Pending Todos
 
@@ -105,6 +108,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-13
-Stopped at: Completed 28-02-PLAN.md (cloud repo CI/CD workflows -- 5 workflows pushed to cloud main)
+Last session: 2026-02-16
+Stopped at: Completed 28-03-PLAN.md (secrets configuration and E2E verification -- Phase 28 complete)
 Resume file: None
