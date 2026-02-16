@@ -67,7 +67,7 @@
 - [x] **Phase 25: Pre-Split Audit & Cleanup** - Verify the codebase is safe to make public — completed 2026-02-13
 - [x] **Phase 26: Billing Interface Extraction** - Decouple billing from gateway via provider pattern — completed 2026-02-13
 - [x] **Phase 27: Repository Split** - Create public and private repos with subtree integration — completed 2026-02-13
-- [ ] **Phase 28: CI/CD Migration** - Establish split CI pipelines and cross-repo sync automation
+- [x] **Phase 28: CI/CD Migration** - Establish split CI pipelines and cross-repo sync automation — completed 2026-02-16
 - [ ] **Phase 29: Community Contribution Infrastructure** - Enable self-service connector development by external contributors
 
 ## Phase Details
@@ -131,9 +131,9 @@ Plans:
   5. Fine-grained PAT scoped to `feelr-cloud` with `contents:write` + `metadata:read` is stored as `CLOUD_REPO_PAT` in the public repo secrets
 **Plans:** 3 plans
 Plans:
-- [ ] 28-01-PLAN.md -- Public repo secret cleanup and cross-repo sync dispatch workflow
-- [ ] 28-02-PLAN.md -- Cloud repo sync, deploy, and release workflows
-- [ ] 28-03-PLAN.md -- PAT and secrets configuration with end-to-end verification
+- [x] 28-01-PLAN.md -- Public repo secret cleanup and cross-repo sync dispatch workflow
+- [x] 28-02-PLAN.md -- Cloud repo sync, deploy, and release workflows
+- [x] 28-03-PLAN.md -- PAT and secrets configuration with end-to-end verification
 
 ### Phase 29: Community Contribution Infrastructure
 **Goal**: An external contributor can discover available connector work, scaffold a new connector from a template, develop and test it locally, and submit a PR that is automatically validated for SDK compliance
@@ -195,7 +195,7 @@ Plans:
 | 25 | v1.4 | 3/3 | Complete | 2026-02-13 |
 | 26 | v1.4 | 3/3 | Complete | 2026-02-13 |
 | 27 | v1.4 | 3/3 | Complete | 2026-02-13 |
-| 28 | v1.4 | 0/3 | Not started | - |
+| 28 | v1.4 | 3/3 | Complete | 2026-02-16 |
 | 29 | v1.4 | 0/TBD | Not started | - |
 
 **Total:** 29 phases, 88+ plans across 5 milestones.
