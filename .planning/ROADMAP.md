@@ -145,7 +145,12 @@ Plans:
   3. The public repo has issue templates (connector-request, bug-report, feature-request) and a PR template with SDK compliance checklist -- new issues use structured forms
   4. CONTRIBUTING.md contains a complete connector development guide covering all auth types (API key, OAuth2, token), testing patterns, and response normalization rules
   5. The Nextra docs site has a developer section with SDK reference, "Your First Connector" tutorial, and at least 3 pre-seeded "good first issue" connector requests for well-documented APIs
-**Plans**: TBD
+**Plans:** 4 plans
+Plans:
+- [ ] 29-01-PLAN.md -- GitHub issue templates and PR template
+- [ ] 29-02-PLAN.md -- Connector test utils package and scaffolding script
+- [ ] 29-03-PLAN.md -- CONTRIBUTING.md expansion and Nextra developer docs
+- [ ] 29-04-PLAN.md -- Connector validation CI job and pre-seeded issues
 
 ## Coverage
 
@@ -196,6 +201,6 @@ Plans:
 | 26 | v1.4 | 3/3 | Complete | 2026-02-13 |
 | 27 | v1.4 | 3/3 | Complete | 2026-02-13 |
 | 28 | v1.4 | 3/3 | Complete | 2026-02-16 |
-| 29 | v1.4 | 0/TBD | Not started | - |
+| 29 | v1.4 | 0/4 | Not started | - |
 
 **Total:** 29 phases, 88+ plans across 5 milestones.
