@@ -25,8 +25,8 @@
 **Plans**: 2 plans
 
 Plans:
-- [ ] 30-01-PLAN.md -- Remove deploy workflows from public repo and strip gateway-preview from ci.yml
-- [ ] 30-02-PLAN.md -- Generate root pnpm-lock.yaml and fix cloud repo sync workflow
+- [x] 30-01-PLAN.md -- Remove deploy workflows from public repo and strip gateway-preview from ci.yml
+- [x] 30-02-PLAN.md -- Generate root pnpm-lock.yaml and fix cloud repo sync workflow
 
 ### Phase 31: Cloud Deploy Workflows
 **Goal**: All three cloud services deploy successfully from cloud repo
@@ -67,6 +67,6 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 30. Pipeline Foundations | v1.5 | 0/2 | Not started | - |
+| 30. Pipeline Foundations | v1.5 | 2/2 | Complete | 2026-02-17 |
 | 31. Cloud Deploy Workflows | v1.5 | 0/3 | Not started | - |
 | 32. End-to-End Chain Verification | v1.5 | 0/3 | Not started | - |
