@@ -27,6 +27,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Validate wrangler binding isolation
+        run: node scripts/check-bindings.mjs
+
       - name: Cache Turborepo
         uses: actions/cache@v4
         with:
@@ -37,3 +40,24 @@ jobs:
 
       - name: Lint, typecheck, test (affected packages)
         run: pnpm turbo run lint typecheck test --affected
+
+  connector-validation:
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Validate connector SDK compliance
+        run: node scripts/validate-connectors.mjs --changed
