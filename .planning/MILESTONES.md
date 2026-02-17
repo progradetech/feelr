@@ -81,3 +81,23 @@
 
 ---
 
+
+## v1.4 Open Core (Shipped: 2026-02-17)
+
+**Phases:** 25-29 | **Plans:** 16 | **Tasks:** 36 | **Timeline:** 5 days (2026-02-13 to 2026-02-17)
+**Commits:** 43 | **Files modified:** 87 | **Lines changed:** +11,416 / -212 | **Total codebase:** ~21,844 LOC
+
+**Delivered:** Open-core restructuring — public MIT repo for community contributions, private cloud overlay for billing/hosting, dual CI/CD with cross-repo sync, and full community contribution infrastructure.
+
+**Key accomplishments:**
+- Security audit with zero findings across full git history (373 commits) — codebase verified safe for public release
+- Pluggable BillingProvider interface with StripeBillingProvider isolated to cloud overlay — gateway runs billing-free by default
+- Open-core repo split: public progradetech/feelr (310 files, MIT) + private progradetech/feelr-cloud with git subtree at oss/
+- Dual CI/CD pipelines with cross-repo dispatch — public merges auto-trigger cloud sync, build, test, and deploy
+- Community contribution framework: scaffolding CLI, @feelr/connector-test-utils, validation CI, comprehensive developer docs
+- Pre-seeded 3 good-first-issue connector requests (Todoist, OpenWeatherMap, Linear) for community onboarding
+
+**Archive:** [v1.4-ROADMAP.md](milestones/v1.4-ROADMAP.md) | [v1.4-REQUIREMENTS.md](milestones/v1.4-REQUIREMENTS.md)
+
+---
+

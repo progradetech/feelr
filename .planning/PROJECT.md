@@ -8,22 +8,11 @@ Feelr is an agent-friendly API simplification layer — a hosted service + Go CL
 
 An AI agent can call any supported external API in one line with near-zero context overhead — no schema parsing, no auth gymnastics, no pagination wrangling.
 
-## Current Milestone: v1.4 Open Core
-
-**Goal:** Restructure into open-core model — public repo for community contributions, private cloud overlay for billing/hosting
-
-**Target features:**
-- Extract billing/Stripe code from public repo into private cloud overlay
-- Make progradetech/feelr public as the open-source product
-- Create progradetech/feelr-cloud as private overlay repo using git subtree
-- Auto-sync CI pipeline — cloud repo rebuilds when public repo merges
-- Community connector contribution workflow (templates, guidelines, PR automation)
-
 ## Current State
 
-**Version:** v1.3.0 Staging & Branding (shipped 2026-02-12)
-**Codebase:** ~21,442 LOC (15,421 TypeScript + 6,021 Go) across 470+ files
-**Tech stack:** Cloudflare Workers + Hono (gateway), Go + Cobra (CLI), Next.js 15.5 (dashboard), Stripe (billing), workerd (self-hosting)
+**Version:** v1.4.0 Open Core (shipped 2026-02-17)
+**Codebase:** ~21,844 LOC (15,823 TypeScript + 6,021 Go) across 500+ files
+**Tech stack:** Cloudflare Workers + Hono (gateway), Go + Cobra (CLI), Next.js 15.5 (dashboard), Stripe (billing, cloud-only), workerd (self-hosting)
 
 **Live services:**
 - **api.feelr.dev** — Edge gateway on Cloudflare Workers (staging + production with isolated KV/D1/DO)
@@ -32,16 +21,20 @@ An AI agent can call any supported external API in one line with near-zero conte
 - **staging-api.feelr.dev** — Staging gateway with CF Access protection
 - **staging-app.feelr.dev** — Staging dashboard on separate Azure SWA instance
 - **staging-docs.feelr.dev** — Staging docs on separate Azure SWA instance
-- **CI/CD** — 3 independent GitHub Actions workflows (gateway.yml, dashboard.yml, docs.yml)
+- **CI/CD** — Public repo: 3 workflows (lint, test, sync dispatch). Cloud repo: 5 workflows (sync, gateway, dashboard, docs, release)
 
-**Shipped capabilities (v1.0 + v1.1 + v1.2 + v1.3):**
+**Repositories:**
+- **progradetech/feelr** — Public, MIT. Gateway, connectors, CLI, self-host, docs. Community contributions welcome.
+- **progradetech/feelr-cloud** — Private. Cloud overlay with StripeBillingProvider, deployment configs. OSS embedded at oss/ via git subtree.
+
+**Shipped capabilities (v1.0 through v1.4):**
 - Edge gateway with 4 connectors (GitHub 10 actions, Slack 6, Stripe 8, Discord 7)
 - Encrypted auth vault with Durable Objects token coordinator
 - Go CLI with progressive discovery, 3 output modes, shell completion, composable chains
 - Web dashboard for API keys, connector status, usage analytics
 - Composable actions engine with 6 pre-built chains
 - Self-hosting via Docker Compose with full feature parity (minus billing)
-- Stripe billing, Nextra docs site, GoReleaser distribution
+- Stripe billing (cloud-only via pluggable BillingProvider interface), Nextra docs site, GoReleaser distribution
 - DNS on Cloudflare, multi-environment Workers (staging/production), Azure SWA
 - CI/CD with PR quality gates, staging preview deploys, production gradual rollout
 - Deployment runbook, scripts, secrets inventory, binding isolation checks
@@ -53,6 +46,11 @@ An AI agent can call any supported external API in one line with near-zero conte
 - Staging custom domains for all three services with CF Access protection
 - Feelr branding: favicons, apple-touch-icon, web manifests, adaptive SVG favicon
 - Logo integration in dashboard sidebar, docs navbar, and landing page hero
+- Open-core architecture: public OSS + private cloud overlay with git subtree
+- Pluggable billing: BillingProvider interface, NoopBillingProvider (default), StripeBillingProvider (cloud)
+- Cross-repo CI/CD: public merges auto-sync to cloud repo via repository_dispatch
+- Community contribution infrastructure: scaffolding CLI, SDK test utils, validation CI, developer docs
+- Pre-seeded good-first-issue connector requests (Todoist, OpenWeatherMap, Linear)
 
 ## Requirements
 
@@ -105,14 +103,15 @@ An AI agent can call any supported external API in one line with near-zero conte
 - ✓ Logo in docs navbar (replacing bold text) — v1.3
 - ✓ Logo on landing page hero section — v1.3
 - ✓ Environment-aware metadataBase (staging vs production URL) — v1.3
+- ✓ Open-core repo split: public repo (gateway, connectors, CLI, self-host, docs) + private cloud overlay — v1.4
+- ✓ Billing/Stripe code extraction from public repo into feelr-cloud — v1.4
+- ✓ Git subtree integration for cloud repo consuming public repo — v1.4
+- ✓ Auto-sync CI: public repo merges trigger cloud repo rebuild — v1.4
+- ✓ Community contribution setup: connector templates, PR guidelines, contribution docs — v1.4
 
 ### Active
 
-- [ ] Open-core repo split: public repo (gateway, connectors, CLI, self-host, docs) + private cloud overlay
-- [ ] Billing/Stripe code extraction from public repo into feelr-cloud
-- [ ] Git subtree integration for cloud repo consuming public repo
-- [ ] Auto-sync CI: public repo merges trigger cloud repo rebuild
-- [ ] Community contribution setup: connector templates, PR guidelines, contribution docs
+(None — next milestone not yet planned)
 
 ### Out of Scope
 
@@ -143,8 +142,10 @@ An AI agent can call any supported external API in one line with near-zero conte
 - v1.1 shipped in 2 days (13 plans) — all services now live and deployed with CI/CD
 - v1.2 shipped in 2 days (11 plans) — marketing, onboarding, and demo experience complete
 - v1.3 shipped in 2 days (7 plans) — staging domains and full branding integration
+- v1.4 shipped in 5 days (16 plans) — open-core restructuring, dual CI/CD, community infrastructure
 - Deferred operational improvements: Turborepo remote cache, env drift detection, SWA preview environments, automated D1 migration verification
 - Deferred: CF token fix verification (token updated but no deploy triggered yet to confirm)
+- Deferred: CF_ANALYTICS_TOKEN_STAGING and CF_ANALYTICS_TOKEN_PRODUCTION not yet configured in Cloudflare Web Analytics
 
 ## Constraints
 
@@ -192,8 +193,13 @@ An AI agent can call any supported external API in one line with near-zero conte
 | Logomark alongside text in sidebar | Standard dashboard pattern for brand recognition at small sizes | ✓ Good — visually balanced, recognizable |
 | Inline styles in docs navbar for Nextra compatibility | Nextra CSS pipeline doesn't reliably process Tailwind utilities | ✓ Good — works reliably without build-time CSS issues |
 
-| Open-core overlay model (git subtree) | Public repo is the product, private repo is thin cloud overlay combined via git subtree | — Pending |
+| Open-core overlay model (git subtree) | Public repo is the product, private repo is thin cloud overlay combined via git subtree | ✓ Good — clean separation, independent builds verified |
 | Publish release assets to homebrew-feelr | Private repo can't serve public downloads; tap repo hosts binaries | ✓ Good — resolved v1.3.1→v1.3.2 |
+| Fresh snapshot for public repo (no git history) | Prevents secret leakage from historical commits | ✓ Good — zero secrets risk, clean public history |
+| Provider registry pattern for billing | BillingProvider interface with NoopBillingProvider default | ✓ Good — gateway runs billing-free, cloud overlay registers Stripe |
+| Cross-repo dispatch via PAT | Public repo sends repository_dispatch to cloud repo on merge | ✓ Good — automated sync chain works end-to-end |
+| tsconfig exclude for billing/stripe/ | Public repo typechecks without stripe package installed | ✓ Good — cloud tsconfig includes all sources |
+| Connector SDK contract tests | @feelr/connector-test-utils validates all exports and params | ✓ Good — scaffolded connectors get tests immediately |
 
 ---
-*Last updated: 2026-02-12 after v1.4 milestone start*
+*Last updated: 2026-02-17 after v1.4 milestone*

@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-13)
+See: .planning/PROJECT.md (updated 2026-02-17)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** v1.4 Open Core -- Phase 29 complete (Community Contribution Infrastructure)
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 29 of 29 (Community Contribution Infrastructure)
-Plan: 4 of 4
-Status: Complete
-Last activity: 2026-02-17 -- Completed 29-04 (connector validation CI and community issues)
+Phase: 29 of 29 (all milestones complete)
+Plan: N/A
+Status: Milestone v1.4 shipped
+Last activity: 2026-02-17 -- Completed v1.4 Open Core milestone
 
-Progress: [██████████████████████████████] 98/98 plans (94 prior + 4/4 Phase 29)
+Progress: [██████████████████████████████] 98/98 plans across 5 milestones
 
 ## Milestone History
 
@@ -24,7 +24,7 @@ Progress: [███████████████████████
 | v1.1 Deployment & CI/CD | 11-16 | 13 | 2026-02-10 |
 | v1.2 Marketing & Onboarding | 17-21 | 11 | 2026-02-11 |
 | v1.3 Staging & Branding | 22-24 | 7 | 2026-02-12 |
-| v1.4 Open Core | 25-29 | TBD | -- |
+| v1.4 Open Core | 25-29 | 16 | 2026-02-17 |
 
 ## Performance Metrics
 
@@ -52,54 +52,19 @@ Progress: [███████████████████████
 - Files modified: 54
 - Timeline: 2 days (2026-02-11 to 2026-02-12)
 
+**v1.4 Velocity:**
+- Total plans completed: 16
+- Tasks: 36
+- Commits: 43
+- Files modified: 87
+- Lines changed: +11,416 / -212
+- Timeline: 5 days (2026-02-13 to 2026-02-17)
+
 ## Accumulated Context
 
 ### Decisions
 
 All decisions logged in PROJECT.md Key Decisions table with outcomes.
-
-- [25-01] Used path-based gitleaks allowlists organized by category (8 entries) for auditability
-- [25-01] Included .next/ and .turbo/ allowlist entries for dir-mode scans despite being gitignored
-- [25-01] Used zricethezav/gitleaks module path (upstream module path changed)
-- [25-02] Added **/.env alongside bare .env for explicit auditability (both match at any depth in git)
-- [25-02] 10 secrets marked ROTATE after Phase 27; 2 marked SAFE (CLOUDFLARE_ACCOUNT_ID, GITHUB_TOKEN)
-- [25-02] Fresh snapshot approach for public repo means .planning/ exclusion requires no git filter
-- [25-03] No .gitleaks.toml changes needed -- Plan 01 allowlist was comprehensive for zero findings
-- [25-03] Git history scan also clean (373 commits) confirming allowlist covers all false positives
-- [26-01] Used (c.env as any).BILLING_PROVIDER cast -- Plan 02 adds proper AppEnv typing
-- [26-01] Kept billing.enabled as first guard before provider for zero-cost self-hosted path
-- [26-01] plan-enforcer.ts preserved for Plan 02 extraction reference
-- [26-02] Used tsconfig exclude for billing/stripe/ so gateway typechecks without stripe npm package
-- [26-02] StripeBillingProvider takes secretKey in constructor for clean dependency injection
-- [26-02] Stripped createStripeClientFromEnv from meter.ts -- provider owns env-to-client mapping
-- [26-03] Refined dashboard boundary check to exclude Stripe connector references (product feature vs billing infrastructure)
-- [26-03] Phase 26 fully validated: 5 boundary checks pass, BILL-05 confirmed, all success criteria met
-- [27-01] Excluded pnpm-lock.yaml from snapshot so public repo generates its own lockfile on first install
-- [27-01] Combined staging/production env check into single conditional for cleaner graceful skip logic
-- [27-02] Force-pushed clean snapshot over existing private repo then changed visibility to public
-- [27-02] Used --accept-visibility-change-consequences flag for private-to-public visibility change
-- [27-03] Cloud tsconfig includes all OSS gateway source (no billing/stripe/ exclude) since cloud overlay needs those types
-- [27-03] Cloud gateway package has deploy scripts only (no typecheck/test) since wrangler bundles at deploy time
-- [28-01] No local commits for Task 1 -- secret/environment deletion is GitHub API only
-- [28-01] sync.yml uses CLOUD_REPO_PAT (not GITHUB_TOKEN) since cross-repo dispatch requires a PAT
-- [28-01] Workflow will silently fail until CLOUD_REPO_PAT secret is created in Plan 03
-- [28-02] Sync workflow uses pnpm install (not --frozen-lockfile) because subtree pulls may change OSS dependencies
-- [28-02] Lockfile changes folded into sync commit via git commit --amend to keep history clean
-- [28-02] Dashboard includes CF_ANALYTICS_TOKEN env vars; docs does not (pure content site)
-- [28-03] User skipped CF_ANALYTICS_TOKEN_STAGING and CF_ANALYTICS_TOKEN_PRODUCTION (not yet set up in Cloudflare Web Analytics) -- 7 secrets instead of 9
-- [28-03] Dashboard builds work without CF analytics tokens -- beacon simply will not render
-- [28-03] GoReleaser verified via API config inspection since goreleaser CLI not installed locally
-- [29-01] Used only standard/safe labels (bug, enhancement, connector-request) -- no good-first-issue until Plan 04 pre-seeds
-- [29-01] Kept PR template concise (5 SDK checkboxes) to avoid discouraging contributors
-- [29-01] Linked Discussions in config.yml contact_links for general questions
-- [29-02] Added validateConnector call to template test file so scaffolded connectors get SDK contract tests immediately
-- [29-02] Contract tests validate name, display_name, version, auth_type, actions structure, and all param definitions
-- [29-03] Used actual FeelrError constructor signature (code + FeelrErrorOptions) in all documentation examples
-- [29-03] Todoist chosen as tutorial connector example (api_key auth, simple REST API, relatable use case)
-- [29-03] SDK Reference documents all exported types including ErrorCode, Hint, FeelrErrorOptions -- not just the 5 core interfaces
-- [29-04] Added contract test files for slack/stripe/discord connectors so validation check #5 passes for all existing connectors
-- [29-04] Validation runs on all PRs with --changed flag; early-exits when no connectors modified
-- [29-04] Used gh CLI to create good-first-issue connector requests directly on progradetech/feelr public repo
 
 ### Pending Todos
 
@@ -113,12 +78,12 @@ None.
 
 ### Blockers/Concerns
 
-- v1.4 phases are strictly sequential -- no parallelization possible
-- Public repo uses fresh snapshot (no git history) to prevent secret leakage
 - Squash merge must be disabled on cloud repo (breaks git subtree markers)
+- CF_ANALYTICS_TOKEN_STAGING and CF_ANALYTICS_TOKEN_PRODUCTION not yet configured
+- CF token fix verification still pending
 
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 29-04-PLAN.md (connector validation CI and community issues)
+Stopped at: Completed v1.4 milestone archival
 Resume file: None
