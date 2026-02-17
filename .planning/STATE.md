@@ -12,9 +12,9 @@ See: .planning/PROJECT.md (updated 2026-02-17)
 Phase: 31 of 32 (Cloud Deploy Workflows)
 Plan: 2 of 3 in current phase
 Status: Executing
-Last activity: 2026-02-17 -- Completed 31-02 (dashboard deploy workflow)
+Last activity: 2026-02-17 -- Completed 31-01 (gateway deploy workflow)
 
-Progress: [####......] 38%
+Progress: [#####.....] 50%
 
 ## Milestone History
 
@@ -29,11 +29,12 @@ Progress: [####......] 38%
 ## Performance Metrics
 
 **v1.5 Velocity:**
-- Total plans completed: 3
+- Total plans completed: 4
 - Total plans: 8
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
+| 31 | 01 | 6min | 2 | 3 |
 | 31 | 02 | 2min | 2 | 1 |
 | 30 | 02 | 2min | 2 | 2 |
 | 30 | 01 | 3min | 2 | 1 |
@@ -44,6 +45,8 @@ Progress: [####......] 38%
 
 ### Decisions
 
+- [31-01] Used wrangler [alias] to resolve stripe from cloud/gateway/node_modules instead of adding stripe to OSS package
+- [31-01] Pinned stripe to ^20.3.1 instead of "latest" for lockfile determinism
 - [31-02] No workflow modifications needed -- dashboard.yml already correctly structured
 - [31-02] Root turbo.json aligned with oss/turbo.json patterns for out/** and env vars
 - [30-02] Separate lockfile commit instead of amending subtree merge to preserve git subtree markers
@@ -65,5 +68,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 31-02-PLAN.md
+Stopped at: Completed 31-01-PLAN.md
 Resume file: None
