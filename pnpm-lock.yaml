@@ -175,6 +175,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/connector-sdk
     devDependencies:
+      '@feelr/connector-test-utils':
+        specifier: workspace:*
+        version: link:../../packages/connector-test-utils
       '@feelr/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
@@ -207,6 +210,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/connector-sdk
     devDependencies:
+      '@feelr/connector-test-utils':
+        specifier: workspace:*
+        version: link:../../packages/connector-test-utils
       '@feelr/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
@@ -223,6 +229,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/connector-sdk
     devDependencies:
+      '@feelr/connector-test-utils':
+        specifier: workspace:*
+        version: link:../../packages/connector-test-utils
       '@feelr/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
