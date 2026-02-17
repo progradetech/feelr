@@ -6,7 +6,7 @@
 - ✅ **v1.1 Deployment & CI/CD** — Phases 11-16 (shipped 2026-02-10) | [Archive](milestones/v1.1-ROADMAP.md)
 - ✅ **v1.2 Marketing & Onboarding** — Phases 17-21 (shipped 2026-02-11) | [Archive](milestones/v1.2-ROADMAP.md)
 - ✅ **v1.3 Staging & Branding** — Phases 22-24 (shipped 2026-02-12) | [Archive](milestones/v1.3-ROADMAP.md)
-- 🚧 **v1.4 Open Core** — Phases 25-29 (in progress)
+- ✅ **v1.4 Open Core** — Phases 25-29 (shipped 2026-02-17)
 
 ## Phases
 
@@ -58,7 +58,7 @@
 
 </details>
 
-### 🚧 v1.4 Open Core (In Progress)
+### ✅ v1.4 Open Core (SHIPPED 2026-02-17)
 
 **Milestone Goal:** Restructure Feelr into an open-core model with a public MIT-licensed repo for community contributions and a private cloud overlay repo for billing and hosted deployment.
 
@@ -68,7 +68,7 @@
 - [x] **Phase 26: Billing Interface Extraction** - Decouple billing from gateway via provider pattern — completed 2026-02-13
 - [x] **Phase 27: Repository Split** - Create public and private repos with subtree integration — completed 2026-02-13
 - [x] **Phase 28: CI/CD Migration** - Establish split CI pipelines and cross-repo sync automation — completed 2026-02-16
-- [ ] **Phase 29: Community Contribution Infrastructure** - Enable self-service connector development by external contributors
+- [x] **Phase 29: Community Contribution Infrastructure** - Enable self-service connector development by external contributors — completed 2026-02-17
 
 ## Phase Details
 
@@ -147,10 +147,10 @@ Plans:
   5. The Nextra docs site has a developer section with SDK reference, "Your First Connector" tutorial, and at least 3 pre-seeded "good first issue" connector requests for well-documented APIs
 **Plans:** 4 plans
 Plans:
-- [ ] 29-01-PLAN.md -- GitHub issue templates and PR template
-- [ ] 29-02-PLAN.md -- Connector test utils package and scaffolding script
-- [ ] 29-03-PLAN.md -- CONTRIBUTING.md expansion and Nextra developer docs
-- [ ] 29-04-PLAN.md -- Connector validation CI job and pre-seeded issues
+- [x] 29-01-PLAN.md -- GitHub issue templates and PR template
+- [x] 29-02-PLAN.md -- Connector test utils package and scaffolding script
+- [x] 29-03-PLAN.md -- CONTRIBUTING.md expansion and Nextra developer docs
+- [x] 29-04-PLAN.md -- Connector validation CI job and pre-seeded issues
 
 ## Coverage
 
@@ -201,6 +201,6 @@ Plans:
 | 26 | v1.4 | 3/3 | Complete | 2026-02-13 |
 | 27 | v1.4 | 3/3 | Complete | 2026-02-13 |
 | 28 | v1.4 | 3/3 | Complete | 2026-02-16 |
-| 29 | v1.4 | 0/4 | Not started | - |
+| 29 | v1.4 | 4/4 | Complete | 2026-02-17 |
 
-**Total:** 29 phases, 88+ plans across 5 milestones.
+**Total:** 29 phases, 98 plans across 5 milestones.
