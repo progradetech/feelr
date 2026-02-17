@@ -15,7 +15,7 @@ importers:
   cloud/gateway:
     dependencies:
       stripe:
-        specifier: latest
+        specifier: ^20.3.1
         version: 20.3.1(@types/node@22.19.11)
 
   oss/apps/dashboard:

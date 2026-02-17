@@ -7,6 +7,6 @@
     "deploy:production": "npx wrangler deploy -c wrangler.cloud.toml --env production"
   },
   "dependencies": {
-    "stripe": "latest"
+    "stripe": "^20.3.1"
   }
 }
