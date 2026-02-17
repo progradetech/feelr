@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** v1.4 Open Core -- Phase 29 in progress (Community Contribution Infrastructure)
+**Current focus:** v1.4 Open Core -- Phase 29 complete (Community Contribution Infrastructure)
 
 ## Current Position
 
 Phase: 29 of 29 (Community Contribution Infrastructure)
-Plan: 3 of 4
-Status: In Progress
-Last activity: 2026-02-17 -- Completed 29-03 (developer documentation and CONTRIBUTING.md)
+Plan: 4 of 4
+Status: Complete
+Last activity: 2026-02-17 -- Completed 29-04 (connector validation CI and community issues)
 
-Progress: [██████████████████████████████] 97/98 plans (94 prior + 3/4 Phase 29)
+Progress: [██████████████████████████████] 98/98 plans (94 prior + 4/4 Phase 29)
 
 ## Milestone History
 
@@ -97,6 +97,9 @@ All decisions logged in PROJECT.md Key Decisions table with outcomes.
 - [29-03] Used actual FeelrError constructor signature (code + FeelrErrorOptions) in all documentation examples
 - [29-03] Todoist chosen as tutorial connector example (api_key auth, simple REST API, relatable use case)
 - [29-03] SDK Reference documents all exported types including ErrorCode, Hint, FeelrErrorOptions -- not just the 5 core interfaces
+- [29-04] Added contract test files for slack/stripe/discord connectors so validation check #5 passes for all existing connectors
+- [29-04] Validation runs on all PRs with --changed flag; early-exits when no connectors modified
+- [29-04] Used gh CLI to create good-first-issue connector requests directly on progradetech/feelr public repo
 
 ### Pending Todos
 
@@ -117,5 +120,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 29-03-PLAN.md (developer documentation and CONTRIBUTING.md)
+Stopped at: Completed 29-04-PLAN.md (connector validation CI and community issues)
 Resume file: None
