@@ -17,6 +17,13 @@ compatibility_date = "2026-02-05"
 # keep_vars preserves dashboard-configured vars on deploy
 keep_vars = true
 
+# Alias stripe to the local node_modules path so esbuild can resolve it
+# when bundling imports from oss/apps/gateway/src/billing/stripe/ files.
+# pnpm strict mode prevents resolution from the OSS workspace; this alias
+# tells wrangler's esbuild to use cloud/gateway's copy.
+[alias]
+"stripe" = "./node_modules/stripe/esm/stripe.esm.worker.js"
+
 # DO migrations are top-level -- inherited by all environments
 [[migrations]]
 tag = "v1"
