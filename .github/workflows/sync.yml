@@ -1,5 +1,3 @@
-# Receive OSS updates from public repo via repository_dispatch (CICD-04)
-# Also supports manual trigger for recovery
 name: Sync OSS
 
 on:
@@ -40,16 +38,18 @@ jobs:
           node-version: 20
           cache: ""
 
-      - name: Install and update lockfile
+      - name: Install dependencies and update lockfile
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Commit lockfile changes if any
         run: |
-          pnpm install
           if ! git diff --quiet pnpm-lock.yaml 2>/dev/null; then
             git add pnpm-lock.yaml
-            git commit --amend --no-edit
+            git commit -m "chore: update pnpm-lock.yaml after OSS sync"
           fi
 
       - name: Build and test
         run: pnpm turbo run typecheck test
 
-      - name: Push sync commit
+      - name: Push sync commit(s)
         run: git push origin main
