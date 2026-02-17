@@ -22,11 +22,11 @@
   2. Pushing to public repo main does NOT trigger any deploy jobs
   3. Running cloud repo sync workflow completes without pnpm-lock.yaml errors
   4. Cloud repo oss/ directory stays in sync with public repo content after sync
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 30-01: Remove deploy workflows from public repo and verify CI-only
-- [ ] 30-02: Fix cloud repo sync workflow pnpm-lock.yaml resolution
+- [ ] 30-01-PLAN.md -- Remove deploy workflows from public repo and strip gateway-preview from ci.yml
+- [ ] 30-02-PLAN.md -- Generate root pnpm-lock.yaml and fix cloud repo sync workflow
 
 ### Phase 31: Cloud Deploy Workflows
 **Goal**: All three cloud services deploy successfully from cloud repo
