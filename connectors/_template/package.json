@@ -12,6 +12,7 @@
     "@feelr/connector-sdk": "workspace:*"
   },
   "devDependencies": {
+    "@feelr/connector-test-utils": "workspace:*",
     "@feelr/tsconfig": "workspace:*",
     "typescript": "^5.7.0",
     "vitest": "^3.2.0"
