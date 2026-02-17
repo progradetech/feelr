@@ -24,7 +24,7 @@ Requirements for CI/CD Stabilization milestone. Each maps to roadmap phases.
 
 ## Future Requirements
 
-None — this is a stabilization milestone.
+None -- this is a stabilization milestone.
 
 ## Out of Scope
 
@@ -42,21 +42,21 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PIPE-01 | — | Pending |
-| PIPE-02 | — | Pending |
-| PIPE-03 | — | Pending |
-| PIPE-04 | — | Pending |
-| PIPE-05 | — | Pending |
-| CHAIN-01 | — | Pending |
-| CHAIN-02 | — | Pending |
-| CHAIN-03 | — | Pending |
-| CHAIN-04 | — | Pending |
+| PIPE-01 | Phase 30 | Pending |
+| PIPE-02 | Phase 30 | Pending |
+| PIPE-03 | Phase 31 | Pending |
+| PIPE-04 | Phase 31 | Pending |
+| PIPE-05 | Phase 31 | Pending |
+| CHAIN-01 | Phase 32 | Pending |
+| CHAIN-02 | Phase 32 | Pending |
+| CHAIN-03 | Phase 32 | Pending |
+| CHAIN-04 | Phase 32 | Pending |
 
 **Coverage:**
 - v1.5 requirements: 9 total
-- Mapped to phases: 0
-- Unmapped: 9 (pending roadmap)
+- Mapped to phases: 9
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-17*
-*Last updated: 2026-02-17 after initial definition*
+*Last updated: 2026-02-17 after roadmap creation*
