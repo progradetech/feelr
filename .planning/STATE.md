@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-17)
 ## Current Position
 
 Phase: 30 of 32 (Pipeline Foundations)
-Plan: 1 of 2 in current phase
-Status: Executing
-Last activity: 2026-02-17 -- Completed 30-02 (Lockfile & Sync Fix)
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-02-17 -- Completed 30-01 (Strip Deploy Workflows)
 
-Progress: [#.........] 12%
+Progress: [##........] 25%
 
 ## Milestone History
 
@@ -29,12 +29,13 @@ Progress: [#.........] 12%
 ## Performance Metrics
 
 **v1.5 Velocity:**
-- Total plans completed: 1
+- Total plans completed: 2
 - Total plans: 8
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
 | 30 | 02 | 2min | 2 | 2 |
+| 30 | 01 | 3min | 2 | 1 |
 
 *Updated after each plan completion*
 
@@ -44,6 +45,8 @@ Progress: [#.........] 12%
 
 - [30-02] Separate lockfile commit instead of amending subtree merge to preserve git subtree markers
 - [30-02] Removed pnpm cache from sync workflow setup-node since lockfile changes during sync
+- [30-01] Used git clone+push instead of gh API for public repo file deletions (OAuth token scope limitation)
+- [30-01] Synced oss/ subtree ci.yml to match public repo (added connector-validation job and binding check)
 
 ### Pending Todos
 
@@ -59,5 +62,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 30-02-PLAN.md
+Stopped at: Completed 30-01-PLAN.md (Phase 30 complete: both plans done)
 Resume file: None
