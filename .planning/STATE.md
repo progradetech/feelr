@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** An AI agent can call any supported external API in one line with near-zero context overhead
-**Current focus:** v1.4 Open Core -- Phase 28 in progress (CI/CD migration)
+**Current focus:** v1.4 Open Core -- Phase 29 in progress (Community Contribution Infrastructure)
 
 ## Current Position
 
-Phase: 28 of 29 (CI/CD Migration)
-Plan: 3 of 3 (COMPLETE)
-Status: Phase 28 Complete
-Last activity: 2026-02-16 -- Completed 28-03 (secrets configuration and E2E verification)
+Phase: 29 of 29 (Community Contribution Infrastructure)
+Plan: 1 of 4
+Status: In Progress
+Last activity: 2026-02-17 -- Completed 29-01 (GitHub issue/PR templates)
 
-Progress: [██████████████████████████████] 94/94 plans (91 prior + 3/3 Phase 28)
+Progress: [██████████████████████████████] 95/98 plans (94 prior + 1/4 Phase 29)
 
 ## Milestone History
 
@@ -89,6 +89,9 @@ All decisions logged in PROJECT.md Key Decisions table with outcomes.
 - [28-03] User skipped CF_ANALYTICS_TOKEN_STAGING and CF_ANALYTICS_TOKEN_PRODUCTION (not yet set up in Cloudflare Web Analytics) -- 7 secrets instead of 9
 - [28-03] Dashboard builds work without CF analytics tokens -- beacon simply will not render
 - [28-03] GoReleaser verified via API config inspection since goreleaser CLI not installed locally
+- [29-01] Used only standard/safe labels (bug, enhancement, connector-request) -- no good-first-issue until Plan 04 pre-seeds
+- [29-01] Kept PR template concise (5 SDK checkboxes) to avoid discouraging contributors
+- [29-01] Linked Discussions in config.yml contact_links for general questions
 
 ### Pending Todos
 
@@ -108,6 +111,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-16
-Stopped at: Completed 28-03-PLAN.md (secrets configuration and E2E verification -- Phase 28 complete)
+Last session: 2026-02-17
+Stopped at: Completed 29-01-PLAN.md (GitHub issue/PR templates)
 Resume file: None
