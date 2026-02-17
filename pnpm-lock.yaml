@@ -243,6 +243,22 @@ importers:
         specifier: ^5.7.0
         version: 5.9.3
 
+  packages/connector-test-utils:
+    dependencies:
+      '@feelr/connector-sdk':
+        specifier: workspace:*
+        version: link:../connector-sdk
+    devDependencies:
+      '@feelr/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+      vitest:
+        specifier: ~3.2.0
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.9)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.2)
+
   packages/tsconfig: {}
 
 packages:
