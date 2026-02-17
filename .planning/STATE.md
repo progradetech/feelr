@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-17)
 ## Current Position
 
 Phase: 31 of 32 (Cloud Deploy Workflows)
-Plan: 2 of 3 in current phase
-Status: Executing
-Last activity: 2026-02-17 -- Completed 31-01 (gateway deploy workflow)
+Plan: 3 of 3 in current phase
+Status: Phase Complete
+Last activity: 2026-02-17 -- Completed 31-03 (docs deploy workflow)
 
-Progress: [#####.....] 50%
+Progress: [######....] 63%
 
 ## Milestone History
 
@@ -29,11 +29,12 @@ Progress: [#####.....] 50%
 ## Performance Metrics
 
 **v1.5 Velocity:**
-- Total plans completed: 4
+- Total plans completed: 5
 - Total plans: 8
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
+| 31 | 03 | 2min | 1 | 0 |
 | 31 | 01 | 6min | 2 | 3 |
 | 31 | 02 | 2min | 2 | 1 |
 | 30 | 02 | 2min | 2 | 2 |
@@ -47,6 +48,8 @@ Progress: [#####.....] 50%
 
 - [31-01] Used wrangler [alias] to resolve stripe from cloud/gateway/node_modules instead of adding stripe to OSS package
 - [31-01] Pinned stripe to ^20.3.1 instead of "latest" for lockfile determinism
+- [31-03] No workflow modifications needed -- docs.yml was already correctly configured
+- [31-03] Docs build verified end-to-end with turbo producing static export in oss/apps/docs/out/
 - [31-02] No workflow modifications needed -- dashboard.yml already correctly structured
 - [31-02] Root turbo.json aligned with oss/turbo.json patterns for out/** and env vars
 - [30-02] Separate lockfile commit instead of amending subtree merge to preserve git subtree markers
@@ -68,5 +71,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 31-01-PLAN.md
+Stopped at: Completed 31-03-PLAN.md (phase 31 complete)
 Resume file: None
