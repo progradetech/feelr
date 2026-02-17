@@ -37,12 +37,12 @@ Plans:
   2. Cloud repo dashboard deploy workflow builds and deploys to Azure SWA without errors
   3. Cloud repo docs deploy workflow builds and deploys to Azure SWA without errors
   4. All deploy workflows use secrets that exist only on the cloud repo (no public repo secret dependencies)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 31-01: Fix gateway deploy workflow (pnpm/wrangler build chain)
-- [ ] 31-02: Fix dashboard deploy workflow (SWA token and build)
-- [ ] 31-03: Fix docs deploy workflow (SWA token and build)
+- [ ] 31-01-PLAN.md -- Pin stripe dependency and validate gateway wrangler build chain
+- [ ] 31-02-PLAN.md -- Fix root turbo.json and verify dashboard SWA deploy workflow
+- [ ] 31-03-PLAN.md -- Verify docs SWA deploy workflow
 
 ### Phase 32: End-to-End Chain Verification
 **Goal**: The full public-merge-to-production-deploy chain works and both repos show green
