@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 29 of 29 (Community Contribution Infrastructure)
-Plan: 2 of 4
+Plan: 3 of 4
 Status: In Progress
-Last activity: 2026-02-17 -- Completed 29-02 (connector test utils and scaffolding)
+Last activity: 2026-02-17 -- Completed 29-03 (developer documentation and CONTRIBUTING.md)
 
-Progress: [██████████████████████████████] 96/98 plans (94 prior + 2/4 Phase 29)
+Progress: [██████████████████████████████] 97/98 plans (94 prior + 3/4 Phase 29)
 
 ## Milestone History
 
@@ -94,6 +94,9 @@ All decisions logged in PROJECT.md Key Decisions table with outcomes.
 - [29-01] Linked Discussions in config.yml contact_links for general questions
 - [29-02] Added validateConnector call to template test file so scaffolded connectors get SDK contract tests immediately
 - [29-02] Contract tests validate name, display_name, version, auth_type, actions structure, and all param definitions
+- [29-03] Used actual FeelrError constructor signature (code + FeelrErrorOptions) in all documentation examples
+- [29-03] Todoist chosen as tutorial connector example (api_key auth, simple REST API, relatable use case)
+- [29-03] SDK Reference documents all exported types including ErrorCode, Hint, FeelrErrorOptions -- not just the 5 core interfaces
 
 ### Pending Todos
 
@@ -114,5 +117,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 29-02-PLAN.md (connector test utils and scaffolding)
+Stopped at: Completed 29-03-PLAN.md (developer documentation and CONTRIBUTING.md)
 Resume file: None
