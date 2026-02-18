@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-17)
 ## Current Position
 
 Phase: 32 of 32 (End-to-End Chain Verification)
-Plan: 2 of 3 in current phase
-Status: Executing
-Last activity: 2026-02-18 -- Plan 32-02 complete (tag deploy chain verified, production smoke tests added)
+Plan: 3 of 3 in current phase
+Status: Complete
+Last activity: 2026-02-18 -- Plan 32-03 complete (stale workflow runs cleaned, green boards verified)
 
-Progress: [########..] 80%
+Progress: [##########] 100%
 
 ## Milestone History
 
@@ -25,15 +25,17 @@ Progress: [########..] 80%
 | v1.2 Marketing & Onboarding | 17-21 | 11 | 2026-02-11 |
 | v1.3 Staging & Branding | 22-24 | 7 | 2026-02-12 |
 | v1.4 Open Core | 25-29 | 16 | 2026-02-17 |
+| v1.5 CI/CD Stabilization | 30-32 | 8 | 2026-02-18 |
 
 ## Performance Metrics
 
 **v1.5 Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Total plans: 8
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
+| 32 | 03 | 2min | 2 | 0 |
 | 32 | 02 | 2min | 2 | 2 |
 | 32 | 01 | 2min | 2 | 1 |
 | 31 | 03 | 2min | 1 | 0 |
@@ -48,6 +50,7 @@ Progress: [########..] 80%
 
 ### Decisions
 
+- [32-03] Deleted all runs (failed + successful) from deleted workflows on public repo, not just failed ones
 - [32-02] Used same jtalk/url-health-check-action@v4 pattern for production smoke tests as staging (5 attempts/10s delay)
 - [32-02] release.yml does not need environment protection or smoke test (GoReleaser is build-and-release, not deploy)
 - [32-01] Reused peter-evans/repository-dispatch@v4 action (same as original deleted workflow)
@@ -77,5 +80,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 32-02-PLAN.md
+Stopped at: Completed 32-03-PLAN.md (Phase 32 complete, v1.5 milestone complete)
 Resume file: None
