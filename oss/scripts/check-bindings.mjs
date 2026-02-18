@@ -15,8 +15,8 @@
  *   node scripts/check-bindings.mjs
  *
  * Exit codes:
- *   0 - All bindings are properly isolated, or no environment sections found (graceful skip)
- *   1 - Shared resource IDs detected between environments
+ *   0 - All bindings are properly isolated between environments
+ *   1 - Shared resource IDs detected, or missing environment configuration
  */
 
 import { readFileSync } from "node:fs";
@@ -79,13 +79,15 @@ function formatIds(envConfig) {
   return parts.join(", ");
 }
 
-// Validate environment sections exist -- gracefully skip if missing
-// (public repo wrangler.toml has no staging/production env sections)
-if (!config.env?.staging || !config.env?.production) {
-  console.log(
-    "INFO: No staging/production environment sections found -- skipping binding isolation check"
-  );
-  process.exit(0);
+// Validate environment sections exist
+if (!config.env?.staging) {
+  console.error("ERROR: Missing [env.staging] section in wrangler.toml");
+  process.exit(1);
+}
+
+if (!config.env?.production) {
+  console.error("ERROR: Missing [env.production] section in wrangler.toml");
+  process.exit(1);
 }
 
 const stagingIds = extractIds(config.env.staging);

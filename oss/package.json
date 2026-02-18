@@ -9,7 +9,8 @@
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
     "deploy": "turbo run deploy",
-    "generate-icons": "npx tsx scripts/generate-icons.ts"
+    "generate-icons": "npx tsx scripts/generate-icons.ts",
+    "create-connector": "node scripts/create-connector.mjs"
   },
   "devDependencies": {
     "sharp": "^0.34.5",

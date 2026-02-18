@@ -1,0 +1,205 @@
+# Feelr
+
+## What This Is
+
+Feelr is an agent-friendly API simplification layer — a hosted service + Go CLI + web dashboard that sits between complex real-world APIs and AI agents. It transforms bloated, poorly-documented APIs into minimal, predictable, CLI-native endpoints that agents can call with ~50 tokens of context instead of thousands. Open-source (MIT) and self-hostable via Docker Compose, with a managed cloud option at api.feelr.dev.
+
+## Core Value
+
+An AI agent can call any supported external API in one line with near-zero context overhead — no schema parsing, no auth gymnastics, no pagination wrangling.
+
+## Current State
+
+**Version:** v1.4.0 Open Core (shipped 2026-02-17)
+**Codebase:** ~21,844 LOC (15,823 TypeScript + 6,021 Go) across 500+ files
+**Tech stack:** Cloudflare Workers + Hono (gateway), Go + Cobra (CLI), Next.js 15.5 (dashboard), Stripe (billing, cloud-only), workerd (self-hosting)
+
+**Live services:**
+- **api.feelr.dev** — Edge gateway on Cloudflare Workers (staging + production with isolated KV/D1/DO)
+- **app.feelr.dev** — Dashboard on Azure Static Web Apps
+- **feelr.dev** — Docs/marketing on Azure Static Web Apps
+- **staging-api.feelr.dev** — Staging gateway with CF Access protection
+- **staging-app.feelr.dev** — Staging dashboard on separate Azure SWA instance
+- **staging-docs.feelr.dev** — Staging docs on separate Azure SWA instance
+- **CI/CD** — Public repo: 3 workflows (lint, test, sync dispatch). Cloud repo: 5 workflows (sync, gateway, dashboard, docs, release)
+
+**Repositories:**
+- **progradetech/feelr** — Public, MIT. Gateway, connectors, CLI, self-host, docs. Community contributions welcome.
+- **progradetech/feelr-cloud** — Private. Cloud overlay with StripeBillingProvider, deployment configs. OSS embedded at oss/ via git subtree.
+
+**Shipped capabilities (v1.0 through v1.4):**
+- Edge gateway with 4 connectors (GitHub 10 actions, Slack 6, Stripe 8, Discord 7)
+- Encrypted auth vault with Durable Objects token coordinator
+- Go CLI with progressive discovery, 3 output modes, shell completion, composable chains
+- Web dashboard for API keys, connector status, usage analytics
+- Composable actions engine with 6 pre-built chains
+- Self-hosting via Docker Compose with full feature parity (minus billing)
+- Stripe billing (cloud-only via pluggable BillingProvider interface), Nextra docs site, GoReleaser distribution
+- DNS on Cloudflare, multi-environment Workers (staging/production), Azure SWA
+- CI/CD with PR quality gates, staging preview deploys, production gradual rollout
+- Deployment runbook, scripts, secrets inventory, binding isolation checks
+- Landing page with brand typography, connector feature cards, SEO metadata
+- Interactive terminal demo with animated walkthrough and dashboard transition
+- Demo dashboard mode with mock data, AuthGuard bypass, and demo banner
+- Homebrew tap at progradetech/homebrew-feelr
+- Cloudflare Web Analytics on all pages
+- Staging custom domains for all three services with CF Access protection
+- Feelr branding: favicons, apple-touch-icon, web manifests, adaptive SVG favicon
+- Logo integration in dashboard sidebar, docs navbar, and landing page hero
+- Open-core architecture: public OSS + private cloud overlay with git subtree
+- Pluggable billing: BillingProvider interface, NoopBillingProvider (default), StripeBillingProvider (cloud)
+- Cross-repo CI/CD: public merges auto-sync to cloud repo via repository_dispatch
+- Community contribution infrastructure: scaffolding CLI, SDK test utils, validation CI, developer docs
+- Pre-seeded good-first-issue connector requests (Todoist, OpenWeatherMap, Linear)
+
+## Requirements
+
+### Validated
+
+- ✓ Edge gateway on Cloudflare Workers + Hono that routes requests to connectors — v1.0
+- ✓ Connector SDK/template for building typed, self-contained API connectors in TypeScript — v1.0
+- ✓ Response flattening layer that normalizes any API response into flat, consistent JSON — v1.0
+- ✓ Standardized error format across all connectors — v1.0
+- ✓ GitHub connector (issues, PRs, repos — 10 actions) — v1.0
+- ✓ Slack connector (send message, list channels, search — 6 actions) — v1.0
+- ✓ Stripe connector (payments, customers, invoices — 8 actions) — v1.0
+- ✓ Discord connector (messages, channels, roles, moderation — 7 actions) — v1.0
+- ✓ Full auth system: API key generation, encrypted vault, OAuth flows, token refresh — v1.0
+- ✓ `feelr auth` one-time setup per connector — v1.0
+- ✓ Go CLI binary: `feelr run`, `feelr tools`, `feelr auth`, `feelr status`, `feelr chain` — v1.0
+- ✓ Auto-discovery via `feelr tools` with ~100 token agent-optimized descriptions — v1.0
+- ✓ Agent-friendly output modes (JSON, table, minimal) — v1.0
+- ✓ Next.js dashboard at feelr.dev: API key management, connected services, usage stats — v1.0
+- ✓ Stripe billing integration (toggleable — enabled for hosted cloud, disabled for self-hosted) — v1.0
+- ✓ Rate limiting and usage metering — v1.0
+- ✓ Composable actions: pre-built chains + user-defined custom chains with data passing and conditional logic — v1.0
+- ✓ Documentation site at feelr.dev/docs — v1.0
+- ✓ Self-hosting via Docker Compose with feature parity — v1.0
+- ✓ CLI distribution via GoReleaser + Homebrew — v1.0
+- ✓ Open-source packaging (MIT license, CONTRIBUTING.md, connector template) — v1.0
+- ✓ Cloudflare DNS as sole authority for feelr.dev — v1.1
+- ✓ Multi-environment Workers deployment (staging/production) with isolated bindings — v1.1
+- ✓ Custom domain api.feelr.dev with SSL on Cloudflare Workers — v1.1
+- ✓ Dashboard deployed to Azure SWA at app.feelr.dev with managed SSL — v1.1
+- ✓ Docs/marketing deployed to Azure SWA at feelr.dev with managed SSL — v1.1
+- ✓ CI/CD: PR quality gates, staging deploy on merge, production deploy on tag — v1.1
+- ✓ 3 independent CI/CD workflows with path-based triggers — v1.1
+- ✓ Production gradual rollout (10% → 100%) for gateway — v1.1
+- ✓ Deployment runbook, scripts, secrets inventory — v1.1
+- ✓ CI binding isolation checks (staging/production resource separation) — v1.1
+- ✓ Homebrew tap moved to progradetech/homebrew-feelr with correct brew install command — v1.2
+- ✓ Landing page on app.feelr.dev with hero, install commands, connector cards, and brand typography — v1.2
+- ✓ Interactive terminal demo with animated typing walkthrough and dashboard transition — v1.2
+- ✓ Demo dashboard mode with mock data across 5 domains, AuthGuard bypass, and demo banner — v1.2
+- ✓ Cloudflare Web Analytics integrated across all pages — v1.2
+- ✓ Staging custom domain for gateway (staging-api.feelr.dev) — v1.3
+- ✓ Staging custom domain for dashboard (staging-app.feelr.dev) — v1.3
+- ✓ Staging custom domain for docs (staging-docs.feelr.dev) — v1.3
+- ✓ CI/CD workflow updates for staging custom domains — v1.3
+- ✓ Favicons on dashboard and docs (using logomark SVG) — v1.3
+- ✓ Apple-touch-icon on both apps — v1.3
+- ✓ Web manifest with app name, theme color, and icon sizes — v1.3
+- ✓ Logo in dashboard sidebar (alongside text) — v1.3
+- ✓ Logo in docs navbar (replacing bold text) — v1.3
+- ✓ Logo on landing page hero section — v1.3
+- ✓ Environment-aware metadataBase (staging vs production URL) — v1.3
+- ✓ Open-core repo split: public repo (gateway, connectors, CLI, self-host, docs) + private cloud overlay — v1.4
+- ✓ Billing/Stripe code extraction from public repo into feelr-cloud — v1.4
+- ✓ Git subtree integration for cloud repo consuming public repo — v1.4
+- ✓ Auto-sync CI: public repo merges trigger cloud repo rebuild — v1.4
+- ✓ Community contribution setup: connector templates, PR guidelines, contribution docs — v1.4
+
+### Active
+
+(None — next milestone not yet planned)
+
+### Out of Scope
+
+- Python/Node SDKs — CLI + HTTP is sufficient, SDKs deferred to post-launch based on demand
+- Mobile app or mobile-specific UI — web dashboard + CLI covers all use cases
+- Notion connector — deferred to post-launch
+- Vercel connector — deferred to post-launch
+- Real-time streaming/websocket responses — flat JSON responses only, use polling for long-running ops
+- MCP-compatible mode — potential future feature, thin bridge adapter deferred to v2
+- Team key sharing with scoped permissions — deferred to v2 (multi-tenant complexity)
+- Visual chain builder / drag-and-drop UI — target audience is developers, not visual builders
+- Kubernetes / container orchestration — massive overhead for 3 services
+- Infrastructure as Code (Terraform/Pulumi) — state management burden exceeds benefit
+- Automated canary analysis — requires SRE-level metrics infrastructure
+- PWA offline support — web manifest is for branding only, not full PWA
+- Dynamic OG images — static metadata sufficient
+- Custom 404/error pages with branding — defer to future polish milestone
+
+## Context
+
+- The agentic coding explosion (Claude Code, Codex CLI, Gemini CLI, Aider, Cline) means every developer running agents needs external API access
+- MCP is powerful but heavy — server process management, JSON-RPC overhead, 2-5K tokens of tool schemas per server
+- Feelr targets the "missing middle" between raw API calls (too complex) and MCP (too heavy)
+- Primary audience: solo developers with agents, agent framework builders, AI-powered automation builders
+- Brand: lobster/antennae metaphor — "feelers" that sense API capabilities. Lobster Red (#E85D3A), Antenna Purple (#8B5CF6)
+- Deployment model: fully open-source and self-hostable (minus billing), plus managed cloud at api.feelr.dev with billing enabled
+- v1.0 shipped in 5 days (154 min execution time across 51 plans)
+- v1.1 shipped in 2 days (13 plans) — all services now live and deployed with CI/CD
+- v1.2 shipped in 2 days (11 plans) — marketing, onboarding, and demo experience complete
+- v1.3 shipped in 2 days (7 plans) — staging domains and full branding integration
+- v1.4 shipped in 5 days (16 plans) — open-core restructuring, dual CI/CD, community infrastructure
+- Deferred operational improvements: Turborepo remote cache, env drift detection, SWA preview environments, automated D1 migration verification
+- Deferred: CF token fix verification (token updated but no deploy triggered yet to confirm)
+- Deferred: CF_ANALYTICS_TOKEN_STAGING and CF_ANALYTICS_TOKEN_PRODUCTION not yet configured in Cloudflare Web Analytics
+
+## Constraints
+
+- **Tech stack (backend)**: Cloudflare Workers + Hono — zero cold starts, global edge, low cost
+- **Tech stack (connectors)**: TypeScript — type-safe, self-contained modules using Web Standard APIs only
+- **Tech stack (CLI)**: Go + Cobra — single binary, no runtime deps, fast shell-out for agents
+- **Tech stack (dashboard)**: Next.js 15.5 on Azure Static Web Apps (static export)
+- **Tech stack (billing)**: Stripe Billing with metered subscriptions
+- **Tech stack (self-hosting)**: workerd + s6-overlay + SQLite in Docker
+- **Infrastructure**: Cloudflare Workers Paid ($5/mo), Azure SWA Standard (2x production + 2x staging), GitHub Actions CI/CD
+- **Open-source**: Full stack is open-source (MIT); billing is a toggleable feature for cloud-hosted only
+
+## Key Decisions
+
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| Go for CLI (not Rust/Node) | Fast to write, single binary, great CLI ecosystem (Cobra), no runtime deps | ✓ Good — 6,021 LOC Go, clean Cobra structure, 84 chain tests |
+| Discord over Notion/Vercel for initial connectors | User preference — covers notification + community management use cases | ✓ Good — 7 Discord actions, rounds out connector coverage |
+| Open-source with hosted cloud model | Drives adoption via self-hosting, monetize via managed service | ✓ Good — MIT license, Docker Compose self-hosting works |
+| Full composable actions in v1 | User-defined + pre-built chains with data passing and conditional logic | ✓ Good — 6 pre-built chains, YAML/JSON custom chains, dry-run mode |
+| Billing as toggleable feature | Keeps open-source clean, only enabled for hosted cloud | ✓ Good — single config flag disables billing for self-hosted |
+| Connector SDK uses Web Standard APIs only | Portability between Cloudflare Workers and workerd self-hosting | ✓ Good — runtime abstraction layer works cleanly |
+| Hub-and-spoke architecture (connectors as in-process modules) | Simpler than microservices, single deployment unit | ✓ Good — all 4 connectors register in gateway, shared auth |
+| Durable Objects for token coordinator | Prevents OAuth refresh race conditions at the edge | ✓ Good — single-writer pattern, alarm-based proactive refresh |
+| HKDF for key derivation (not PBKDF2) | Master secret is already high-entropy Worker Secret | ✓ Good — simpler, purpose-based domain separation via info param |
+| workerd for self-hosting runtime | Same V8 isolate model as Cloudflare Workers | ⚠️ Acceptable — npm install pattern works, some complexity in config |
+| Azure Static Web Apps for dashboard + docs | Static exports, managed SSL, lower cost than App Service containers | ✓ Good — both deployed with custom domains and managed SSL |
+| Cloudflare DNS as sole authority | Required for Workers Custom Domains; single source of truth | ✓ Good — zone active, all records managed in Cloudflare |
+| GitHub Actions for CI/CD | Tags → production, main → staging, path-filtered triggers | ✓ Good — 3 independent workflows, concurrency controls, approval gates |
+| Pre-build strategy for SWA | Skip Oryx builder, use pnpm/turbo in CI for control | ✓ Good — faster builds, consistent with local dev |
+| Gradual rollout for production gateway | 10% canary → smoke test → 100% via wrangler versions | ✓ Good — safety net for production deploys; DO migrations bypass |
+| DNS-only (gray cloud) for Azure CNAME records | Cloudflare proxy breaks Azure SWA SSL verification | ✓ Good — permanent setting, managed SSL renewal works |
+| Consolidated gateway.yml workflow | Single file with conditional staging/production jobs | ✓ Good — cleaner than separate deploy-staging + deploy-production files |
+| Embedded terminal demo (not real sandboxed terminal) | Controlled experience, zero backend infra, purely frontend with animated typing | ✓ Good — CSS animations + state machine, completes in ~20s |
+| Mocked API responses for demo | Predictable, no token management, works offline, zero maintenance | ✓ Good — 5 fixture domains, cross-domain consistency |
+| Demo mode in actual dashboard (not separate page) | User sees exactly what they'd get, reuses existing UI components | ✓ Good — SWR null-key interception, seamless transition |
+| Move Homebrew tap to progradetech org | Matches public org, cleaner brew install command | ✓ Good — deprecation formula in old tap, clean migration |
+| staging-* prefix for staging domains | Consistent naming, all under feelr.dev, obvious which environment | ✓ Good — staging-api/app/docs.feelr.dev all working |
+| Separate Azure SWA instances for staging | Azure does NOT support custom domains on staging environments | ✓ Good — full isolation, separate deploy tokens |
+| CF Access email OTP for staging protection | Prevents public access to staging without complex auth | ✓ Good — /health bypassed for CI smoke tests |
+| sharp + sharp-ico for icon generation | SVG-to-ICO/PNG build script, only 32+16 in favicon.ico (1KB) | ✓ Good — dev dependency only, automated pipeline |
+| NEXT_PUBLIC_SITE_URL for env-aware metadataBase | Avoids hardcoded production URLs, works for staging and local dev | ✓ Good — CI injects per-environment, localhost fallback for dev |
+| Separate viewport export for themeColor | metadata.themeColor deprecated since Next.js 14 | ✓ Good — follows Next.js 15 API correctly |
+| dynamic = 'force-static' on manifest.ts | Required for output: 'export' compatibility in Next.js | ✓ Good — auto-detected and fixed during implementation |
+| Logomark alongside text in sidebar | Standard dashboard pattern for brand recognition at small sizes | ✓ Good — visually balanced, recognizable |
+| Inline styles in docs navbar for Nextra compatibility | Nextra CSS pipeline doesn't reliably process Tailwind utilities | ✓ Good — works reliably without build-time CSS issues |
+
+| Open-core overlay model (git subtree) | Public repo is the product, private repo is thin cloud overlay combined via git subtree | ✓ Good — clean separation, independent builds verified |
+| Publish release assets to homebrew-feelr | Private repo can't serve public downloads; tap repo hosts binaries | ✓ Good — resolved v1.3.1→v1.3.2 |
+| Fresh snapshot for public repo (no git history) | Prevents secret leakage from historical commits | ✓ Good — zero secrets risk, clean public history |
+| Provider registry pattern for billing | BillingProvider interface with NoopBillingProvider default | ✓ Good — gateway runs billing-free, cloud overlay registers Stripe |
+| Cross-repo dispatch via PAT | Public repo sends repository_dispatch to cloud repo on merge | ✓ Good — automated sync chain works end-to-end |
+| tsconfig exclude for billing/stripe/ | Public repo typechecks without stripe package installed | ✓ Good — cloud tsconfig includes all sources |
+| Connector SDK contract tests | @feelr/connector-test-utils validates all exports and params | ✓ Good — scaffolded connectors get tests immediately |
+
+---
+*Last updated: 2026-02-17 after v1.4 milestone*

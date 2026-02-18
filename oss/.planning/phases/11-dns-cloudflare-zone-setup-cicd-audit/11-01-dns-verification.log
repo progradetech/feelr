@@ -1,0 +1,45 @@
+# DNS Verification Log for feelr.dev
+# Date: 2026-02-09T22:59Z
+# Method: DNS-over-HTTPS (dig unavailable in WSL environment)
+
+## NS Query via Cloudflare DNS (1.1.1.1)
+# curl "https://cloudflare-dns.com/dns-query?name=feelr.dev&type=NS"
+Status: NOERROR (0)
+Answer:
+  - braden.ns.cloudflare.com. (TTL: 86400)
+  - ruth.ns.cloudflare.com. (TTL: 86400)
+Result: PASS - Cloudflare nameservers confirmed
+
+## NS Query via Google DNS (8.8.8.8)
+# curl "https://dns.google/resolve?name=feelr.dev&type=NS"
+Status: NOERROR (0)
+Answer:
+  - ruth.ns.cloudflare.com. (TTL: 21600)
+  - braden.ns.cloudflare.com. (TTL: 21600)
+Response from: 108.162.195.169
+Result: PASS - Same Cloudflare nameservers from Google resolver
+
+## SOA Query via Cloudflare DNS
+# curl "https://cloudflare-dns.com/dns-query?name=feelr.dev&type=SOA"
+Status: NOERROR (0)
+Answer:
+  - braden.ns.cloudflare.com. dns.cloudflare.com. 2396163594 10000 2400 604800 1800
+Result: PASS - SOA record from Cloudflare
+
+## DNSSEC Check
+# curl "https://cloudflare-dns.com/dns-query?name=feelr.dev&type=A&do=1"
+Status: NOERROR (0)
+AD flag: false (DNSSEC not active - expected)
+Result: PASS - No DNSSEC issues, no SERVFAIL
+
+## A Record Check (zone resolving)
+# curl "https://cloudflare-dns.com/dns-query?name=feelr.dev&type=A"
+Status: NOERROR (0)
+Answer:
+  - 104.21.59.106 (TTL: 300)
+  - 172.67.223.12 (TTL: 300)
+Result: PASS - Zone resolving through Cloudflare proxy IPs
+
+## Summary
+All 5 checks PASSED. feelr.dev DNS authority is fully delegated to Cloudflare.
+Nameservers: braden.ns.cloudflare.com, ruth.ns.cloudflare.com

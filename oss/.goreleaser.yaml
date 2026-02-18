@@ -48,7 +48,7 @@ brews:
 release:
   github:
     owner: progradetech
-    name: feelr
+    name: homebrew-feelr
 
 changelog:
   sort: asc
