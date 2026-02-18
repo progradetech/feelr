@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-17)
 ## Current Position
 
 Phase: 32 of 32 (End-to-End Chain Verification)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: Executing
-Last activity: 2026-02-18 -- Plan 32-01 complete (dispatch workflow + chain verified)
+Last activity: 2026-02-18 -- Plan 32-02 complete (tag deploy chain verified, production smoke tests added)
 
 Progress: [########..] 80%
 
@@ -29,11 +29,12 @@ Progress: [########..] 80%
 ## Performance Metrics
 
 **v1.5 Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Total plans: 8
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
+| 32 | 02 | 2min | 2 | 2 |
 | 32 | 01 | 2min | 2 | 1 |
 | 31 | 03 | 2min | 1 | 0 |
 | 31 | 01 | 6min | 2 | 3 |
@@ -47,6 +48,8 @@ Progress: [########..] 80%
 
 ### Decisions
 
+- [32-02] Used same jtalk/url-health-check-action@v4 pattern for production smoke tests as staging (5 attempts/10s delay)
+- [32-02] release.yml does not need environment protection or smoke test (GoReleaser is build-and-release, not deploy)
 - [32-01] Reused peter-evans/repository-dispatch@v4 action (same as original deleted workflow)
 - [32-01] Used SSH git clone/push pattern for public repo changes (same as 30-01, avoids OAuth scope issues)
 - [31-01] Used wrangler [alias] to resolve stripe from cloud/gateway/node_modules instead of adding stripe to OSS package
@@ -74,5 +77,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 32-01-PLAN.md
+Stopped at: Completed 32-02-PLAN.md
 Resume file: None
