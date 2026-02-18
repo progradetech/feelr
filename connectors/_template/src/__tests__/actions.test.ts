@@ -14,10 +14,21 @@
 
 import { describe, it, expect } from 'vitest'
 import type { ActionContext } from '@feelr/connector-sdk'
+import { validateConnector } from '@feelr/connector-test-utils'
 
+import { templateConnector } from '../index'
 import { itemsList } from '../actions/items'
 import { itemGet } from '../actions/item-get'
 import { itemCreate } from '../actions/item-create'
+
+/**
+ * SDK Contract Tests
+ *
+ * Auto-generated tests that validate the connector definition
+ * against Feelr SDK interface rules. These run first to catch
+ * structural issues before action-specific tests.
+ */
+validateConnector(templateConnector)
 
 /**
  * Helper: create a mock ActionContext.

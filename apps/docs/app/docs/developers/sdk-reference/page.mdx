@@ -1,0 +1,345 @@
+# SDK Reference
+
+Complete type reference for the `@feelr/connector-sdk` package. Every connector imports from this package to define its structure, actions, and error handling.
+
+## Quick Import
+
+```typescript
+import type {
+  ConnectorDefinition,
+  ActionDefinition,
+  ActionContext,
+  ActionResult,
+  ParamDefinition,
+} from '@feelr/connector-sdk'
+
+import { FeelrError } from '@feelr/connector-sdk'
+import type { ErrorCode, Hint, FeelrErrorOptions } from '@feelr/connector-sdk'
+```
+
+---
+
+## ConnectorDefinition
+
+The top-level interface that every connector exports. Defines the connector's identity, authentication method, and available actions.
+
+```typescript
+interface ConnectorDefinition {
+  name: string
+  display_name: string
+  version: string
+  auth_type: 'oauth2' | 'api_key' | 'bearer_token' | 'none'
+  actions: Record<string, ActionDefinition>
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | `string` | Lowercase identifier used in URLs: `/v1/{name}/{action}`. Must match `^[a-z][a-z0-9-]*$`. Examples: `"github"`, `"slack"`, `"stripe"`. |
+| `display_name` | `string` | Human-readable name shown in dashboards and documentation. Examples: `"GitHub"`, `"Slack"`, `"Stripe"`. |
+| `version` | `string` | Connector version following semver. Examples: `"1.0.0"`, `"0.1.0"`. |
+| `auth_type` | `'oauth2' \| 'api_key' \| 'bearer_token' \| 'none'` | Authentication mechanism the connector uses. Determines how the gateway provisions and delivers credentials. |
+| `actions` | `Record<string, ActionDefinition>` | Map of action name to action definition. Keys use dot notation (e.g., `"issues.list"`). |
+
+### Example
+
+```typescript
+import type { ConnectorDefinition } from '@feelr/connector-sdk'
+import { tasksList } from './actions/tasks-list'
+import { tasksCreate } from './actions/tasks-create'
+
+export const todoistConnector: ConnectorDefinition = {
+  name: 'todoist',
+  display_name: 'Todoist',
+  version: '1.0.0',
+  auth_type: 'api_key',
+  actions: {
+    'tasks.list': tasksList,
+    'tasks.create': tasksCreate,
+  },
+}
+```
+
+---
+
+## ActionDefinition
+
+Defines a single action within a connector. Each action maps to one API operation (e.g., list issues, create a task, get a user).
+
+```typescript
+interface ActionDefinition {
+  name: string
+  description: string
+  params: ParamDefinition[]
+  returns: 'list' | 'single'
+  handler: (ctx: ActionContext) => Promise<ActionResult>
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | `string` | Action name using `resource.verb` dot notation. Examples: `"issues.list"`, `"repos.get"`, `"tasks.create"`. |
+| `description` | `string` | Agent-optimized description, 50-100 tokens. Explains what the action does, what params it accepts, and what it returns. Agents read this to decide which action to call. |
+| `params` | `ParamDefinition[]` | Array of parameter definitions. Order does not matter. Empty array `[]` for actions with no parameters. |
+| `returns` | `'list' \| 'single'` | Whether the action returns a list (array) or a single item (object). Determines the shape of `ActionResult.data`. |
+| `handler` | `(ctx: ActionContext) => Promise<ActionResult>` | Async function that executes the action. Receives a context with validated params, fetch function, and credential. Must return an `ActionResult`. |
+
+### Example
+
+```typescript
+import type { ActionDefinition, ActionContext, ActionResult } from '@feelr/connector-sdk'
+
+export const tasksList: ActionDefinition = {
+  name: 'tasks.list',
+  description: 'Lists tasks with optional filtering by project. Accepts project_id and per_page params. Returns array of { id, content, is_completed, created_at } objects.',
+  params: [
+    { name: 'project_id', type: 'string', required: false, description: 'Filter by project ID' },
+    { name: 'per_page', type: 'number', required: false, description: 'Results per page (max 100)', default: 20 },
+  ],
+  returns: 'list',
+  handler: async (ctx: ActionContext): Promise<ActionResult> => {
+    // Implementation here
+  },
+}
+```
+
+---
+
+## ActionContext
+
+Context object passed to every action handler. Contains validated parameters, a Web Standard fetch function, the user's credential, and an optional pagination cursor.
+
+```typescript
+interface ActionContext {
+  params: Record<string, unknown>
+  fetch: typeof globalThis.fetch
+  credential?: string
+  cursor?: string
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `params` | `Record<string, unknown>` | Validated parameters from the API request. Keys match the `name` field of each `ParamDefinition`. Values are already cast to the correct type (string, number, or boolean). |
+| `fetch` | `typeof globalThis.fetch` | Web Standard `fetch` function. Use this instead of importing fetch -- it enables the gateway to instrument requests (timing, retries, circuit breaking). |
+| `credential` | `string \| undefined` | The user's decrypted upstream API credential. For `api_key` connectors, this is the API key. For `oauth2` and `bearer_token` connectors, this is the access token. For `none` connectors, this is `undefined`. |
+| `cursor` | `string \| undefined` | Pagination cursor from the `?cursor=` system parameter. Use this to fetch the next page of results from cursor-based APIs. `undefined` on the first request. |
+
+### Usage Notes
+
+- **Always use `ctx.fetch`** instead of bare `fetch`. The gateway wraps this to add timing, retry logic, and circuit breaking.
+- **`ctx.credential` may be `undefined`** for `auth_type: 'none'` connectors. Always check or use the non-null assertion (`ctx.credential!`) only when you know the connector requires auth.
+- **`ctx.cursor` is for cursor-based pagination only.** For offset-based APIs, use a regular `page` parameter instead.
+
+---
+
+## ActionResult
+
+The return type for all action handlers. Contains the normalized response data, optional pagination metadata, and the raw upstream response.
+
+```typescript
+interface ActionResult {
+  data: Record<string, unknown>[] | Record<string, unknown>
+  meta?: {
+    cursor?: string
+    has_more?: boolean
+    total_count?: number
+  }
+  raw?: unknown
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data` | `Record<string, unknown>[] \| Record<string, unknown>` | The normalized response data. Must be an **array** for `returns: 'list'` actions, or a **single object** for `returns: 'single'` actions. Use flat `snake_case` keys. |
+| `meta` | `object \| undefined` | Optional pagination and metadata. Include for list actions. |
+| `meta.cursor` | `string \| undefined` | Pagination cursor for the next page. Callers pass this back via `?cursor=` to fetch subsequent pages. |
+| `meta.has_more` | `boolean \| undefined` | Whether more pages exist after this one. |
+| `meta.total_count` | `number \| undefined` | Total number of items across all pages, if the upstream API provides it. |
+| `raw` | `unknown \| undefined` | The original upstream API response. Exposed to callers via the `?raw=true` query parameter for debugging. Always include this. |
+
+### List Response Example
+
+```typescript
+return {
+  data: [
+    { id: '1', content: 'Buy groceries', is_completed: false, created_at: '2024-01-15' },
+    { id: '2', content: 'Write docs', is_completed: true, created_at: '2024-01-16' },
+  ],
+  meta: {
+    has_more: true,
+    cursor: 'eyJpZCI6Mn0=',
+    total_count: 42,
+  },
+  raw: upstreamResponse,
+}
+```
+
+### Single Response Example
+
+```typescript
+return {
+  data: { id: '1', content: 'Buy groceries', is_completed: false, created_at: '2024-01-15' },
+  raw: upstreamResponse,
+}
+```
+
+---
+
+## ParamDefinition
+
+Defines a single parameter for an action. Parameters are validated by the gateway before reaching the handler.
+
+```typescript
+interface ParamDefinition {
+  name: string
+  type: 'string' | 'number' | 'boolean'
+  required: boolean
+  description: string
+  default?: string | number | boolean
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | `string` | Parameter name in `snake_case`. Examples: `"repo_owner"`, `"per_page"`, `"include_archived"`. |
+| `type` | `'string' \| 'number' \| 'boolean'` | Parameter type. The gateway validates and casts the incoming value to this type. |
+| `required` | `boolean` | Whether the parameter must be provided. If `true` and the caller omits it, the gateway returns a `VALIDATION_ERROR`. |
+| `description` | `string` | Short description for agent consumption. Keep it concise -- agents read this to understand what to pass. |
+| `default` | `string \| number \| boolean \| undefined` | Default value applied when the parameter is not provided. Only meaningful for optional parameters (`required: false`). |
+
+### Example
+
+```typescript
+params: [
+  { name: 'owner', type: 'string', required: true, description: 'Repository owner (user or org)' },
+  { name: 'state', type: 'string', required: false, description: 'Filter: open, closed, all', default: 'open' },
+  { name: 'per_page', type: 'number', required: false, description: 'Results per page (max 100)', default: 20 },
+  { name: 'include_archived', type: 'boolean', required: false, description: 'Include archived items', default: false },
+]
+```
+
+---
+
+## Error Types
+
+### FeelrError
+
+Custom error class for all Feelr errors. Throw this from action handlers to return structured error responses that agents can parse and act on.
+
+```typescript
+class FeelrError extends Error {
+  readonly code: ErrorCode
+  readonly hint: Hint
+  readonly status: FeelrHttpStatus
+  readonly detail?: string
+
+  constructor(code: ErrorCode, options: FeelrErrorOptions)
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `code` | `ErrorCode` | Machine-readable error code in `SCREAMING_SNAKE_CASE`. |
+| `hint` | `Hint` | Actionable hint telling agents what to do: `'retry'`, `'auth'`, or `'abort'`. |
+| `status` | `FeelrHttpStatus` | Normalized HTTP status code from the allowed set. |
+| `detail` | `string \| undefined` | Upstream error message or additional context for debugging. |
+
+### ErrorCode
+
+Union type of all valid error codes.
+
+```typescript
+type ErrorCode =
+  | 'CONNECTOR_NOT_FOUND'
+  | 'ACTION_NOT_FOUND'
+  | 'VALIDATION_ERROR'
+  | 'AUTH_REQUIRED'
+  | 'AUTH_INVALID'
+  | 'FORBIDDEN'
+  | 'UPSTREAM_ERROR'
+  | 'UPSTREAM_TIMEOUT'
+  | 'RATE_LIMITED'
+  | 'INTERNAL_ERROR'
+  | 'NOT_FOUND'
+  | 'CREDENTIAL_EXPIRED'
+  | 'ADMIN_AUTH_REQUIRED'
+  | 'ADMIN_AUTH_INVALID'
+  | 'PLAN_QUOTA_EXCEEDED'
+```
+
+**Connector authors typically use:** `NOT_FOUND`, `VALIDATION_ERROR`, `AUTH_REQUIRED`, `AUTH_INVALID`, `RATE_LIMITED`, `UPSTREAM_ERROR`.
+
+The other codes (`CONNECTOR_NOT_FOUND`, `ACTION_NOT_FOUND`, `INTERNAL_ERROR`, `CREDENTIAL_EXPIRED`, `ADMIN_AUTH_*`, `PLAN_QUOTA_EXCEEDED`) are used internally by the gateway.
+
+### Hint
+
+Actionable hint for agents. Tells them what to do about an error.
+
+```typescript
+type Hint = 'retry' | 'auth' | 'abort'
+```
+
+| Hint | Meaning | Agent Action |
+|------|---------|--------------|
+| `'retry'` | Transient failure | Wait and try again. Check `detail` for retry guidance. |
+| `'auth'` | Authentication problem | Re-authenticate and retry. Credential is invalid or expired. |
+| `'abort'` | Permanent failure | Do not retry. The request itself is wrong. |
+
+### FeelrErrorOptions
+
+Options object passed to the `FeelrError` constructor.
+
+```typescript
+interface FeelrErrorOptions {
+  message: string
+  hint: Hint
+  status: FeelrHttpStatus
+  detail?: string
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `message` | `string` | Human-readable error message. |
+| `hint` | `Hint` | Actionable hint for agents. |
+| `status` | `FeelrHttpStatus` | HTTP status code from the normalized set: `400 \| 401 \| 402 \| 403 \| 404 \| 429 \| 500 \| 502`. |
+| `detail` | `string \| undefined` | Upstream error message or additional context. |
+
+### Construction Examples
+
+```typescript
+import { FeelrError } from '@feelr/connector-sdk'
+
+// Resource not found
+throw new FeelrError('NOT_FOUND', {
+  message: 'Task not found',
+  hint: 'abort',
+  status: 404,
+  detail: `No task with ID ${taskId}`,
+})
+
+// Rate limited
+throw new FeelrError('RATE_LIMITED', {
+  message: 'Rate limit exceeded',
+  hint: 'retry',
+  status: 429,
+  detail: 'Retry after 60 seconds',
+})
+
+// Upstream error
+throw new FeelrError('UPSTREAM_ERROR', {
+  message: 'Todoist API returned an error',
+  hint: 'retry',
+  status: 502,
+  detail: upstreamErrorBody,
+})
+
+// Invalid parameters
+throw new FeelrError('VALIDATION_ERROR', {
+  message: 'Invalid project_id format',
+  hint: 'abort',
+  status: 400,
+  detail: 'project_id must be a numeric string',
+})
+```

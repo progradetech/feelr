@@ -3,6 +3,7 @@ export default {
   'getting-started-cli': 'Quick Start (CLI)',
   auth: 'Authentication',
   connectors: 'Connectors',
+  developers: 'Developers',
   'cli-reference': 'CLI Reference',
   '-- Self-Hosting': {
     title: 'Self-Hosting',

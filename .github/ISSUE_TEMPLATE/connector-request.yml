@@ -1,0 +1,57 @@
+name: Connector Request
+description: Request support for a new API service
+title: "[connector]: "
+labels: ["connector-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new connector! Before submitting, please check
+        [existing connector requests](https://github.com/progradetech/feelr/labels/connector-request)
+        to avoid duplicates.
+  - type: input
+    id: api-name
+    attributes:
+      label: API Service Name
+      description: The name of the API you want to connect to
+      placeholder: "e.g., Todoist, OpenWeatherMap, Linear"
+    validations:
+      required: true
+  - type: input
+    id: api-docs-url
+    attributes:
+      label: API Documentation URL
+      description: Link to the official API docs
+      placeholder: "https://developer.example.com/docs"
+    validations:
+      required: true
+  - type: dropdown
+    id: auth-type
+    attributes:
+      label: Authentication Type
+      description: How does the API authenticate requests?
+      options:
+        - API Key
+        - OAuth 2.0
+        - Bearer Token
+        - "No authentication (public API)"
+    validations:
+      required: true
+  - type: textarea
+    id: actions
+    attributes:
+      label: Suggested Actions
+      description: What actions would be most useful? Use dot notation.
+      placeholder: |
+        - tasks.list - List all tasks with pagination
+        - tasks.create - Create a new task
+        - projects.list - List projects
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Why is this connector useful? Any implementation notes?
+    validations:
+      required: false
