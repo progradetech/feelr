@@ -24,3 +24,8 @@ cli/feelr
 
 # Windows artifacts
 *:Zone.Identifier
+
+# Internal planning / strategy
+.planning/
+docs/deployment/
+feelr-strategy.md
