@@ -1,7 +1,0 @@
-#!/command/with-contenv sh
-# s6 service: workerd -- Cloudflare Workers runtime
-#
-# Runs workerd with the Feelr gateway configuration.
-# s6-overlay restarts this service if it exits unexpectedly.
-
-exec workerd serve /etc/feelr/config.capnp 2>&1
