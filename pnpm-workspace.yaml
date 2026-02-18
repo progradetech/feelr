@@ -1,7 +1,4 @@
 packages:
-  # OSS packages (embedded via git subtree at oss/)
-  - 'oss/apps/*'
-  - 'oss/packages/*'
-  - 'oss/connectors/*'
-  # Cloud-only packages
-  - 'cloud/*'
+  - 'apps/*'
+  - 'packages/*'
+  - 'connectors/*'

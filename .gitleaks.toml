@@ -1,0 +1,68 @@
+# .gitleaks.toml - Feelr secret scanning configuration
+# All entries are documented false positives from tests, docs, examples, and planning.
+#
+# Scan results (2026-02-13):
+#   Git history: 29 findings, 0 real secrets
+#   Current HEAD: 183 findings, 0 real secrets
+#   Categories: doc curl examples, test fixtures, planning docs, build caches
+
+[extend]
+useDefault = true
+
+# --- Source file allowlists ---
+
+[[allowlists]]
+description = "Documentation pages with example API keys and curl headers (fk_live_..., fk_live_abc123...)"
+paths = [
+  '''apps/docs/app/docs/''',
+  '''apps/docs/out/''',
+]
+
+[[allowlists]]
+description = "README with example curl command"
+paths = [
+  '''README\.md$''',
+  '''CONTRIBUTING\.md$''',
+]
+
+[[allowlists]]
+description = "Test fixtures with placeholder tokens (ghp_abc123def456)"
+paths = [
+  '''apps/gateway/src/__tests__/''',
+  '''connectors/.*/src/__tests__/''',
+]
+
+[[allowlists]]
+description = "Internal planning and strategy docs with example keys and test values"
+paths = [
+  '''\.planning/''',
+  '''feelr-strategy\.md$''',
+]
+
+# --- Build artifact allowlists (gitignored, but scanned by dir mode) ---
+
+[[allowlists]]
+description = "Next.js build caches and output (gitignored)"
+paths = [
+  '''\.next/''',
+]
+
+[[allowlists]]
+description = "Turbo build and test caches with test-generated API keys (gitignored)"
+paths = [
+  '''\.turbo/''',
+]
+
+[[allowlists]]
+description = "Self-host env template with placeholder tokens"
+paths = [
+  '''self-host/env\.template$''',
+  '''self-host/init\.sh$''',
+]
+
+[[allowlists]]
+description = "CLI help text with example token patterns"
+paths = [
+  '''cli/cmd/auth\.go$''',
+  '''cli/internal/auth/providers\.go$''',
+]

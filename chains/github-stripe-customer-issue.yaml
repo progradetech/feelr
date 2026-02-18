@@ -1,0 +1,40 @@
+name: github-stripe-customer-issue
+description: >-
+  Retrieves a Stripe customer by ID and creates a GitHub issue with the
+  customer details. Useful for escalating billing issues or creating
+  support tickets linked to customer data.
+version: "1.0"
+params:
+  - name: customer_id
+    type: string
+    required: true
+    description: Stripe customer ID (cus_*)
+  - name: repo
+    type: string
+    required: true
+    description: GitHub repository in "owner/repo" format for the issue
+  - name: issue_title
+    type: string
+    required: false
+    description: Custom title for the GitHub issue
+    default: "Customer support request"
+  - name: labels
+    type: string
+    required: false
+    description: Comma-separated labels for the GitHub issue
+    default: "customer,billing"
+retry:
+  max_attempts: 2
+  delay_seconds: 3
+steps:
+  - id: get_customer
+    uses: stripe/customers.get
+    with:
+      id: "${{ params.customer_id }}"
+  - id: create_issue
+    uses: github/issues.create
+    with:
+      repo: "${{ params.repo }}"
+      title: "${{ params.issue_title }} - ${{ steps.get_customer.name ?? steps.get_customer.email }}"
+      body: "Customer: ${{ steps.get_customer.name ?? 'N/A' }}\nEmail: ${{ steps.get_customer.email ?? 'N/A' }}\nStripe ID: ${{ steps.get_customer.id }}\nBalance: ${{ steps.get_customer.balance }}\nCreated: ${{ steps.get_customer.created }}"
+      labels: "${{ params.labels }}"

@@ -1,15 +1,21 @@
 {
-  "name": "feelr-cloud",
+  "name": "feelr",
   "private": true,
   "packageManager": "pnpm@9.15.0",
   "scripts": {
     "build": "turbo run build",
+    "dev": "turbo run dev",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
-    "deploy:staging": "cd cloud/gateway && npx wrangler deploy -c wrangler.cloud.toml --env staging",
-    "deploy:production": "cd cloud/gateway && npx wrangler deploy -c wrangler.cloud.toml --env production"
+    "lint": "turbo run lint",
+    "deploy": "turbo run deploy",
+    "generate-icons": "npx tsx scripts/generate-icons.ts",
+    "create-connector": "node scripts/create-connector.mjs"
   },
   "devDependencies": {
+    "sharp": "^0.34.5",
+    "sharp-ico": "^0.1.5",
+    "smol-toml": "^1.6.0",
     "turbo": "latest"
   }
 }
