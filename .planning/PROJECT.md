@@ -10,7 +10,7 @@ An AI agent can call any supported external API in one line with near-zero conte
 
 ## Current State
 
-**Version:** v1.4.0 Open Core (shipped 2026-02-17)
+**Version:** v1.5.0 CI/CD Stabilization (shipped 2026-02-18)
 **Codebase:** ~21,844 LOC (15,823 TypeScript + 6,021 Go) across 500+ files
 **Tech stack:** Cloudflare Workers + Hono (gateway), Go + Cobra (CLI), Next.js 15.5 (dashboard), Stripe (billing, cloud-only), workerd (self-hosting)
 
@@ -21,7 +21,7 @@ An AI agent can call any supported external API in one line with near-zero conte
 - **staging-api.feelr.dev** — Staging gateway with CF Access protection
 - **staging-app.feelr.dev** — Staging dashboard on separate Azure SWA instance
 - **staging-docs.feelr.dev** — Staging docs on separate Azure SWA instance
-- **CI/CD** — Public repo: 3 workflows (lint, test, sync dispatch). Cloud repo: 5 workflows (sync, gateway, dashboard, docs, release)
+- **CI/CD** — Public repo: 3 workflows (CI quality gates, release, sync dispatch). Cloud repo: 5 workflows (sync, gateway deploy, dashboard deploy, docs deploy, release). End-to-end chain: push to public -> dispatch -> cloud sync -> tag deploy -> production smoke tests
 
 **Repositories:**
 - **progradetech/feelr** — Public, MIT. Gateway, connectors, CLI, self-host, docs. Community contributions welcome.
@@ -42,6 +42,7 @@ An AI agent can call any supported external API in one line with near-zero conte
 - Staging custom domains, Feelr branding (favicons, logos, manifests)
 - Open-core architecture: public OSS + private cloud overlay with git subtree
 - Community contribution infrastructure: scaffolding CLI, SDK test utils, validation CI, developer docs
+- Stabilized CI/CD: public repo CI-only, cloud repo deploys all services, cross-repo dispatch chain verified green
 
 ## Requirements
 
@@ -64,19 +65,16 @@ An AI agent can call any supported external API in one line with near-zero conte
 - ✓ Pluggable billing (BillingProvider interface) — v1.4
 - ✓ Cross-repo CI/CD with auto-sync dispatch — v1.4
 - ✓ Community contribution infrastructure — v1.4
+- ✓ Public repo CI-only (no deploy workflows) — v1.5
+- ✓ Cloud repo lockfile sync and subtree handling — v1.5
+- ✓ Cloud repo deploy workflows for gateway, dashboard, docs — v1.5
+- ✓ Cross-repo dispatch chain (public push → cloud sync) — v1.5
+- ✓ Production deploy via tag push with smoke tests — v1.5
+- ✓ Green GitHub Actions boards on both repos — v1.5
 
 ### Active
 
-**Current Milestone: v1.5 CI/CD Stabilization**
-
-**Goal:** Make the open-core deployment model fully operational — public repo does lint/test/build only, cloud repo handles all deployments, end-to-end pipeline verified green.
-
-**Target features:**
-- Fix public repo workflows to remove deploy jobs (lint/test/build only)
-- Fix cloud repo oss-sync pnpm-lock.yaml path resolution
-- Ensure cloud repo has complete deploy workflows for all 3 services
-- Verify end-to-end deploy chain: public merge → dispatch → cloud sync → build → deploy → smoke test
-- All GitHub Actions green across both repos
+(No active milestone — use `/gsd:new-milestone` to start next)
 
 ### Out of Scope
 
@@ -103,8 +101,10 @@ An AI agent can call any supported external API in one line with near-zero conte
 - Primary audience: solo developers with agents, agent framework builders, AI-powered automation builders
 - Brand: lobster/antennae metaphor — "feelers" that sense API capabilities. Lobster Red (#E85D3A), Antenna Purple (#8B5CF6)
 - Deployment model: fully open-source and self-hostable (minus billing), plus managed cloud at api.feelr.dev with billing enabled
-- v1.4 split into open-core model revealed CI/CD gaps: deploy secrets not on public repo, cloud repo sync broken
-- Deferred: CF analytics tokens, CF token fix verification
+- v1.4 open-core CI/CD gaps fully resolved in v1.5: public repo clean, cloud repo deploys working, cross-repo chain verified
+- Deferred: CF analytics tokens (CF_ANALYTICS_TOKEN_STAGING, CF_ANALYTICS_TOKEN_PRODUCTION) — non-blocking, cosmetic only
+- Deferred: CF token fix verification — operational task
+- Known constraint: squash merge must be disabled on cloud repo (breaks git subtree markers)
 
 ## Constraints
 
@@ -121,11 +121,14 @@ An AI agent can call any supported external API in one line with near-zero conte
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Cloud repo handles all deploys | Public repo should only lint/test/build — it has no deploy secrets and shouldn't need them | — Pending (v1.5) |
+| Cloud repo handles all deploys | Public repo should only lint/test/build — it has no deploy secrets and shouldn't need them | ✓ Good (v1.5) |
+| Separate lockfile commit in sync | Never amend subtree merge commits — preserves git subtree markers for future pulls | ✓ Good (v1.5) |
+| Wrangler alias for cloud-only deps | pnpm strict mode prevents cross-workspace resolution; wrangler [alias] solves without polluting OSS | ✓ Good (v1.5) |
+| SSH clone/push for public repo ops | gh CLI OAuth token lacks write scope on org repos; SSH key works reliably | ✓ Good (v1.5) |
 | Go for CLI (not Rust/Node) | Fast to write, single binary, great CLI ecosystem (Cobra), no runtime deps | ✓ Good |
 | Open-core overlay model (git subtree) | Public repo is the product, private repo is thin cloud overlay | ✓ Good |
 | Cross-repo dispatch via PAT | Public repo sends repository_dispatch to cloud repo on merge | ✓ Good |
 | Provider registry pattern for billing | BillingProvider interface with NoopBillingProvider default | ✓ Good |
 
 ---
-*Last updated: 2026-02-17 after v1.5 milestone started*
+*Last updated: 2026-02-18 after v1.5 milestone*

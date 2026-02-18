@@ -44,3 +44,21 @@
 **Delivered:** Open-core restructuring — public MIT repo for community contributions, private cloud overlay for billing/hosting, dual CI/CD with cross-repo sync, and full community contribution infrastructure.
 
 ---
+
+## v1.5 CI/CD Stabilization (Shipped: 2026-02-18)
+
+**Phases:** 30-32 | **Plans:** 8 | **Tasks:** 15 | **Timeline:** 2 days (2026-02-17 to 2026-02-18)
+**Files modified:** 366 | **Lines changed:** +83,810 / -128
+
+**Delivered:** CI/CD stabilization for the open-core deployment model — stripped deploy workflows from public repo, fixed cloud repo sync and lockfile handling, verified all three service deploy workflows, established cross-repo dispatch chain, and achieved green GitHub Actions boards on both repos.
+
+**Key accomplishments:**
+1. Stripped 3 deploy workflows from public repo — clean CI-only surface (ci.yml + release.yml)
+2. Generated root pnpm-lock.yaml and fixed sync workflow to preserve git subtree markers
+3. Fixed gateway deploy chain with pinned stripe dependency and wrangler esbuild alias
+4. Verified all 3 cloud service deploy workflows (gateway, dashboard, docs) with production smoke tests
+5. Recreated cross-repo dispatch and verified full public-to-cloud sync chain
+6. Cleaned up 54 stale workflow runs — both repos at green-board status
+
+---
+
