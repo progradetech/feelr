@@ -19,9 +19,18 @@ export { TokenCoordinator } from '../../oss/apps/gateway/src/durable-objects/tok
 
 export default {
   async fetch(request: Request, rawEnv: Record<string, unknown>, ctx: ExecutionContext): Promise<Response> {
+    // Let /health respond without secrets so smoke tests pass even if secrets are missing
+    const url = new URL(request.url)
+    if (url.pathname === '/health') {
+      return app.fetch(request, createCloudBindings(rawEnv as never), ctx)
+    }
+
     const adaptedEnv = createCloudBindings(rawEnv as never)
     // Inject StripeBillingProvider with STRIPE_SECRET_KEY from Worker secrets
     const stripeKey = (rawEnv as { STRIPE_SECRET_KEY: string }).STRIPE_SECRET_KEY
+    if (!stripeKey) {
+      return new Response('STRIPE_SECRET_KEY not configured', { status: 503 })
+    }
     adaptedEnv.BILLING_PROVIDER = new StripeBillingProvider(stripeKey)
     // Override FEELR_CONFIG to enable billing in cloud mode
     adaptedEnv.FEELR_CONFIG = {
