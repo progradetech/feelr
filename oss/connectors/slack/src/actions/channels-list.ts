@@ -16,9 +16,9 @@ import { requireCredential } from '../utils'
 export const channelsList: ActionDefinition = {
   name: 'channels.list',
   description:
-    'Lists channels in a Slack workspace with cursor-based pagination. Accepts optional "types" ' +
-    '(default "public_channel", can include "private_channel"), "limit" (default 200, max 1000), ' +
-    '"exclude_archived" (default true). Returns array of {id, name, topic, purpose, num_members, is_archived, is_private, created}.',
+    'Lists channels in a Slack workspace. Accepts optional "types" (default "public_channel"), ' +
+    '"limit" (default 200, max 1000), "exclude_archived" (default true). ' +
+    'Returns array of {id, name, topic, purpose, num_members, is_archived, is_private, created}.',
   params: [
     {
       name: 'types',

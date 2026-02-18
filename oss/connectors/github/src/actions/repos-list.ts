@@ -11,9 +11,9 @@ import { requireCredential } from '../utils'
 export const reposList: ActionDefinition = {
   name: 'repos.list',
   description:
-    'Lists repositories for the authenticated user. Accepts optional "type" (all/owner/public/private/member, ' +
-    'default: all), "sort" (created/updated/pushed/full_name, default: created), "per_page" (max 100). ' +
-    'Returns array of {id, name, full_name, private, description, language, default_branch, stargazers_count}.',
+    'Lists repositories for the authenticated user. Accepts optional "type" (all/owner/public/private/member), ' +
+    '"sort" (created/updated/pushed/full_name), "per_page" (max 100). ' +
+    'Returns array of {id, name, full_name, private, description, language, default_branch}.',
   params: [
     { name: 'type', type: 'string', required: false, description: 'Filter by type: all, owner, public, private, or member', default: 'all' },
     { name: 'sort', type: 'string', required: false, description: 'Sort by: created, updated, pushed, or full_name', default: 'created' },

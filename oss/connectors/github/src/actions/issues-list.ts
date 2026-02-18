@@ -13,10 +13,9 @@ import { requireCredential, parseRepo } from '../utils'
 export const issuesList: ActionDefinition = {
   name: 'issues.list',
   description:
-    'Lists issues for a repository (excludes pull requests). Accepts "repo" (required, "owner/repo"), ' +
-    'optional "state" (open/closed/all, default: open), "labels" (comma-separated), ' +
-    '"sort" (created/updated/comments), "per_page" (max 100). ' +
-    'Returns array of {id, number, state, title, user_login, labels, created_at}.',
+    'Lists issues for a repository (excludes PRs). Accepts "repo" (required, "owner/repo"), ' +
+    'optional "state" (open/closed/all), "labels" (comma-separated), "sort" (created/updated/comments), ' +
+    '"per_page" (max 100). Returns array of {id, number, state, title, user_login, labels}.',
   params: [
     { name: 'repo', type: 'string', required: true, description: 'Repository in "owner/repo" format' },
     { name: 'state', type: 'string', required: false, description: 'Filter by state: open, closed, or all', default: 'open' },

@@ -16,10 +16,9 @@ import { requireCredential } from '../utils'
 export const paymentsList: ActionDefinition = {
   name: 'payments.list',
   description:
-    'Lists payment intents from Stripe. Accepts optional "limit" (number, default 10, max 100), ' +
-    '"customer" (customer ID to filter by), "status" (requires_payment_method/requires_confirmation/' +
-    'succeeded/canceled). Returns array of {id, amount, currency, status, description, customer, ' +
-    'created, payment_method_types, latest_charge}.',
+    'Lists payment intents from Stripe. Accepts optional "limit" (default 10, max 100), ' +
+    '"customer" (filter by ID), "status" (requires_payment_method/succeeded/canceled). ' +
+    'Returns array of {id, amount, currency, status, description, customer, created}.',
   params: [
     {
       name: 'limit',

@@ -16,10 +16,9 @@ import { requireCredential, requireParam } from '../utils'
 export const invoicesCreate: ActionDefinition = {
   name: 'invoices.create',
   description:
-    'Creates a new invoice in Stripe. Accepts "customer" (required, customer ID cus_*), ' +
-    'optional "description" (string), optional "auto_advance" (boolean, default true -- ' +
-    'whether to auto-finalize). Returns the created invoice as {id, customer, status, total, ' +
-    'currency, due_date, created, paid, hosted_invoice_url, number}.',
+    'Creates a new invoice in Stripe. Accepts "customer" (required, cus_*), optional "description", ' +
+    'optional "auto_advance" (boolean, default true). Returns the created invoice as ' +
+    '{id, customer, status, total, currency, due_date, created, paid, hosted_invoice_url}.',
   params: [
     {
       name: 'customer',
