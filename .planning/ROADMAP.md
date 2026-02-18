@@ -54,12 +54,12 @@ Plans:
   3. Pushing a tag on cloud repo triggers all 3 service deploys to production and smoke tests pass
   4. GitHub Actions tab on public repo shows all workflows green (no failed or stale runs)
   5. GitHub Actions tab on cloud repo shows all workflows green (no failed or stale runs)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 32-01: Verify dispatch and sync chain (public merge triggers cloud sync)
-- [ ] 32-02: Verify tag-triggered production deploy with smoke tests
-- [ ] 32-03: Clean up stale workflow runs and confirm green boards on both repos
+- [ ] 32-01-PLAN.md -- Recreate dispatch workflow and verify public-to-cloud sync chain
+- [ ] 32-02-PLAN.md -- Verify tag-triggered production deploy with smoke tests
+- [ ] 32-03-PLAN.md -- Clean up stale workflow runs and confirm green boards on both repos
 
 ## Progress
 
