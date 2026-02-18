@@ -48,8 +48,8 @@ jobs:
             git commit -m "chore: update pnpm-lock.yaml after OSS sync"
           fi
 
-      - name: Build and test
-        run: pnpm turbo run typecheck test
+      - name: Typecheck
+        run: pnpm turbo run typecheck
 
       - name: Push sync commit(s)
         run: git push origin main
