@@ -40,9 +40,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 31-01-PLAN.md -- Pin stripe dependency and validate gateway wrangler build chain
-- [ ] 31-02-PLAN.md -- Fix root turbo.json and verify dashboard SWA deploy workflow
-- [ ] 31-03-PLAN.md -- Verify docs SWA deploy workflow
+- [x] 31-01-PLAN.md -- Pin stripe dependency and validate gateway wrangler build chain
+- [x] 31-02-PLAN.md -- Fix root turbo.json and verify dashboard SWA deploy workflow
+- [x] 31-03-PLAN.md -- Verify docs SWA deploy workflow
 
 ### Phase 32: End-to-End Chain Verification
 **Goal**: The full public-merge-to-production-deploy chain works and both repos show green
@@ -68,5 +68,5 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 30. Pipeline Foundations | v1.5 | 2/2 | Complete | 2026-02-17 |
-| 31. Cloud Deploy Workflows | v1.5 | 0/3 | Not started | - |
+| 31. Cloud Deploy Workflows | v1.5 | 3/3 | Complete | 2026-02-18 |
 | 32. End-to-End Chain Verification | v1.5 | 0/3 | Not started | - |
