@@ -127,7 +127,7 @@ v1.all('/:connector/:action', async (c) => {
   try {
     result = await action.handler({
       params: actionParams,
-      fetch: fetch,
+      fetch: (input, init) => fetch(input, init),
       credential,
       cursor,
     })
