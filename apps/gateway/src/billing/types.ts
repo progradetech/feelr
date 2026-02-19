@@ -22,14 +22,14 @@ export interface PlanLimits {
 /**
  * Monthly limits and rate tiers for each billing plan.
  *
- * - hatchling (Free):  1,000 calls/mo, 30 req/min
- * - lobster (Pro):    50,000 calls/mo, 300 req/min
- * - leviathan (Team): 500,000 calls/mo, 3,000 req/min
+ * - hatchling (Free):      1,000 calls/mo, 30 req/min
+ * - lobster ($29/mo):    100,000 calls/mo, 300 req/min
+ * - leviathan ($149/mo): 10,000,000 calls/mo, 3,000 req/min
  */
 export const PLAN_LIMITS: Record<BillingPlan, PlanLimits> = {
   hatchling: { api_calls_per_month: 1_000, rate_limit_tier: 'free' },
-  lobster: { api_calls_per_month: 50_000, rate_limit_tier: 'pro' },
-  leviathan: { api_calls_per_month: 500_000, rate_limit_tier: 'enterprise' },
+  lobster: { api_calls_per_month: 100_000, rate_limit_tier: 'pro' },
+  leviathan: { api_calls_per_month: 10_000_000, rate_limit_tier: 'enterprise' },
 }
 
 /** Maps billing plan names to existing RateLimitTier values */
