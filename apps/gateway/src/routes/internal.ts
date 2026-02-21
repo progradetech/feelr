@@ -6,6 +6,7 @@
  * - /overview: Key counts, connected services, recent usage sparkline
  * - /usage: Time-bucketed usage data with filtering
  * - /rate-limits: Per-key rate limit status (tier, limit, usage, throttle count)
+ * - /billing: Billing status (plan, quota, mode) for billing display
  *
  * Data sources: AUTH_KV (keys/credentials), USAGE_DB D1 (usage analytics).
  */
@@ -17,6 +18,8 @@ import { listCredentials } from '../auth/credentials'
 import type { ApiKeyRecord } from '../auth/types'
 import { TIER_LIMITS } from '../auth/types'
 import type { UsageDatabase } from '../runtime/interfaces'
+import { PLAN_LIMITS } from '../billing/types'
+import type { BillingPlan } from '../billing/types'
 
 const internal = new Hono<AppEnv>()
 
@@ -175,6 +178,65 @@ internal.get('/rate-limits', async (c) => {
   return c.json({
     ok: true,
     data,
+  })
+})
+
+/**
+ * GET /billing
+ *
+ * Returns billing status for the dashboard:
+ * - mode: 'cloud' or 'self-hosted'
+ * - plan: Billing plan name (hatchling/lobster/leviathan) or null for self-hosted
+ * - quota_limit: Monthly API call limit or null for self-hosted
+ * - stripe_customer_id: Stripe customer ID or null
+ */
+internal.get('/billing', async (c) => {
+  const mode = c.env.FEELR_CONFIG?.billing?.enabled ? 'cloud' : 'self-hosted'
+
+  if (mode === 'self-hosted') {
+    return c.json({
+      ok: true,
+      data: {
+        mode: 'self-hosted',
+        plan: null,
+        quota_limit: null,
+        stripe_customer_id: null,
+      },
+    })
+  }
+
+  // Cloud mode: read first API key record to get billing fields (single-user model)
+  const keysList = await c.env.AUTH_KV.list({ prefix: 'apikey:' })
+
+  let plan: BillingPlan = 'hatchling'
+  let quotaLimit = PLAN_LIMITS.hatchling.api_calls_per_month
+  let stripeCustomerId: string | null = null
+
+  if (keysList.keys.length > 0) {
+    const raw = await c.env.AUTH_KV.get(keysList.keys[0].name)
+    if (raw) {
+      try {
+        const record = JSON.parse(raw) as ApiKeyRecord & {
+          plan?: BillingPlan
+          quotaLimit?: number
+        }
+        plan = record.plan ?? 'hatchling'
+        quotaLimit = record.quotaLimit ?? PLAN_LIMITS[plan].api_calls_per_month
+        stripeCustomerId = record.stripeCustomerId ?? null
+      } catch {
+        // Parse error -- use defaults
+      }
+    }
+  }
+
+  return c.json({
+    ok: true,
+    data: {
+      mode: 'cloud',
+      plan,
+      quota_limit: quotaLimit,
+      stripe_customer_id: stripeCustomerId,
+    },
   })
 })
 

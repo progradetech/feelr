@@ -25,6 +25,7 @@ import type { AppEnv } from '../lib/types'
 import { FeelrError } from '../lib/errors'
 import { NoopBillingProvider } from './provider'
 import type { BillingProvider } from './provider'
+import { PLAN_LIMITS } from './types'
 import type { CustomerBilling } from './types'
 
 /**
@@ -52,6 +53,32 @@ export function billingMiddleware() {
     }
 
     const apiKeyShort = apiKeyRecord.shortToken
+
+    // Lazy migration: create Stripe customer for legacy keys missing stripeCustomerId
+    if (!apiKeyRecord.stripeCustomerId && c.env.FEELR_CONFIG?.billing?.enabled) {
+      try {
+        const customerId = await provider.createCustomer(apiKeyShort)
+        // Update apiKeyRecord in KV with billing fields
+        const updatedRecord = {
+          ...apiKeyRecord,
+          stripeCustomerId: customerId,
+          plan: 'hatchling' as const,
+          quotaLimit: PLAN_LIMITS.hatchling.api_calls_per_month,
+        }
+        await c.env.AUTH_KV.put(`apikey:${apiKeyShort}`, JSON.stringify(updatedRecord))
+        // Write reverse lookup for webhook handlers
+        await c.env.AUTH_KV.put(`customer:${customerId}`, apiKeyShort)
+        // Update the context variable so downstream middleware sees the updated record
+        c.set('apiKeyRecord', updatedRecord as typeof apiKeyRecord)
+      } catch {
+        // Per user decision: if Stripe is down during lazy migration, the API request fails
+        throw new FeelrError('INTERNAL_ERROR', {
+          message: 'Billing service temporarily unavailable. Please retry.',
+          hint: 'retry',
+          status: 502,
+        })
+      }
+    }
 
     // Enforce quota
     const result = await provider.enforceQuota(
