@@ -17,7 +17,8 @@
  * 3. Check apiKeyRecord -- short-circuit if missing
  * 4. Call provider.enforceQuota() -- deny with 402 if over quota
  * 5. Call next() -- process the request
- * 6. Call provider.recordUsage() via waitUntil -- best-effort, non-blocking
+ * 6. Inject X-Feelr-Quota-Limit, X-Feelr-Quota-Remaining, X-Feelr-Quota-Reset, X-Feelr-Plan headers
+ * 7. Call provider.recordUsage() via waitUntil -- best-effort, non-blocking (success only)
  */
 
 import { createMiddleware } from 'hono/factory'
@@ -26,7 +27,7 @@ import { FeelrError } from '../lib/errors'
 import { NoopBillingProvider } from './provider'
 import type { BillingProvider } from './provider'
 import { PLAN_LIMITS } from './types'
-import type { CustomerBilling } from './types'
+import type { BillingPlan, CustomerBilling } from './types'
 
 /**
  * Billing middleware factory.
@@ -94,24 +95,46 @@ export function billingMiddleware() {
       })
     }
 
-    // Proceed with the request
-    await next()
+    // Proceed with the request, injecting quota headers in finally block
+    let nextError: unknown = undefined
+    try {
+      await next()
+    } catch (e) {
+      nextError = e
+    } finally {
+      // Read billing state once -- used for both headers and usage recording
+      const billing = await c.env.AUTH_KV.get<CustomerBilling>(
+        `billing:${apiKeyShort}`,
+        'json',
+      )
 
-    // After successful response: record usage (best-effort, non-blocking)
-    const billing = await c.env.AUTH_KV.get<CustomerBilling>(
-      `billing:${apiKeyShort}`,
-      'json',
-    )
-    const customerId = billing?.stripeCustomerId ?? apiKeyRecord.stripeCustomerId
+      // Inject quota headers (always, even on error paths)
+      const plan: BillingPlan = billing?.plan ?? 'hatchling'
+      const limits = PLAN_LIMITS[plan]
+      const used = billing?.currentMonthUsage ?? 0
+      c.header('X-Feelr-Quota-Limit', String(limits.api_calls_per_month))
+      c.header('X-Feelr-Quota-Remaining', String(Math.max(0, limits.api_calls_per_month - used)))
+      c.header('X-Feelr-Plan', plan)
+      if (billing?.billingCycleStart) {
+        const resetDate = new Date(billing.billingCycleStart)
+        resetDate.setMonth(resetDate.getMonth() + 1)
+        c.header('X-Feelr-Quota-Reset', resetDate.toISOString())
+      }
 
-    c.executionCtx.waitUntil(
-      provider
-        .recordUsage(apiKeyShort, billing, customerId, async (key, value) => {
-          await c.env.AUTH_KV.put(key, value)
-        })
-        .catch(() => {
-          // Best-effort: silently swallow errors
-        }),
-    )
+      // Record usage only on success (best-effort, non-blocking)
+      if (!nextError) {
+        const customerId = billing?.stripeCustomerId ?? apiKeyRecord.stripeCustomerId
+        c.executionCtx.waitUntil(
+          provider
+            .recordUsage(apiKeyShort, billing, customerId, async (key, value) => {
+              await c.env.AUTH_KV.put(key, value)
+            })
+            .catch(() => {
+              // Best-effort: silently swallow errors
+            }),
+        )
+      }
+    }
+    if (nextError) throw nextError
   })
 }
