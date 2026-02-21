@@ -2,6 +2,7 @@
 
 import { Key, Plug, Activity } from 'lucide-react';
 import { useOverview } from '@/lib/hooks/use-overview';
+import { BillingStatus } from '@/components/billing-status';
 import dynamic from 'next/dynamic';
 import type { OverviewData } from '@/lib/types';
 
@@ -59,6 +60,11 @@ export default function OverviewPage() {
         <p className="mt-1 text-sm text-zinc-400">
           Dashboard summary of your Feelr gateway.
         </p>
+      </div>
+
+      {/* Billing status */}
+      <div className="mb-6">
+        <BillingStatus />
       </div>
 
       {/* Error state */}
