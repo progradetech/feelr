@@ -110,15 +110,20 @@ export class StripeBillingProvider implements BillingProvider {
     }
 
     // Increment cached usage count in KV (best-effort)
-    if (billing) {
-      const updatedBilling: CustomerBilling = {
-        ...billing,
-        currentMonthUsage: billing.currentMonthUsage + 1,
-      }
-      await kvPut(
-        `billing:${apiKeyShort}`,
-        JSON.stringify(updatedBilling),
-      ).catch(() => {})
+    // Seed the record if it doesn't exist yet (e.g. hatchling with no subscription)
+    const baseBilling: CustomerBilling = billing ?? {
+      stripeCustomerId: customerId ?? '',
+      plan: 'hatchling',
+      currentMonthUsage: 0,
+      billingCycleStart: new Date().toISOString(),
     }
+    const updatedBilling: CustomerBilling = {
+      ...baseBilling,
+      currentMonthUsage: baseBilling.currentMonthUsage + 1,
+    }
+    await kvPut(
+      `billing:${apiKeyShort}`,
+      JSON.stringify(updatedBilling),
+    ).catch(() => {})
   }
 }
