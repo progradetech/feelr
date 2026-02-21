@@ -53,6 +53,14 @@ export interface ChainHistoryEntry {
   }>;
 }
 
+// Billing status types (from /internal/billing)
+export interface BillingData {
+  mode: 'cloud' | 'self-hosted';
+  plan: string | null;
+  quota_limit: number | null;
+  stripe_customer_id: string | null;
+}
+
 // Gateway envelope
 export interface GatewayResponse<T> {
   ok: boolean;
