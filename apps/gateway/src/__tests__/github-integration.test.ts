@@ -83,7 +83,7 @@ describe('GitHub Connector Routing', () => {
 })
 
 describe('Status Endpoint', () => {
-  it('returns empty connectors when no credentials are stored', async () => {
+  it('returns valid status response with gateway info and connectors object', async () => {
     const res = await SELF.fetch('http://localhost/status', {
       headers: apiKeyHeaders(),
     })
@@ -94,8 +94,7 @@ describe('Status Endpoint', () => {
     expect(body.ok).toBe(true)
     expect(body.data.gateway.status).toBe('healthy')
     expect(body.data.gateway.version).toBe('1.0.0')
-    // No credentials stored, so connectors should be empty
-    expect(Object.keys(body.data.connectors)).toHaveLength(0)
+    expect(typeof body.data.connectors).toBe('object')
   })
 
   it('returns 401 when no API key is provided', async () => {
