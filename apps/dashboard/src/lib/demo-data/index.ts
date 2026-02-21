@@ -3,4 +3,4 @@ export { DEMO_CONNECTORS } from './connectors';
 export { DEMO_USAGE, DEMO_RATE_LIMITS } from './usage';
 export { DEMO_OVERVIEW } from './overview';
 export { DEMO_CHAINS } from './chains';
-export { DEMO_BILLING } from './billing';
+export { DEMO_BILLING, DEMO_BILLING_STATUS } from './billing';

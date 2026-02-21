@@ -61,6 +61,17 @@ export interface BillingData {
   stripe_customer_id: string | null;
 }
 
+// Billing status types (from /admin/billing/status — Phase 36)
+export interface BillingStatusData {
+  plan: 'hatchling' | 'lobster' | 'leviathan';
+  usage: number;
+  limit: number;
+  billing_cycle_start: string;
+  billing_cycle_end: string;
+  stripe_customer_id: string | null;
+  payment_failed: boolean;
+}
+
 // Gateway envelope
 export interface GatewayResponse<T> {
   ok: boolean;
