@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { CreditCard } from 'lucide-react';
 import { useBilling } from '@/lib/hooks/use-billing';
 
@@ -36,29 +37,32 @@ export function BillingStatus() {
     : 'Unknown';
   const isHatchling = data.plan === 'hatchling';
 
+  // Cloud mode -- clickable, links to billing page
   return (
-    <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900 p-5">
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-zinc-800">
-          <CreditCard className="h-5 w-5 text-zinc-300" />
-        </div>
-        <div>
-          <p className="text-sm text-zinc-400">Current Plan</p>
-          <div className="flex items-center gap-2">
-            <p className="text-lg font-bold text-white">{planName}</p>
-            {isHatchling && (
-              <span className="rounded-full bg-emerald-900/30 px-2 py-0.5 text-xs text-emerald-400">
-                Free
-              </span>
-            )}
+    <Link href="/billing" className="block">
+      <div className="flex cursor-pointer items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900 p-5 transition-colors hover:border-zinc-700">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-zinc-800">
+            <CreditCard className="h-5 w-5 text-zinc-300" />
+          </div>
+          <div>
+            <p className="text-sm text-zinc-400">Current Plan</p>
+            <div className="flex items-center gap-2">
+              <p className="text-lg font-bold text-white">{planName}</p>
+              {isHatchling && (
+                <span className="rounded-full bg-emerald-900/30 px-2 py-0.5 text-xs text-emerald-400">
+                  Free
+                </span>
+              )}
+            </div>
           </div>
         </div>
+        {data.quota_limit !== null && (
+          <p className="text-sm text-zinc-400">
+            {data.quota_limit.toLocaleString()} requests/mo
+          </p>
+        )}
       </div>
-      {data.quota_limit !== null && (
-        <p className="text-sm text-zinc-400">
-          {data.quota_limit.toLocaleString()} requests/mo
-        </p>
-      )}
-    </div>
+    </Link>
   );
 }

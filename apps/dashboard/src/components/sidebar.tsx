@@ -8,9 +8,11 @@ import {
   Plug,
   BarChart3,
   LogOut,
+  CreditCard,
 } from 'lucide-react';
 import { clearAdminToken } from '@/lib/auth';
 import { useDemo } from '@/lib/demo-context';
+import { useBilling } from '@/lib/hooks/use-billing';
 
 const navItems = [
   { label: 'Overview', href: '/overview', icon: LayoutDashboard },
@@ -23,6 +25,8 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { isDemo, exitDemo } = useDemo();
+  const { data: billingData } = useBilling();
+  const isSelfHosted = billingData?.mode === 'self-hosted';
 
   function handleLogout() {
     if (isDemo) {
@@ -70,6 +74,26 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Settings section -- hidden in self-hosted mode */}
+      {!isSelfHosted && (
+        <div className="border-t border-zinc-800 px-3 py-2">
+          <p className="mb-1 px-3 text-[11px] font-medium uppercase tracking-wider text-zinc-600">
+            Settings
+          </p>
+          <Link
+            href="/billing"
+            className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              pathname.startsWith('/billing')
+                ? 'bg-zinc-800 text-white'
+                : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'
+            }`}
+          >
+            <CreditCard className="h-4 w-4" />
+            Billing
+          </Link>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="border-t border-zinc-800 p-3">
