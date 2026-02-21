@@ -20,6 +20,7 @@ type Config struct {
 // Load reads configuration for the given profile from ~/.feelr/config.toml
 // with environment variable overrides. Environment variables take precedence
 // over config file values:
+//   - FEELR_PROFILE selects the config profile (default: "default")
 //   - FEELR_API_KEY overrides api_key
 //   - FEELR_GATEWAY overrides gateway
 func Load(profile string) (*Config, error) {

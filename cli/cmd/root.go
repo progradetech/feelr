@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"os"
 
 	"github.com/andrewprograde/feelr/cli/internal/client"
 	"github.com/andrewprograde/feelr/cli/internal/update"
@@ -35,7 +36,11 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	// Global persistent flags available to all subcommands.
-	rootCmd.PersistentFlags().StringP("profile", "p", "default", "Named config profile to use")
+	profileDefault := "default"
+	if env := os.Getenv("FEELR_PROFILE"); env != "" {
+		profileDefault = env
+	}
+	rootCmd.PersistentFlags().StringP("profile", "p", profileDefault, "Named config profile to use (env: FEELR_PROFILE)")
 	rootCmd.PersistentFlags().StringP("format", "f", "json", "Output format: json, minimal, table")
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Show full response envelope")
 	rootCmd.PersistentFlags().Bool("dry-run", false, "Show HTTP request without executing")
