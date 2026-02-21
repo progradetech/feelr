@@ -52,4 +52,6 @@ export interface CustomerBilling {
   currentMonthUsage: number
   /** ISO 8601 timestamp of current billing cycle start */
   billingCycleStart: string
+  /** Set to true when invoice.payment_failed fires; cleared on successful payment */
+  paymentFailed?: boolean
 }
