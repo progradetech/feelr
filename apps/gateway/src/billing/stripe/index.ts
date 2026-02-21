@@ -72,6 +72,27 @@ export class StripeBillingProvider implements BillingProvider {
   }
 
   /**
+   * Create a Stripe customer for an API key.
+   *
+   * Called during key creation (cloud gateway) and lazy migration
+   * (billing middleware). Metadata includes only the API key ID --
+   * email is collected later during Stripe Checkout on upgrade.
+   *
+   * @param shortToken - Short token identifying the API key
+   * @param metadata - Optional additional metadata for the Stripe customer
+   * @returns Stripe customer ID (cus_xxx)
+   */
+  async createCustomer(
+    shortToken: string,
+    metadata?: Record<string, string>,
+  ): Promise<string> {
+    const customer = await this.stripe.customers.create({
+      metadata: { api_key_id: shortToken, ...metadata },
+    })
+    return customer.id
+  }
+
+  /**
    * Record a successful API call for billing purposes.
    *
    * Fires a Stripe meter event (if customerId available) and increments

@@ -68,6 +68,19 @@ export interface BillingProvider {
     customerId: string | undefined,
     kvPut: (key: string, value: string) => Promise<void>,
   ): Promise<void>
+
+  /**
+   * Create a Stripe customer for an API key.
+   * Used during key creation (cloud) and lazy migration (legacy keys).
+   *
+   * @param shortToken - Short token identifying the API key
+   * @param metadata - Optional additional metadata for the Stripe customer
+   * @returns Stripe customer ID (cus_xxx)
+   */
+  createCustomer(
+    shortToken: string,
+    metadata?: Record<string, string>,
+  ): Promise<string>
 }
 
 // ---------------------------------------------------------------------------
@@ -85,5 +98,9 @@ export class NoopBillingProvider implements BillingProvider {
 
   async recordUsage(): Promise<void> {
     // Intentionally empty -- no billing in self-hosted mode
+  }
+
+  async createCustomer(): Promise<string> {
+    return 'noop_customer'
   }
 }
