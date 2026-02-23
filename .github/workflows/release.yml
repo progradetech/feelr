@@ -1,9 +1,13 @@
+# CLI releases are triggered by feelr-cloud tagging, which runs
+# GoReleaser against this repo (progradetech/feelr).
+#
+# This workflow is manual-only to prevent double GoReleaser runs
+# when the cloud-created tag triggers a second release attempt,
+# causing "asset already_exists" 422 errors.
 name: Release
 
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_dispatch: {}
 
 permissions:
   contents: write
